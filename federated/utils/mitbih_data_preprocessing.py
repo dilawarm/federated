@@ -55,7 +55,7 @@ def _preprocess_dataframe(df):
 def load_data(centralized=False):
     """
     Function loads data from csv-file
-    and preprocesses the training and test data seperatly.
+    and preprocesses the training and test data seperately.
     Returns a tuple of tff.simulation.ClientData
     """
     train_df = pd.read_csv("../../data/mitbih/mitbih_train.csv", header=None)
