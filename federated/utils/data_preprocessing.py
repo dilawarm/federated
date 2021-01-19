@@ -45,21 +45,3 @@ def load_data():
     test_X, test_y = _preprocess_dataframe(test_df)
 
     return create_dataset(train_X, train_y), create_dataset(test_X, test_y)
-
-
-if __name__ == "__main__":
-    train_data, test_data = load_data()
-    print(train_data.element_type_structure)
-    print(test_data.element_type_structure)
-
-    train_example = train_data.create_tf_dataset_for_client(train_data.client_ids[0])
-    test_example = test_data.create_tf_dataset_for_client(test_data.client_ids[0])
-
-    train_element = next(iter(train_example))
-    test_element = next(iter(test_example))
-
-    print(train_element["label"].numpy())
-    print(test_element["label"].numpy())
-
-    print(train_element["datapoint"].numpy())
-    print(test_element["datapoint"].numpy())
