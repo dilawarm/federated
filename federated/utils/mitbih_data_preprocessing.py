@@ -6,6 +6,10 @@ import tensorflow_federated as tff
 import numpy as np
 import collections
 
+from sklearn.utils import resample
+
+SAMPLES = 20_000
+
 
 def _preprocess_dataframe(df):
     """
@@ -13,8 +17,6 @@ def _preprocess_dataframe(df):
     Returns tuple: dataframe without label, labels
 
     """
-
-    df[187] = df[187].astype(int)
     label = df[df.columns[-1]]
     df.drop(df.columns[-1], axis=1, inplace=True)
     return df, label
@@ -50,7 +52,7 @@ def _preprocess_dataframe(df):
     return df, target
 
 
-def load_data():
+def load_data(centralized=False):
     """
     Function loads data from csv-file
     and preprocesses the training and test data seperatly.
@@ -63,6 +65,23 @@ def load_data():
         train_df[187].astype(int),
         test_df[187].astype(int),
     )
+
+    if centralized:
+        # From the data analysis, we can see that the normal heartbeats are over represented in the dataset
+        df_0 = (train_df[train_df[187] == 0]).sample(n=SAMPLES, random_state=42)
+        train_df = pd.concat(
+            [df_0]
+            + [
+                resample(
+                    train_df[train_df[187] == i],
+                    replace=True,
+                    n_samples=SAMPLES,
+                    random_state=int(f"12{i+2}"),
+                )
+                for i in range(1, 5)
+            ]
+        )
+        print(train_df[187].value_counts())
 
     train_X, train_y = _preprocess_dataframe(train_df)
     test_X, test_y = _preprocess_dataframe(test_df)
