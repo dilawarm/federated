@@ -97,7 +97,7 @@ def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
         tff.SequenceType(
             collections.OrderedDict(
                 label=tff.TensorType(tf.int64),
-                datapoints=tff.TensorType(tf.float64, shape=(186,)),
+                datapoints=tff.TensorType(tf.float64, shape=(187,)),
             )
         )
     )
@@ -144,4 +144,5 @@ def get_centralized_datasets(
     return train_preprocess(train_dataset) #, test_preprocess(test_dataset)
 
 if __name__ == "__main__":
-    get_centralized_datasets()
+    train_data, test_data = load_data()
+    train_dat
