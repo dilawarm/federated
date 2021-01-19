@@ -27,7 +27,7 @@ def create_dataset(X, y):
     Function converts pandas dataframe to tensorflow federated.
     Returns dataset of type tff.simulation.ClientData
     """
-    num_of_clients = len(y)
+    num_of_clients = 10
     total_ecg_count = len(X)
     ecgs_per_set = int(np.floor(total_ecg_count / num_of_clients))
 
@@ -81,7 +81,6 @@ def load_data(centralized=False):
                 for i in range(1, 5)
             ]
         )
-        print(train_df[187].value_counts())
 
     train_X, train_y = _preprocess_dataframe(train_df)
     test_X, test_y = _preprocess_dataframe(test_df)
@@ -90,18 +89,28 @@ def load_data(centralized=False):
 
 
 def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
+    """
+    Function returns a function for preprocessing of a dataset
+    """
     def _reshape(element):
+        """
+        Function returns reshaped tensors
+        """
+
         return (tf.expand_dims(element["datapoints"], axis=-1), element["label"])
 
     @tff.tf_computation(
         tff.SequenceType(
             collections.OrderedDict(
                 label=tff.TensorType(tf.int64),
-                datapoints=tff.TensorType(tf.float64, shape=(186,)),
+                datapoints=tff.TensorType(tf.float64, shape=(187,)),
             )
         )
     )
     def preprocess(dataset):
+        """
+        Function returns shuffled dataset
+        """
         return (
             dataset.shuffle(shuffle_buffer_size)
             .repeat(epochs)
@@ -119,29 +128,27 @@ def get_centralized_datasets(
     test_shuffle_buffer_size=1,
     epochs=1,
 ):
+
+    """
+    Function preprocesses datasets.
+    Return input-ready datasets 
+    """
     train_dataset, test_dataset = load_data()
     train_dataset, test_dataset = (
         train_dataset.create_tf_dataset_from_all_clients(),
         test_dataset.create_tf_dataset_from_all_clients(),
     )
-    print("1")
 
     train_preprocess = preprocess_dataset(
         epochs=epochs,
         batch_size=train_batch_size,
         shuffle_buffer_size=train_shuffle_buffer_size,
     )
-    print("2")
 
-    """
-    test_preprocess = preprocess(
+    test_preprocess = preprocess_dataset(
         epochs=epochs,
         batch_size=test_batch_size,
         shuffle_buffer_size=test_shuffle_buffer_size,
     )
-    """
 
-    return train_preprocess(train_dataset) #, test_preprocess(test_dataset)
-
-if __name__ == "__main__":
-    get_centralized_datasets()
+    return train_preprocess(train_dataset), test_preprocess(test_dataset)
