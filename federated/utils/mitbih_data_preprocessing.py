@@ -38,7 +38,7 @@ def create_dataset(X, y):
         end = ecgs_per_set * i
 
         data = collections.OrderedDict(
-            (("label", y[start:end]), ("datapoint", X[start:end]))
+            (("label", y[start:end]), ("datapoints", X[start:end]))
         )
         client_dataset[name_of_client] = data
 
@@ -88,29 +88,60 @@ def load_data(centralized=False):
 
     return create_dataset(train_X, train_y), create_dataset(test_X, test_y)
 
-    
-def preprocess(dataset):
-  def batch_format_fn(element):
-    """ Flatten a batch `pixels` and return the features as an `OrderedDict`."""
-    return collections.OrderedDict(
-        x = tf.reshape(element['datapoint'], [-1,187]),
-        y = tf.reshape(element['label'], [-1,1]))
-  return dataset.repeat(NUM_OF_EPOCHS).shuffle(SHUFFLE_BUFFER).batch(
-      BATCH_SIZE).map(batch_format_fn).prefetch(PREFETCH_BUFFER)
-      
 
+def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
+    def _reshape(element):
+        return (tf.expand_dims(element["datapoints"], axis=-1), element["label"])
 
-    def get_centralized_datasets(
-        train_batch_size = 20,
-        test_batch_size = 500,
-        train_shuffle_buffer = 10000,
-        test_shuffle_buffer = 1,
-        num_of_epochs = 1,
-        prefetch_buffer = 10
-
+    @tff.tf_computation(
+        tff.SequenceType(
+            collections.OrderedDict(
+                label=tff.TensorType(tf.int64),
+                datapoints=tff.TensorType(tf.float64, shape=(186,)),
+            )
+        )
     )
+    def preprocess(dataset):
+        return (
+            dataset.shuffle(shuffle_buffer_size)
+            .repeat(epochs)
+            .batch(batch_size, drop_remainder=False)
+            .map(_reshape, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        )
 
-        train_dataset, test_dataset = load_data()
-        train_dataset, test_dataset = train_dataset.create_tf_dataset_from_all_clients(), test_dataset.create_tf_dataset_from_all_clients()
-        
-        train_preprocess_fn = create_preprocess_fn
+    return preprocess
+
+
+def get_centralized_datasets(
+    train_batch_size=2,
+    test_batch_size=5,
+    train_shuffle_buffer_size=10,
+    test_shuffle_buffer_size=1,
+    epochs=1,
+):
+    train_dataset, test_dataset = load_data()
+    train_dataset, test_dataset = (
+        train_dataset.create_tf_dataset_from_all_clients(),
+        test_dataset.create_tf_dataset_from_all_clients(),
+    )
+    print("1")
+
+    train_preprocess = preprocess_dataset(
+        epochs=epochs,
+        batch_size=train_batch_size,
+        shuffle_buffer_size=train_shuffle_buffer_size,
+    )
+    print("2")
+
+    """
+    test_preprocess = preprocess(
+        epochs=epochs,
+        batch_size=test_batch_size,
+        shuffle_buffer_size=test_shuffle_buffer_size,
+    )
+    """
+
+    return train_preprocess(train_dataset) #, test_preprocess(test_dataset)
+
+if __name__ == "__main__":
+    get_centralized_datasets()
