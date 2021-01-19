@@ -87,3 +87,30 @@ def load_data(centralized=False):
     test_X, test_y = _preprocess_dataframe(test_df)
 
     return create_dataset(train_X, train_y), create_dataset(test_X, test_y)
+
+    
+def preprocess(dataset):
+  def batch_format_fn(element):
+    """ Flatten a batch `pixels` and return the features as an `OrderedDict`."""
+    return collections.OrderedDict(
+        x = tf.reshape(element['datapoint'], [-1,187]),
+        y = tf.reshape(element['label'], [-1,1]))
+  return dataset.repeat(NUM_OF_EPOCHS).shuffle(SHUFFLE_BUFFER).batch(
+      BATCH_SIZE).map(batch_format_fn).prefetch(PREFETCH_BUFFER)
+      
+
+
+    def get_centralized_datasets(
+        train_batch_size = 20,
+        test_batch_size = 500,
+        train_shuffle_buffer = 10000,
+        test_shuffle_buffer = 1,
+        num_of_epochs = 1,
+        prefetch_buffer = 10
+
+    )
+
+        train_dataset, test_dataset = load_data()
+        train_dataset, test_dataset = train_dataset.create_tf_dataset_from_all_clients(), test_dataset.create_tf_dataset_from_all_clients()
+        
+        train_preprocess_fn = create_preprocess_fn
