@@ -18,7 +18,9 @@ def load_data():
     train_X, train_y = _preprocess_dataframe(mitbih_train_df)
     test_X, test_y = _preprocess_dataframe(mitbih_test_df)
 
-    mitbih_train, mitbih_test = (
-        tf.data.Dataset.from_tensor_slices(()),
-        tf.data.Dataset.from_tensor_slices(()),
-    )
+    def create_tf_dataset_for_client(client_id):
+        client_data = train_df[train_df[] == client_id]
+
+
+if __name__ == "__main__":
+    load_data()
