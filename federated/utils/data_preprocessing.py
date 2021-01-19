@@ -1,3 +1,5 @@
+import collections
+
 import tensorflow as tf
 import pandas as pd
 import tensorflow_federated as tff
@@ -39,6 +41,13 @@ def create_dataset(X, y):
         client_dataset[name_of_client] = data
 
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
+
+
+def _preprocess_dataframe(df):
+    df[187] = df[187].astype(int)
+    target = df[df.columns[-1]]
+    df.drop(df.columns[-1], axis=1, inplace=True)
+    return df, target
 
 
 def load_data():
