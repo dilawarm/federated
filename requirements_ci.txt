@@ -6,3 +6,4 @@ tensorboard==2.4.0
 tensorflow_federated==0.17.0
 tree==0.2.4
 scikit-learn==0.24.0
+Keras==2.4.3
