@@ -58,8 +58,8 @@ def load_data(centralized=False):
     and preprocesses the training and test data seperately.
     Returns a tuple of tff.simulation.ClientData
     """
-    train_df = pd.read_csv("../../data/mitbih/mitbih_train.csv", header=None)
-    test_df = pd.read_csv("../../data/mitbih/mitbih_test.csv", header=None)
+    train_df = pd.read_csv("data/mitbih/mitbih_train.csv", header=None)
+    test_df = pd.read_csv("data/mitbih/mitbih_test.csv", header=None)
 
     train_df[187], test_df[187] = (
         train_df[187].astype(int),
@@ -92,6 +92,7 @@ def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
     """
     Function returns a function for preprocessing of a dataset
     """
+
     def _reshape(element):
         """
         Function returns reshaped tensors
@@ -131,7 +132,7 @@ def get_centralized_datasets(
 
     """
     Function preprocesses datasets.
-    Return input-ready datasets 
+    Return input-ready datasets
     """
     train_dataset, test_dataset = load_data()
     train_dataset, test_dataset = (

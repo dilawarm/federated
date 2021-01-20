@@ -29,3 +29,9 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
         save_model=True,
         validation_dataset=test_dataset,
     )
+
+
+if __name__ == "__main__":
+    centralized_pipeline(
+        "test_v1", "test_v1", 5, 32, tf.keras.optimizers.SGD(learning_rate=0.02)
+    )
