@@ -6,6 +6,11 @@ before_script:
   - pip3 install --upgrade pip
   - pip3 install -r requirements_ci.txt
 
+test:
+  script:
+    - cd federated/utils
+    - python3 mitbih_data_preprocessing_test.py
+
 format:
   script:
     - black .
