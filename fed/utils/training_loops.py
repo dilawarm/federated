@@ -6,8 +6,10 @@ import os
 def centralized_training_loop(
     model, dataset, name, epochs, output, validation_dataset=None, test_dataset=None
 ):
-
-    """"""
+    """
+    Function trains a model on a dataset, and test its performance.
+    Returns a history-object.
+    """
     log_dir = os.path.join(output, "logdir", name)
     tf.io.gfile.makedirs(log_dir)
 
