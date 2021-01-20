@@ -5,7 +5,7 @@ from mitbih_data_preprocessing import get_centralized_datasets
 class DataPreprocessorTest(tf.test.TestCase):
     def test_dataset_shapes(self):
         """
-        Function that tests method for centeralized data preprocessing.
+        Function that tests function for centeralized data preprocessing.
         """
         train, test = get_centralized_datasets(train_batch_size=32, test_batch_size=100)
 
