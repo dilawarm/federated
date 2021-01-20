@@ -16,8 +16,7 @@ def centralized_training_loop(
     logging.info("Training model")
     history = model.fit(
         dataset,
-        validation_dataset=validation_dataset,
-        test_dataset=test_dataset,
+        validation_data=validation_dataset,
         epochs=epochs,
         callbacks=callbacks,
     )

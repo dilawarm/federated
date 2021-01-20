@@ -1,4 +1,4 @@
-from tensorflow.keras import models, layers
+from tensorflow.keras import Sequential, layers
 
 def create_cnn_model():
     """
@@ -36,7 +36,7 @@ def create_cnn_model():
     Non-trainable params: 384
     _________________________________________________________________
     """
-    model = models.Sequential([
+    model = Sequential([
         layers.Convolution1D(filters=64, kernel_size=6, activation="relu", input_shape=[187, 1]),
         layers.BatchNormalization(),
         layers.MaxPool1D(pool_size=3, strides=2, padding="same"),
