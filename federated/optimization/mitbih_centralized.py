@@ -17,7 +17,7 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
     model.compile(
         loss=tf.keras.losses.CategoricalCrossentropy(),
         optimizer=optimizer,
-        metrics=[tf.keras.metrics.Accuracy()],
+        metrics=["accuracy"],
     )
 
     centralized_training_loop(
@@ -32,6 +32,4 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
 
 
 if __name__ == "__main__":
-    centralized_pipeline(
-        "test_v1", "test_v1", 5, 32, tf.keras.optimizers.SGD(learning_rate=0.02)
-    )
+    centralized_pipeline("test_v1", "history", 5, 32, tf.keras.optimizers.Adam())

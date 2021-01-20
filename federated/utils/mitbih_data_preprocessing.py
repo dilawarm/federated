@@ -5,6 +5,7 @@ import pandas as pd
 import tensorflow_federated as tff
 import numpy as np
 import collections
+from keras.utils.np_utils import to_categorical
 
 from sklearn.utils import resample
 
@@ -58,8 +59,8 @@ def load_data(centralized=False):
     and preprocesses the training and test data seperately.
     Returns a tuple of tff.simulation.ClientData
     """
-    train_df = pd.read_csv("data/mitbih/mitbih_train.csv", header=None)
-    test_df = pd.read_csv("data/mitbih/mitbih_test.csv", header=None)
+    train_df = pd.read_csv("../../data/mitbih/mitbih_train.csv", header=None)
+    test_df = pd.read_csv("../../data/mitbih/mitbih_test.csv", header=None)
 
     train_df[187], test_df[187] = (
         train_df[187].astype(int),
@@ -85,6 +86,11 @@ def load_data(centralized=False):
     train_X, train_y = _preprocess_dataframe(train_df)
     test_X, test_y = _preprocess_dataframe(test_df)
 
+    train_y, test_y = (
+        to_categorical(train_y).astype(int),
+        to_categorical(test_y).astype(int),
+    )
+
     return create_dataset(train_X, train_y), create_dataset(test_X, test_y)
 
 
@@ -103,7 +109,7 @@ def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
     @tff.tf_computation(
         tff.SequenceType(
             collections.OrderedDict(
-                label=tff.TensorType(tf.int64),
+                label=tff.TensorType(tf.int64, shape=(5,)),
                 datapoints=tff.TensorType(tf.float64, shape=(187,)),
             )
         )
@@ -124,7 +130,7 @@ def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
 
 def get_centralized_datasets(
     train_batch_size=2,
-    test_batch_size=5,
+    test_batch_size=32,
     train_shuffle_buffer_size=10,
     test_shuffle_buffer_size=1,
     epochs=1,
@@ -134,7 +140,7 @@ def get_centralized_datasets(
     Function preprocesses datasets.
     Return input-ready datasets
     """
-    train_dataset, test_dataset = load_data()
+    train_dataset, test_dataset = load_data(centralized=True)
     train_dataset, test_dataset = (
         train_dataset.create_tf_dataset_from_all_clients(),
         test_dataset.create_tf_dataset_from_all_clients(),
@@ -152,4 +158,7 @@ def get_centralized_datasets(
         shuffle_buffer_size=test_shuffle_buffer_size,
     )
 
-    return train_preprocess(train_dataset), test_preprocess(test_dataset)
+    train_dataset = train_preprocess(train_dataset)
+    test_dataset = test_preprocess(test_dataset)
+
+    return train_dataset, test_dataset

@@ -2,6 +2,7 @@ import tensorflow as tf
 from training_loops import centralized_training_loop
 import os
 
+
 def create_test_dataset():
     dataset = tf.data.Dataset.from_tensor_slices(
         ([[1.0, 2.0], [3.0, 4.0]], [[5.0], [6.0]])
@@ -28,12 +29,25 @@ def create_test_model():
 
     return model
 
+
 class TrainingLoopsTest(tf.test.TestCase):
     def test_reduces_loss(self):
         dataset = create_test_dataset()
         model = create_test_model()
-        history = centralized_training_loop(model, dataset, "test_reduces_loss", epochs=5, output=self.get_temp_dir(), validation_dataset=dataset)
-        for metric in ["loss", "mean_squared_error", "val_loss", "val_mean_squared_error"]:
+        history = centralized_training_loop(
+            model,
+            dataset,
+            "test_reduces_loss",
+            epochs=5,
+            output=self.get_temp_dir(),
+            validation_dataset=dataset,
+        )
+        for metric in [
+            "loss",
+            "mean_squared_error",
+            "val_loss",
+            "val_mean_squared_error",
+        ]:
             self.assertLess(history.history[metric][-1], history.history[metric][0])
 
     def test_write_metrics(self):
@@ -42,13 +56,16 @@ class TrainingLoopsTest(tf.test.TestCase):
         name = "test_write_metrics"
         output = self.get_temp_dir()
 
-        history = centralized_training_loop(model, dataset, name, epochs=1, output=output, validation_dataset=dataset)
+        history = centralized_training_loop(
+            model, dataset, name, epochs=1, output=output, validation_dataset=dataset
+        )
 
         log_dir = os.path.join(output, "logdir", name)
         train_log_dir = os.path.join(log_dir, "train")
         val_log_dir = os.path.join(log_dir, "validation")
         for gfile in [output, log_dir, train_log_dir, val_log_dir]:
             self.assertTrue(tf.io.gfile.exists(gfile))
+
 
 if __name__ == "__main__":
     tf.test.main()
