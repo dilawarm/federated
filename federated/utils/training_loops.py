@@ -16,6 +16,8 @@ def centralized_training_loop(
     callbacks = [tf.keras.callbacks.TensorBoard(log_dir=log_dir)]
 
     logging.info("Training model")
+    logging.info(f"{model.summary()}")
+
     history = model.fit(
         dataset,
         validation_data=validation_dataset,
