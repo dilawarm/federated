@@ -13,8 +13,8 @@ class DataPreprocessorTest(tf.test.TestCase):
         train_batch_shape = train_batch[0].shape
         test_batch = next(iter(test))
         test_batch_shape = test_batch[0].shape
-        self.assertEqual(train_batch_shape, [32, 187, 1])
-        self.assertEqual(test_batch_shape, [100, 187, 1])
+        self.assertEqual(train_batch_shape, [32, 186, 1])
+        self.assertEqual(test_batch_shape, [100, 186, 1])
 
 
 if __name__ == "__main__":

@@ -69,7 +69,7 @@ def load_data(centralized=False, data_analysis=False, transform=False):
     )
 
     if centralized:
-        # From the data analysis, we can see that the normal heartbeats are over represented in the dataset
+        # From the data analysis, we can see that the normal heartbeats are overrepresented in the dataset
         df_0 = (train_df[train_df[187] == 0]).sample(n=SAMPLES, random_state=42)
         train_df = pd.concat(
             [df_0]
@@ -86,6 +86,9 @@ def load_data(centralized=False, data_analysis=False, transform=False):
 
     train_X, train_y = split_dataframe(train_df)
     test_X, test_y = split_dataframe(test_df)
+
+    if data_analysis:
+        return test_X, test_y
 
     if transform:
         for i in range(len(train_X)):

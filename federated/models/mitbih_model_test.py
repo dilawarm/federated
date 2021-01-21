@@ -8,7 +8,7 @@ class ModelTest(tf.test.TestCase):
         """
         Function that tests function for model output shape
         """
-        data = tf.random.normal([32, 187, 1])
+        data = tf.random.normal([32, 186, 1])
         model = create_cnn_model()
         logits = model(data)
         self.assertEqual(logits.shape, [32, 5])
