@@ -2,4 +2,3 @@ black==20.8b1
 pandas==1.2.0
 phe==1.4.0 
 scikit-learn==0.24.0
-Keras==2.4.3 
