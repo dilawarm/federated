@@ -8,11 +8,9 @@ before_script:
 
 test:
   script:
-    - cd federated/utils
-    - python3 mitbih_data_preprocessing_test.py
-    - python3 training_loops_test.py
-    - cd ../models
-    - python3 mitbih_model_test.py
+    - python3 -m federated.utils.mitbih_data_preprocessing_test
+    - python3 -m federated.utils.training_loops_test 
+    - python3 -m federated.models.mitbih_model_test
 
 format:
   script:

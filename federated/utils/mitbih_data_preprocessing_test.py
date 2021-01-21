@@ -1,5 +1,5 @@
 import tensorflow as tf
-from mitbih_data_preprocessing import get_centralized_datasets
+from federated.utils.mitbih_data_preprocessing import get_centralized_datasets
 
 
 class DataPreprocessorTest(tf.test.TestCase):

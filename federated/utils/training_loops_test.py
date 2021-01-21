@@ -1,5 +1,5 @@
 import tensorflow as tf
-from training_loops import centralized_training_loop
+from federated.utils.training_loops import centralized_training_loop
 import os
 
 
