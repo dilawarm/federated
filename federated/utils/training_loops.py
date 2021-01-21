@@ -4,7 +4,14 @@ import os
 
 
 def centralized_training_loop(
-    model, dataset, name, epochs, output, save_model=False, validation_dataset=None, test_dataset=None
+    model,
+    dataset,
+    name,
+    epochs,
+    output,
+    save_model=False,
+    validation_dataset=None,
+    test_dataset=None,
 ):
     """
     Function trains a model on a dataset, and test its performance.
@@ -42,6 +49,7 @@ def centralized_training_loop(
 
     return history
 
+
 def create_test_dataset():
     dataset = tf.data.Dataset.from_tensor_slices(
         ([[1.0, 2.0], [3.0, 4.0]], [[5.0], [6.0]])
@@ -60,15 +68,29 @@ def create_test_model():
         )
     )
 
+    """
     model.compile(
         loss=tf.keras.losses.MeanSquaredError(),
-        optimizer=tf.keras.optimizers.SGD(learning_rate=0.01),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
         metrics=[tf.keras.metrics.MeanSquaredError()],
+    )
+    """
+    model.compile(
+        optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]
     )
 
     return model
 
+
 if __name__ == "__main__":
     dataset = create_test_dataset()
     model = create_test_model()
-    history = centralized_training_loop(model, dataset, "test", epochs=5, output="../../history", validation_dataset=dataset, save_model=True)
+    history = centralized_training_loop(
+        model,
+        dataset,
+        "test",
+        epochs=5,
+        output="../../history",
+        validation_dataset=dataset,
+        save_model=True,
+    )
