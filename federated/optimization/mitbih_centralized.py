@@ -13,7 +13,6 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
     )
 
     model = create_cnn_model()
-
     model.compile(
         loss=tf.keras.losses.CategoricalCrossentropy(),
         optimizer=optimizer,
@@ -32,4 +31,10 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
 
 
 if __name__ == "__main__":
-    centralized_pipeline("test_v1", "history", 5, 32, tf.keras.optimizers.Adam())
+    centralized_pipeline(
+        "test_v2",
+        "history",
+        5,
+        32,
+        tf.keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999),
+    )
