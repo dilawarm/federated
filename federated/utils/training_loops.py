@@ -9,6 +9,8 @@ def centralized_training_loop(
     name,
     epochs,
     output,
+    decay_epochs=None,
+    learning_rate_decay=0,
     save_model=False,
     validation_dataset=None,
     test_dataset=None,
@@ -20,7 +22,19 @@ def centralized_training_loop(
     log_dir = os.path.join(output, "logdir", name)
     tf.io.gfile.makedirs(log_dir)
 
-    callbacks = [tf.keras.callbacks.TensorBoard(log_dir=log_dir)]
+    callbacks = [
+        tf.keras.callbacks.TensorBoard(log_dir=log_dir),
+    ]
+
+    if decay_epochs:
+
+        def decay_fn(epoch, learning_rate):
+            if epoch != 0 and epoch % decay_epochs == 0:
+                return learning_rate * learning_rate_decay
+            else:
+                return learning_rate
+
+        callbacks.append(tf.keras.callbacks.LearningRateScheduler(decay_fn, verbose=1))
 
     logging.info("Training model")
     logging.info(f"{model.summary()}")
@@ -80,17 +94,3 @@ def create_test_model():
     )
 
     return model
-
-
-if __name__ == "__main__":
-    dataset = create_test_dataset()
-    model = create_test_model()
-    history = centralized_training_loop(
-        model,
-        dataset,
-        "test",
-        epochs=5,
-        output="../../history",
-        validation_dataset=dataset,
-        save_model=True,
-    )

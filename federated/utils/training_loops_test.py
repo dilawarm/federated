@@ -66,6 +66,22 @@ class TrainingLoopsTest(tf.test.TestCase):
         for gfile in [output, log_dir, train_log_dir, val_log_dir]:
             self.assertTrue(tf.io.gfile.exists(gfile))
 
+    def test_learning_rate_reduction(self):
+        dataset = create_test_dataset()
+        model = create_test_model()
+        history = centralized_training_loop(
+            model,
+            dataset,
+            "test_reduces_loss",
+            epochs=7,
+            decay_epochs=5,
+            learning_rate_decay=0.2,
+            output=self.get_temp_dir(),
+            validation_dataset=dataset,
+        )
+
+        self.assertAllClose(history.history["lr"], [0.01] * 5 + [0.002] * 2)
+
 
 if __name__ == "__main__":
     tf.test.main()

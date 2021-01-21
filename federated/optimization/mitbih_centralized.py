@@ -4,7 +4,15 @@ from federated.utils.mitbih_data_preprocessing import get_centralized_datasets
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
 
 
-def centralized_pipeline(name, output, epochs, batch_size, optimizer):
+def centralized_pipeline(
+    name,
+    output,
+    epochs,
+    batch_size,
+    optimizer,
+    decay_epochs=None,
+    learning_rate_decay=0,
+):
     """
     Function runs centralized training pipeline
     """
@@ -12,7 +20,7 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
         train_batch_size=batch_size,
     )
 
-    model = create_cnn_model()
+    model = create_dense_model()
 
     model.compile(
         loss="categorical_crossentropy",
@@ -28,8 +36,13 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
         output,
         save_model=True,
         validation_dataset=test_dataset,
+        decay_epochs=decay_epochs,
+        learning_rate_decay=learning_rate_decay,
     )
 
 
 if __name__ == "__main__":
-    centralized_pipeline("test_v1", "history", 5, 32, "adam")
+    name = input("Experiment name: ")
+    centralized_pipeline(
+        name, "history", 5, 32, "adam", decay_epochs=1, learning_rate_decay=0.1
+    )

@@ -131,9 +131,9 @@ def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
 def get_centralized_datasets(
     train_batch_size=32,
     test_batch_size=32,
-    train_shuffle_buffer_size=10,
-    test_shuffle_buffer_size=10,
-    epochs=2,
+    train_shuffle_buffer_size=10000,
+    test_shuffle_buffer_size=10000,
+    epochs=5,
 ):
 
     """
