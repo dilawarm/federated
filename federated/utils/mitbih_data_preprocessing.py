@@ -59,8 +59,8 @@ def load_data(centralized=False):
     and preprocesses the training and test data seperately.
     Returns a tuple of tff.simulation.ClientData
     """
-    train_df = pd.read_csv("../../data/mitbih/mitbih_train.csv", header=None)
-    test_df = pd.read_csv("../../data/mitbih/mitbih_test.csv", header=None)
+    train_df = pd.read_csv("data/mitbih/mitbih_train.csv", header=None)
+    test_df = pd.read_csv("data/mitbih/mitbih_test.csv", header=None)
 
     train_df[187], test_df[187] = (
         train_df[187].astype(int),
@@ -132,8 +132,8 @@ def get_centralized_datasets(
     train_batch_size=2,
     test_batch_size=32,
     train_shuffle_buffer_size=10,
-    test_shuffle_buffer_size=1,
-    epochs=1,
+    test_shuffle_buffer_size=10,
+    epochs=2,
 ):
 
     """
