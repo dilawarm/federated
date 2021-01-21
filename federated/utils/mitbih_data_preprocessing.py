@@ -53,14 +53,21 @@ def _preprocess_dataframe(df):
     return df, target
 
 
-def load_data(centralized=False):
+def load_data(centralized=False, data_analysis=False):
     """
     Function loads data from csv-file
     and preprocesses the training and test data seperately.
     Returns a tuple of tff.simulation.ClientData
     """
-    train_df = pd.read_csv("data/mitbih/mitbih_train.csv", header=None)
-    test_df = pd.read_csv("data/mitbih/mitbih_test.csv", header=None)
+    train_file = "data/mitbih/mitbih_train.csv"
+    test_file = "data/mitbih/mitbih_test.csv"
+
+    if data_analysis:
+        train_file = "../" + train_file
+        test_file = "../" + test_file
+
+    train_df = pd.read_csv(train_file, header=None)
+    test_df = pd.read_csv(test_file, header=None)
 
     train_df[187], test_df[187] = (
         train_df[187].astype(int),
@@ -134,13 +141,14 @@ def get_centralized_datasets(
     train_shuffle_buffer_size=10000,
     test_shuffle_buffer_size=10000,
     epochs=5,
+    data_analysis=False,
 ):
 
     """
     Function preprocesses datasets.
     Return input-ready datasets
     """
-    train_dataset, test_dataset = load_data(centralized=True)
+    train_dataset, test_dataset = load_data(centralized=True, data_analysis=False)
     train_dataset, test_dataset = (
         train_dataset.create_tf_dataset_from_all_clients(),
         test_dataset.create_tf_dataset_from_all_clients(),
