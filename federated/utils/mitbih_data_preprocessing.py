@@ -92,7 +92,7 @@ def load_data(centralized=False, data_analysis=False):
 
     train_X, train_y = _preprocess_dataframe(train_df)
     test_X, test_y = _preprocess_dataframe(test_df)
-
+    
     train_y, test_y = (
         to_categorical(train_y).astype(int),
         to_categorical(test_y).astype(int),
@@ -148,7 +148,7 @@ def get_centralized_datasets(
     Function preprocesses datasets.
     Return input-ready datasets
     """
-    train_dataset, test_dataset = load_data(centralized=True, data_analysis=False)
+    train_dataset, test_dataset = load_data(centralized=True, data_analysis)
     train_dataset, test_dataset = (
         train_dataset.create_tf_dataset_from_all_clients(),
         test_dataset.create_tf_dataset_from_all_clients(),
