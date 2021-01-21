@@ -11,16 +11,17 @@ from sklearn.utils import resample
 
 SAMPLES = 20_000
 
+transform_data = lambda wave: wave + np.random.normal(0, 0.5, 186)  # Data augmentation
 
-def _preprocess_dataframe(df):
-    """
-    Function seperates label column from datapoints columns.
-    Returns tuple: dataframe without label, labels
 
-    """
-    label = df[df.columns[-1]]
-    df.drop(df.columns[-1], axis=1, inplace=True)
-    return df, label
+"""
+Function seperates label column from datapoints columns.
+Returns tuple: dataframe without label, labels
+"""
+split_dataframe = lambda df: (
+    df.iloc[:, :186].values,
+    to_categorical(df[187]).astype(int),
+)
 
 
 def create_dataset(X, y):
@@ -46,14 +47,7 @@ def create_dataset(X, y):
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
-def _preprocess_dataframe(df):
-    df[187] = df[187].astype(int)
-    target = df[df.columns[-1]]
-    df.drop(df.columns[-1], axis=1, inplace=True)
-    return df, target
-
-
-def load_data(centralized=False, data_analysis=False):
+def load_data(centralized=False, data_analysis=False, transform=False):
     """
     Function loads data from csv-file
     and preprocesses the training and test data seperately.
@@ -90,13 +84,12 @@ def load_data(centralized=False, data_analysis=False):
             ]
         )
 
-    train_X, train_y = _preprocess_dataframe(train_df)
-    test_X, test_y = _preprocess_dataframe(test_df)
-    
-    train_y, test_y = (
-        to_categorical(train_y).astype(int),
-        to_categorical(test_y).astype(int),
-    )
+    train_X, train_y = split_dataframe(train_df)
+    test_X, test_y = split_dataframe(test_df)
+
+    if transform:
+        for i in range(len(train_X)):
+            train_X[i, :186] = transform_data(train_X[i, :186])
 
     return create_dataset(train_X, train_y), create_dataset(test_X, test_y)
 
@@ -117,7 +110,7 @@ def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
         tff.SequenceType(
             collections.OrderedDict(
                 label=tff.TensorType(tf.int64, shape=(5,)),
-                datapoints=tff.TensorType(tf.float64, shape=(187,)),
+                datapoints=tff.TensorType(tf.float64, shape=(186,)),
             )
         )
     )
@@ -142,6 +135,7 @@ def get_centralized_datasets(
     test_shuffle_buffer_size=10000,
     epochs=5,
     data_analysis=False,
+    transform=False,
 ):
 
     """
@@ -149,7 +143,7 @@ def get_centralized_datasets(
     Return input-ready datasets
     """
     train_dataset, test_dataset = load_data(
-        centralized=True, data_analysis=data_analysis
+        centralized=True, data_analysis=data_analysis, transform=transform
     )
     train_dataset, test_dataset = (
         train_dataset.create_tf_dataset_from_all_clients(),
@@ -172,3 +166,7 @@ def get_centralized_datasets(
     test_dataset = test_preprocess(test_dataset)
 
     return train_dataset, test_dataset
+
+
+if __name__ == "__main__":
+    load_data(centralized=True)

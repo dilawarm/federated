@@ -17,7 +17,7 @@ def centralized_pipeline(
     Function runs centralized training pipeline
     """
     train_dataset, test_dataset = get_centralized_datasets(
-        train_batch_size=batch_size,
+        train_batch_size=batch_size, transform=False
     )
 
     model = create_dense_model()
@@ -43,6 +43,4 @@ def centralized_pipeline(
 
 if __name__ == "__main__":
     name = input("Experiment name: ")
-    centralized_pipeline(
-        name, "history", 5, 32, "adam", decay_epochs=1, learning_rate_decay=0.1
-    )
+    centralized_pipeline(name, "history", 10, 32, "adam")

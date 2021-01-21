@@ -40,7 +40,7 @@ def create_cnn_model():
     model = Sequential(
         [
             layers.Convolution1D(
-                filters=64, kernel_size=6, activation="relu", input_shape=[187, 1]
+                filters=64, kernel_size=6, activation="relu", input_shape=[186, 1]
             ),
             layers.BatchNormalization(),
             layers.MaxPool1D(pool_size=3, strides=2, padding="same"),
@@ -63,12 +63,14 @@ def create_cnn_model():
 def create_dense_model():
     model = Sequential(
         [
-            layers.InputLayer(input_shape=[187, 1]),
+            layers.InputLayer(input_shape=[186, 1]),
             layers.Flatten(),
             layers.Dense(
                 50,
                 activation="relu",
             ),
+            layers.Dense(50, activation="relu"),
+            layers.Dense(50, activation="relu"),
             layers.Dense(50, activation="relu"),
             layers.Dense(5, activation="softmax"),
         ]
