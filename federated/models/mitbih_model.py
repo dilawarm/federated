@@ -60,6 +60,18 @@ def create_cnn_model():
     return model
 
 
-if __name__ == "__main__":
-    model = create_cnn_model()
-    print(model.summary())
+def create_dense_model():
+    model = Sequential(
+        [
+            layers.InputLayer(input_shape=[187, 1]),
+            layers.Flatten(),
+            layers.Dense(
+                50,
+                activation="relu",
+            ),
+            layers.Dense(50, activation="relu"),
+            layers.Dense(5, activation="softmax"),
+        ]
+    )
+
+    return model

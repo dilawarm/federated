@@ -1,7 +1,7 @@
 import tensorflow as tf
 from federated.utils.training_loops import centralized_training_loop
 from federated.utils.mitbih_data_preprocessing import get_centralized_datasets
-from federated.models.mitbih_model import create_cnn_model
+from federated.models.mitbih_model import create_cnn_model, create_dense_model
 
 
 def centralized_pipeline(name, output, epochs, batch_size, optimizer):
@@ -15,7 +15,7 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
     model = create_cnn_model()
 
     model.compile(
-        loss=tf.keras.losses.CategoricalCrossentropy(),
+        loss="categorical_crossentropy",
         optimizer=optimizer,
         metrics=["accuracy"],
     )
@@ -32,4 +32,4 @@ def centralized_pipeline(name, output, epochs, batch_size, optimizer):
 
 
 if __name__ == "__main__":
-    centralized_pipeline("test_v1", "history", 5, 32, tf.keras.optimizers.Adam())
+    centralized_pipeline("test_v1", "history", 5, 32, "adam")
