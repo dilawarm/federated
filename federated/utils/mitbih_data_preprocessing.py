@@ -47,7 +47,7 @@ def create_dataset(X, y):
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
-def load_data(centralized=False, data_analysis=False, transform=False):
+def load_data(normalized=False, data_analysis=False, transform=False):
     """
     Function loads data from csv-file
     and preprocesses the training and test data seperately.
@@ -68,7 +68,7 @@ def load_data(centralized=False, data_analysis=False, transform=False):
         test_df[187].astype(int),
     )
 
-    if centralized:
+    if normalized:
         # From the data analysis, we can see that the normal heartbeats are overrepresented in the dataset
         df_0 = (train_df[train_df[187] == 0]).sample(n=SAMPLES, random_state=42)
         train_df = pd.concat(
@@ -137,7 +137,6 @@ def get_centralized_datasets(
     train_shuffle_buffer_size=10000,
     test_shuffle_buffer_size=10000,
     epochs=5,
-    data_analysis=False,
     transform=False,
 ):
 
@@ -145,9 +144,7 @@ def get_centralized_datasets(
     Function preprocesses datasets.
     Return input-ready datasets
     """
-    train_dataset, test_dataset = load_data(
-        centralized=True, data_analysis=data_analysis, transform=transform
-    )
+    train_dataset, test_dataset = load_data(normalized=True, transform=transform)
     train_dataset, test_dataset = (
         train_dataset.create_tf_dataset_from_all_clients(),
         test_dataset.create_tf_dataset_from_all_clients(),
