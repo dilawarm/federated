@@ -62,35 +62,3 @@ def centralized_training_loop(
             logging.info(f"\t{m.name}: {test_metrics[m.name]:.4f}")
 
     return history
-
-
-def create_test_dataset():
-    dataset = tf.data.Dataset.from_tensor_slices(
-        ([[1.0, 2.0], [3.0, 4.0]], [[5.0], [6.0]])
-    )
-
-    return dataset.repeat(4).batch(2)
-
-
-def create_test_model():
-    model = tf.keras.Sequential(
-        tf.keras.layers.Dense(
-            units=1,
-            kernel_initializer="zeros",
-            bias_initializer="zeros",
-            input_shape=(2,),
-        )
-    )
-
-    """
-    model.compile(
-        loss=tf.keras.losses.MeanSquaredError(),
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-        metrics=[tf.keras.metrics.MeanSquaredError()],
-    )
-    """
-    model.compile(
-        optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]
-    )
-
-    return model
