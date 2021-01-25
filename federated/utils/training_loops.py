@@ -11,7 +11,7 @@ def centralized_training_loop(
     output,
     decay_epochs=None,
     learning_rate_decay=0,
-    save_model=False,
+    save_model=True,
     validation_dataset=None,
     test_dataset=None,
 ):
@@ -62,3 +62,32 @@ def centralized_training_loop(
             logging.info(f"\t{m.name}: {test_metrics[m.name]:.4f}")
 
     return history
+
+
+def federated_training_loop(
+    iterative_process,
+    get_client_dataset,
+    get_validation_dataset,
+    get_test_dataset,
+    number_of_rounds,
+    name,
+    output,
+    save_model=True,
+):
+    """"""
+    initial_state = iterative_process.initialize()
+
+    state = initial_state
+    round_number = 0
+
+    model = iterative_process.get_model_weights(state)
+
+    while round_number < number_of_rounds:
+        federated_train_data = get_client_dataset(round_number)
+
+        state, _ = iterative_process.next(state, federated_train_data)
+
+        model = iterative_process.get_model_weights(state)
+        round_number += 1
+
+    return state
