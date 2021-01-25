@@ -10,6 +10,7 @@ from keras.utils.np_utils import to_categorical
 from sklearn.utils import resample
 
 SAMPLES = 20_000
+NUM_OF_CLIENTS = 100
 
 transform_data = lambda wave: wave + np.random.normal(0, 0.5, 186)  # Data augmentation
 
@@ -29,7 +30,7 @@ def create_dataset(X, y):
     Function converts pandas dataframe to tensorflow federated.
     Returns dataset of type tff.simulation.ClientData
     """
-    num_of_clients = 10
+    num_of_clients = NUM_OF_CLIENTS
     total_ecg_count = len(X)
     ecgs_per_set = int(np.floor(total_ecg_count / num_of_clients))
 
@@ -174,9 +175,3 @@ def get_datasets(
         test_dataset = test_dataset.preprocess(test_preprocess)
 
     return train_dataset, test_dataset
-
-
-if __name__ == "__main__":
-    train_dataset, test_dataset = get_datasets(centralized=False)
-    print(":)")
-    print(train_dataset)

@@ -28,7 +28,7 @@ class DataPreprocessorTest(tf.test.TestCase):
         )
 
         ds_train = train.create_tf_dataset_for_client(train.client_ids[0])
-        ds_test = test.create_tf_dataset_for_client(train.client_ids[0])
+        ds_test = test.create_tf_dataset_for_client(test.client_ids[0])
 
         for train_batch in ds_train:
             train_batch_shape = train_batch[0].shape[1:]
