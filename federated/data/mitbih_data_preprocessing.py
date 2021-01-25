@@ -141,13 +141,14 @@ def get_datasets(
     test_epochs=1,
     transform=False,
     centralized=False,
+    normalized=True,
 ):
 
     """
     Function preprocesses datasets.
     Return input-ready datasets
     """
-    train_dataset, test_dataset = load_data(normalized=True, transform=transform)
+    train_dataset, test_dataset = load_data(normalized=normalized, transform=transform)
 
     if centralized:
         train_dataset, test_dataset = (

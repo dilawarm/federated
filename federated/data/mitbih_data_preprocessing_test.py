@@ -1,5 +1,5 @@
 import tensorflow as tf
-from federated.utils.mitbih_data_preprocessing import get_datasets
+from federated.data.mitbih_data_preprocessing import get_datasets
 import numpy as np
 
 
