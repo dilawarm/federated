@@ -28,15 +28,15 @@ class DataPreprocessorTest(tf.test.TestCase):
         )
 
         ds_train = train.create_tf_dataset_for_client(train.client_ids[0])
-        ds_test = test.create_tf_dataset_for_client(train.client_ids[0])
+        ds_test = test.create_tf_dataset_for_client(test.client_ids[0])
 
         for train_batch in ds_train:
-            train_batch_shape = np.array(train_batch[:]).shape
+            train_batch_shape = np.array((train_batch))
         for test_batch in ds_test:
-            test_batch_shape = np.array(test_batch[:]).shape
+            test_batch_shape = np.array((test_batch))
 
-        self.assertEqual(train_batch_shape, [32, 186, 1])
-        self.assertEqual(test_batch_shape, [100, 186, 1])
+        self.assertEqual(train_batch_shape.shape, [32, 186, 1])
+        self.assertEqual(test_batch_shape.shape, [100, 186, 1])
 
 
 if __name__ == "__main__":
