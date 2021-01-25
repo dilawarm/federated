@@ -37,7 +37,7 @@ def centralized_training_loop(
         callbacks.append(tf.keras.callbacks.LearningRateScheduler(decay_fn, verbose=1))
 
     logging.info("Training model")
-    logging.info(f"{model.summary()}")
+    logging.info(model.summary())
 
     history = model.fit(
         dataset,

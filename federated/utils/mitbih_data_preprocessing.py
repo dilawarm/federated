@@ -131,13 +131,15 @@ def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
     return preprocess
 
 
-def get_centralized_datasets(
+def get_datasets(
     train_batch_size=32,
     test_batch_size=32,
     train_shuffle_buffer_size=10000,
     test_shuffle_buffer_size=10000,
-    epochs=5,
+    train_epochs=5,
+    test_epochs=1,
     transform=False,
+    centralized=False,
 ):
 
     """
@@ -145,19 +147,21 @@ def get_centralized_datasets(
     Return input-ready datasets
     """
     train_dataset, test_dataset = load_data(normalized=True, transform=transform)
-    train_dataset, test_dataset = (
-        train_dataset.create_tf_dataset_from_all_clients(),
-        test_dataset.create_tf_dataset_from_all_clients(),
-    )
+
+    if centralized:
+        train_dataset, test_dataset = (
+            train_dataset.create_tf_dataset_from_all_clients(),
+            test_dataset.create_tf_dataset_from_all_clients(),
+        )
 
     train_preprocess = preprocess_dataset(
-        epochs=epochs,
+        epochs=train_epochs,
         batch_size=train_batch_size,
         shuffle_buffer_size=train_shuffle_buffer_size,
     )
 
     test_preprocess = preprocess_dataset(
-        epochs=epochs,
+        epochs=test_epochs,
         batch_size=test_batch_size,
         shuffle_buffer_size=test_shuffle_buffer_size,
     )
@@ -166,7 +170,3 @@ def get_centralized_datasets(
     test_dataset = test_preprocess(test_dataset)
 
     return train_dataset, test_dataset
-
-
-if __name__ == "__main__":
-    load_data(centralized=True)
