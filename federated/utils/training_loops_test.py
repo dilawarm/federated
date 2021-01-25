@@ -139,7 +139,7 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
             iterative_process,
             get_client_dataset,
             validate_model,
-            number_of_rounds=1,
+            number_of_rounds=2,
             name="test_reduces_loss",
             output=self.get_temp_dir(),
         )
