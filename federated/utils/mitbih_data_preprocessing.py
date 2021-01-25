@@ -166,7 +166,17 @@ def get_datasets(
         shuffle_buffer_size=test_shuffle_buffer_size,
     )
 
-    train_dataset = train_preprocess(train_dataset)
-    test_dataset = test_preprocess(test_dataset)
+    if centralized:
+        train_dataset = train_preprocess(train_dataset)
+        test_dataset = test_preprocess(test_dataset)
+    else:
+        train_dataset = train_dataset.preprocess(train_preprocess)
+        test_dataset = test_dataset.preprocess(test_preprocess)
 
     return train_dataset, test_dataset
+
+
+if __name__ == "__main__":
+    train_dataset, test_dataset = get_datasets(centralized=False)
+    print(":)")
+    print(train_dataset)
