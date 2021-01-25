@@ -166,7 +166,3 @@ def get_centralized_datasets(
     test_dataset = test_preprocess(test_dataset)
 
     return train_dataset, test_dataset
-
-
-if __name__ == "__main__":
-    load_data(centralized=True)

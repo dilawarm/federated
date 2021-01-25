@@ -1,6 +1,6 @@
 import tensorflow as tf
 from federated.utils.training_loops import centralized_training_loop
-from federated.utils.mitbih_data_preprocessing import get_centralized_datasets
+from federated.utils.mitbih_data_preprocessing import get_datasets
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
 
 
@@ -16,8 +16,8 @@ def centralized_pipeline(
     """
     Function runs centralized training pipeline
     """
-    train_dataset, test_dataset = get_centralized_datasets(
-        train_batch_size=batch_size, transform=False
+    train_dataset, test_dataset = get_datasets(
+        train_batch_size=batch_size, transform=False, centralized=True
     )
 
     model = create_dense_model()

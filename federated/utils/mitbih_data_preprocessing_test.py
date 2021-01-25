@@ -1,5 +1,5 @@
 import tensorflow as tf
-from federated.utils.mitbih_data_preprocessing import get_centralized_datasets
+from federated.utils.mitbih_data_preprocessing import get_datasets
 
 
 class DataPreprocessorTest(tf.test.TestCase):
@@ -7,7 +7,9 @@ class DataPreprocessorTest(tf.test.TestCase):
         """
         Function that tests function for centeralized data preprocessing.
         """
-        train, test = get_centralized_datasets(train_batch_size=32, test_batch_size=100)
+        train, test = get_datasets(
+            train_batch_size=32, test_batch_size=100, centralized=True
+        )
 
         train_batch = next(iter(train))
         train_batch_shape = train_batch[0].shape
