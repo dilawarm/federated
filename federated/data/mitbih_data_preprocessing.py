@@ -176,3 +176,28 @@ def get_datasets(
         test_dataset = test_dataset.preprocess(test_preprocess)
 
     return train_dataset, test_dataset
+
+
+def randomly_select_clients_for_round(num):
+    return 0
+
+
+def get_client_datasets(
+    dataset,
+    number_of_clients_per_round,
+    seed,
+):
+    """"""
+
+    sample_clients = randomly_select_clients_for_round(
+        dataset.client_ids,
+        num_of_clients=number_of_clients_per_round,
+        replace=False,
+        seed=seed,
+    )
+
+    def get_dataset_for_client(round_number):
+        clients = randomly_select_clients_for_round(round_number)
+        return [dataset.create_tf_dataset_for_client(client) for client in clients]
+
+    return get_dataset_for_client

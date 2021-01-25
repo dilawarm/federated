@@ -16,7 +16,7 @@ def centralized_training_loop(
     test_dataset=None,
 ):
     """
-    Function trains a model on a dataset, and test its performance.
+    Function trains a model on a dataset using centralized machine learning, and test its performance.
     Returns a history-object.
     """
     log_dir = os.path.join(output, "logdir", name)
@@ -74,7 +74,10 @@ def federated_training_loop(
     get_test_dataset=None,
     save_model=True,
 ):
-    """"""
+    """
+    Function trains a model on a dataset using federated learning.
+    Returns its state.
+    """
     initial_state = iterative_process.initialize()
 
     state = initial_state
