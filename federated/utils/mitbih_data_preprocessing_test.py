@@ -26,10 +26,11 @@ class DataPreprocessorTest(tf.test.TestCase):
             train_batch_size=32, test_batch_size=100, centralized=False
         )
 
-        train_batch = next(iter(train))
-        train_batch_shape = train_batch[0].shape
-        test_batch = next(iter(test))
-        test_batch_shape = test_batch[0].shape
+        ds_train = train.create_tf_dataset_for_client(train.client_ids[0])
+
+        train_batch_shape = ds_train[0].shape
+        ds_test = test.create_tf_dataset_for_client(test.client_ids[0])
+        test_batch_shape = ds_test[0].shape
         self.assertEqual(train_batch_shape, [32, 186, 1])
         self.assertEqual(test_batch_shape, [100, 186, 1])
 
