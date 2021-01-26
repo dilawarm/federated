@@ -177,7 +177,7 @@ def get_datasets(
     return train_dataset, test_dataset
 
 
-def randomly_select_clients_for_round(population, total, seed=None):
+def randomly_select_clients_for_round(population, num_of_clients, seed=None):
     """
     This function creates a partial function for sampling random clients.
     Returns a partial object.
@@ -188,7 +188,7 @@ def randomly_select_clients_for_round(population, total, seed=None):
         Function for selecting random clients.
         Returns a random sample from the client id's.
         """
-        return np.random.RandomState().choice(population, total, replace=False)
+        return np.random.RandomState().choice(population, num_of_clients, replace=False)
 
     return functools.partial(select, seed=seed)
 
