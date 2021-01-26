@@ -178,10 +178,11 @@ def get_datasets(
 
 
 def randomly_select_clients_for_round(num):
+    """"""
     return 0
 
 
-def get_client_datasets(
+def get_client_dataset(
     dataset,
     number_of_clients_per_round,
     seed,
