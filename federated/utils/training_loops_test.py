@@ -1,13 +1,13 @@
+import collections
+import os
+
+import numpy as np
 import tensorflow as tf
 import tensorflow_federated as tff
 from federated.utils.training_loops import (
     centralized_training_loop,
     federated_training_loop,
 )
-from federated.models.mitbih_model import create_dense_model
-import os
-import collections
-import numpy as np
 
 
 class CentralizedTrainingLoopTest(tf.test.TestCase):
@@ -93,17 +93,19 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
 
     def get_batch(self):
         return self.TYPE(
-            x=np.ones([1, 186], dtype=np.float64), y=np.ones([1, 1], dtype=np.int64)
+            x=np.ones([1, 784], dtype=np.float64), y=np.ones([1, 1], dtype=np.int64)
         )
 
     def create_tff_model(self):
         input_spec = self.TYPE(
-            x=tf.TensorSpec(shape=[None, 186], dtype=tf.float64),
+            x=tf.TensorSpec(shape=[None, 784], dtype=tf.float64),
             y=tf.TensorSpec(shape=[None, 1], dtype=tf.int64),
         )
 
         return tff.learning.from_keras_model(
-            keras_model=create_dense_model(),
+            keras_model=tff.simulation.models.mnist.create_keras_model(
+                compile_model=False
+            ),
             input_spec=input_spec,
             loss=tf.keras.losses.SparseCategoricalCrossentropy(),
         )
@@ -122,11 +124,7 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
         get_client_dataset = lambda round: training_data
 
         def validate_model(curr_model, round):
-            model = create_dense_model()
-            model.compile(
-                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-            )
-
+            model = tff.simulation.models.mnist.create_keras_model(compile_model=True)
             curr_model.assign_weights_to(model)
             return {
                 "loss": model.evaluate(training_data[0][0].x, training_data[0][0].y)
@@ -139,7 +137,7 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
             iterative_process,
             get_client_dataset,
             validate_model,
-            number_of_rounds=1,
+            number_of_rounds=7,
             name="test_reduces_loss",
             output=self.get_temp_dir(),
         )

@@ -11,5 +11,3 @@ test_models:
 
 test_training:
 	python3 -m federated.utils.training_loops_test
-
-
