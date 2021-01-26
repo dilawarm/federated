@@ -40,38 +40,33 @@ def federated_pipeline(
 
     keras_model = keras_model_fn()
 
-    model = model_fn(keras_model=keras_model, input_spec=input_spec)
+    def model_fn():
+        return tff.learning.from_keras_model(
+            keras_model=keras_model,
+            input_spec=input_spec,
+            loss=tf.keras.losses.CategoricalCrossentropy(),
+            metrics=[tf.keras.metrics.CategoricalAccuracy()],
+        )
 
-    iterative_process = iterative_process_fn(
-        model, client_optimizer_fn, server_optimizer_fn
-    )
+        training_process = iterative_process_fn(model_fn)
 
-    get_client_dataset = get_client_dataset_fn(
-        dataset=train_dataset,
-        number_of_clients_per_round=number_of_clients_per_round,
-        seed=seed,
-    )
+        get_client_dataset = get_client_dataset_fn(
+            dataset=train_dataset,
+            number_of_clients_per_round=number_of_clients_per_round,
+            seed=seed,
+        )
 
-    federated_training_loop(
-        iterative_process=iterative_process,
-        get_client_dataset=get_client_dataset,
-        number_of_rounds=number_of_rounds,
-        name=name,
-        output=output,
-        save_model=True,
-    )
-
-
-def model_fn(keras_model, input_spec):
-    return tff.learning.from_keras_model(
-        keras_model=keras_model,
-        input_spec=input_spec,
-        loss=tf.keras.losses.CategoricalCrossentropy(),
-        metrics=[tf.keras.metrics.CategoricalAccuracy()],
-    )
+        federated_training_loop(
+            iterative_process=training_process,
+            get_client_dataset=get_client_dataset,
+            number_of_rounds=number_of_rounds,
+            name=name,
+            output=output,
+            save_model=True,
+        )
 
 
-def iterative_process_fn(model_fn, client_optimizer_fn, server_optimizer_fn):
+def iterative_process_fn(model_fn):
     return tff.learning.build_federated_averaging_process(
         model_fn,
         client_optimizer_fn=client_optimizer_fn,
@@ -85,12 +80,12 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
-        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
         output="history",
         client_epochs=1,
         batch_size=32,
         number_of_clients_per_round=10,
         number_of_rounds=10,
         keras_model_fn=create_dense_model,
+        client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
+        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
     )
