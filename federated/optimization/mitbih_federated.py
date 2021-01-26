@@ -84,7 +84,7 @@ if __name__ == "__main__":
         name=name,
         iterative_process_fn=iterative_process_fn,
         output="history",
-        client_epochs=1,
+        client_epochs=2,
         batch_size=32,
         number_of_clients_per_round=10,
         number_of_rounds=10,
