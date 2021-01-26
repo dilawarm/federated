@@ -88,7 +88,9 @@ def federated_training_loop(
     while round_number < number_of_rounds:
         federated_train_data = get_client_dataset(round_number)
 
-        state, _ = iterative_process.next(state, federated_train_data)
+        state, metrics = iterative_process.next(state, federated_train_data)
+
+        print(metrics)
 
         model = iterative_process.get_model_weights(state)
         round_number += 1

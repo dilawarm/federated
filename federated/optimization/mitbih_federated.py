@@ -7,10 +7,9 @@ from federated.models.mitbih_model import create_cnn_model, create_dense_model
 from federated.utils.training_loops import federated_training_loop
 
 
-def iterative_process_fn(tff_model, client_optimizer_fn, server_optimizer_fn):
-    return tff.learning.build_federated_averaging_process(
+def iterative_process_fn(tff_model, server_optimizer_fn):
+    return tff.learning.build_federated_sgd_process(
         tff_model,
-        client_optimizer_fn=client_optimizer_fn,
         server_optimizer_fn=server_optimizer_fn,
     )
 
@@ -24,7 +23,6 @@ def federated_pipeline(
     number_of_clients_per_round,
     number_of_rounds,
     keras_model_fn,
-    client_optimizer_fn,
     server_optimizer_fn,
     seed=None,
 ):
@@ -58,7 +56,7 @@ def federated_pipeline(
         )
 
     iterative_process = iterative_process_fn(
-        model_fn, client_optimizer_fn, server_optimizer_fn
+        model_fn, server_optimizer_fn
     )
 
     get_client_dataset = get_client_dataset_fn(
@@ -83,12 +81,11 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
+        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
         output="history",
         client_epochs=2,
         batch_size=32,
         number_of_clients_per_round=10,
         number_of_rounds=10,
         keras_model_fn=create_dense_model,
-        client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
-        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
     )
