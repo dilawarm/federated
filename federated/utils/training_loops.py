@@ -67,11 +67,11 @@ def centralized_training_loop(
 def federated_training_loop(
     iterative_process,
     get_client_dataset,
-    get_validation_dataset,
-    get_test_dataset,
+    validate_model,
     number_of_rounds,
     name,
     output,
+    get_test_dataset=None,
     save_model=True,
 ):
     """

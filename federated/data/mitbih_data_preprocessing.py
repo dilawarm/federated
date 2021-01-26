@@ -1,12 +1,11 @@
 import collections
+import functools
 
-import tensorflow as tf
-import pandas as pd
-import tensorflow_federated as tff
 import numpy as np
-import collections
+import pandas as pd
+import tensorflow as tf
+import tensorflow_federated as tff
 from keras.utils.np_utils import to_categorical
-
 from sklearn.utils import resample
 
 SAMPLES = 20_000
@@ -141,13 +140,14 @@ def get_datasets(
     test_epochs=1,
     transform=False,
     centralized=False,
+    normalized=True,
 ):
 
     """
     Function preprocesses datasets.
     Return input-ready datasets
     """
-    train_dataset, test_dataset = load_data(normalized=True, transform=transform)
+    train_dataset, test_dataset = load_data(normalized=normalized, transform=transform)
 
     if centralized:
         train_dataset, test_dataset = (
@@ -177,27 +177,43 @@ def get_datasets(
     return train_dataset, test_dataset
 
 
-def randomly_select_clients_for_round(num):
-    """"""
-    return 0
+def randomly_select_clients_for_round(population, total, seed=None):
+    """
+    This function creates a partial function for sampling random clients.
+    Returns a partial object.
+    """
+
+    def select(round_number, seed):
+        """
+        Function for selecting random clients.
+        Returns a random sample from the client id's.
+        """
+        return np.random.RandomState().choice(population, total, replace=False)
+
+    return functools.partial(select, seed=seed)
 
 
 def get_client_dataset(
     dataset,
     number_of_clients_per_round,
-    seed,
+    seed=None,
 ):
-    """"""
-
+    """
+    This function generates a function for selecting client-datasets for each round number.
+    Returns a function for choosing clients while training.
+    """
     sample_clients = randomly_select_clients_for_round(
         dataset.client_ids,
         num_of_clients=number_of_clients_per_round,
-        replace=False,
         seed=seed,
     )
 
     def get_dataset_for_client(round_number):
-        clients = randomly_select_clients_for_round(round_number)
+        """
+        This function chooses the client datasets.
+        Returns a list of client datasets.
+        """
+        clients = sample_clients(round_number)
         return [dataset.create_tf_dataset_for_client(client) for client in clients]
 
     return get_dataset_for_client
