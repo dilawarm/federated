@@ -1,5 +1,5 @@
 import tensorflow as tf
-from federated.data.mitbih_data_preprocessing import get_datasets, get_client_dataset
+from federated.data.mitbih_data_preprocessing import get_datasets, get_client_dataset_fn
 import numpy as np
 import tensorflow_federated as tff
 import collections
@@ -53,7 +53,7 @@ class DataPreprocessorTest(tf.test.TestCase):
         self.assertEqual(train_batch_shape, [186, 1])
         self.assertEqual(test_batch_shape, [186, 1])
 
-    def test_get_client_dataset(self):
+    def test_get_client_dataset_fn(self):
         """
         Function that tests get_client_dataset function.
         Test if batch of clients using this function have near values what is expected.
@@ -63,7 +63,7 @@ class DataPreprocessorTest(tf.test.TestCase):
             [2], create_tf_dataset_for_client
         )
 
-        client_datasets_function = get_client_dataset(
+        client_datasets_function = get_client_dataset_fn(
             dataset, number_of_clients_per_round=1
         )
 

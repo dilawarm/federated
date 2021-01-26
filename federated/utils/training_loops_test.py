@@ -134,9 +134,9 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
         untrained_model = iterative_process.get_model_weights(initial_state)
 
         state = federated_training_loop(
-            iterative_process,
-            get_client_dataset,
-            validate_model,
+            iterative_process=iterative_process,
+            get_client_dataset=get_client_dataset,
+            validate_model=validate_model,
             number_of_rounds=7,
             name="test_reduces_loss",
             output=self.get_temp_dir(),

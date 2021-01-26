@@ -1,6 +1,6 @@
 import tensorflow as tf
 from federated.utils.training_loops import centralized_training_loop
-from federated.utils.mitbih_data_preprocessing import get_datasets
+from federated.data.mitbih_data_preprocessing import get_datasets
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
 
 
