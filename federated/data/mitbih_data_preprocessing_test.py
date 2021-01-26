@@ -8,7 +8,7 @@ import collections
 def create_tf_dataset_for_client(client_id):
     np.random.seed(client_id)
     x = np.random.rand(6, 1).astype(np.float64)
-    y = 2 * x + 3
+    y = 17 * x + 1
     dataset = tf.data.Dataset.from_tensor_slices(
         collections.OrderedDict([("x", x), ("y", y)])
     )
