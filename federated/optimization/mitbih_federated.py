@@ -1,9 +1,18 @@
+import functools
+
 import tensorflow as tf
 import tensorflow_federated as tff
-
-from federated.utils.training_loops import federated_training_loop
-from federated.data.mitbih_data_preprocessing import get_datasets, get_client_dataset_fn
+from federated.data.mitbih_data_preprocessing import get_client_dataset_fn, get_datasets
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
+from federated.utils.training_loops import federated_training_loop
+
+
+def iterative_process_fn(tff_model, client_optimizer_fn, server_optimizer_fn):
+    return tff.learning.build_federated_averaging_process(
+        tff_model,
+        client_optimizer_fn=client_optimizer_fn,
+        server_optimizer_fn=server_optimizer_fn,
+    )
 
 
 def federated_pipeline(
@@ -38,39 +47,33 @@ def federated_pipeline(
         train_dataset.client_ids[0]
     ).element_spec
 
-    keras_model = keras_model_fn()
+    model_func = functools.partial(keras_model_fn)
 
     def model_fn():
         return tff.learning.from_keras_model(
-            keras_model=keras_model,
+            keras_model=model_func(),
             input_spec=input_spec,
             loss=tf.keras.losses.CategoricalCrossentropy(),
             metrics=[tf.keras.metrics.CategoricalAccuracy()],
         )
 
-        training_process = iterative_process_fn(model_fn)
+    iterative_process = iterative_process_fn(
+        model_fn, client_optimizer_fn, server_optimizer_fn
+    )
 
-        get_client_dataset = get_client_dataset_fn(
-            dataset=train_dataset,
-            number_of_clients_per_round=number_of_clients_per_round,
-            seed=seed,
-        )
+    get_client_dataset = get_client_dataset_fn(
+        dataset=train_dataset,
+        number_of_clients_per_round=number_of_clients_per_round,
+        seed=seed,
+    )
 
-        federated_training_loop(
-            iterative_process=training_process,
-            get_client_dataset=get_client_dataset,
-            number_of_rounds=number_of_rounds,
-            name=name,
-            output=output,
-            save_model=True,
-        )
-
-
-def iterative_process_fn(model_fn):
-    return tff.learning.build_federated_averaging_process(
-        model_fn,
-        client_optimizer_fn=client_optimizer_fn,
-        server_optimizer_fn=server_optimizer_fn,
+    federated_training_loop(
+        iterative_process=iterative_process,
+        get_client_dataset=get_client_dataset,
+        number_of_rounds=number_of_rounds,
+        name=name,
+        output=output,
+        save_model=True,
     )
 
 
