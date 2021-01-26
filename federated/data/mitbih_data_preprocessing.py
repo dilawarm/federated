@@ -217,3 +217,24 @@ def get_client_dataset_fn(
         return [dataset.create_tf_dataset_for_client(client) for client in clients]
 
     return get_dataset_for_client
+
+def get_validation_fn(test_dataset, model_fn, loss_fn, metrics_fn):
+    val_model = model_fn()
+    val_model.compile(
+        loss=loss_fn(),
+        optimizers=tf.keras.optimizers.SGD(),
+        metrics=metrics_fn()
+    )
+
+    test_dataset = None # TODO: Convert datasets to tuples for evaluation
+
+    def validation_fn(trained_model):
+        trained_model_weights = tff.learning.ModelWeights(
+            trainable=list(trainable_model.trainable),
+            non_trainable=list(trainable_model.non_trainable)
+        )
+
+        trained_model_weights.assign_weights_to(val_model)
+        return dict(zip(val_model.metrics_names, val_model.evaluate(test_dataset, verbose=0)))
+    
+    return validation_fn
