@@ -193,7 +193,7 @@ def randomly_select_clients_for_round(population, total, seed=None):
     return functools.partial(select, seed=seed)
 
 
-def get_client_datasets(
+def get_client_dataset(
     dataset,
     number_of_clients_per_round,
     seed=None,
