@@ -1,19 +1,39 @@
 import tensorflow as tf
-from federated.data.mitbih_data_preprocessing import get_datasets, get_client_dataset_fn
-import numpy as np
+from federated.data.mitbih_data_preprocessing import (
+    get_datasets,
+    get_client_dataset_fn,
+    get_validation_dataset_fn,
+)
+from federated.models.mitbih_model import create_dense_model
 import tensorflow_federated as tff
 import collections
 
 
-def create_tf_dataset_for_client(client_id):
-    np.random.seed(client_id)
-    x = np.random.rand(6, 1).astype(np.float64)
-    y = 17 * x + 1
+def create_test_dataset(client_id):
     dataset = tf.data.Dataset.from_tensor_slices(
-        collections.OrderedDict([("x", x), ("y", y)])
+        ([[1.0, 2.0], [3.0, 4.0]], [[5.0], [6.0]])
     )
 
     return dataset.batch(2)
+
+
+def create_test_model():
+    model = tf.keras.Sequential(
+        tf.keras.layers.Dense(
+            units=1,
+            kernel_initializer="zeros",
+            bias_initializer="zeros",
+            input_shape=(2,),
+        )
+    )
+
+    model.compile(
+        loss=tf.keras.losses.MeanSquaredError(),
+        optimizer=tf.keras.optimizers.SGD(learning_rate=0.01),
+        metrics=[tf.keras.metrics.MeanSquaredError()],
+    )
+
+    return model
 
 
 class DataPreprocessorTest(tf.test.TestCase):
@@ -60,7 +80,7 @@ class DataPreprocessorTest(tf.test.TestCase):
         """
 
         dataset = tff.simulation.client_data.ConcreteClientData(
-            [2], create_tf_dataset_for_client
+            [2], create_test_dataset
         )
 
         client_datasets_function = get_client_dataset_fn(
@@ -69,8 +89,23 @@ class DataPreprocessorTest(tf.test.TestCase):
 
         client_datasets = client_datasets_function(round_number=6)
         test_batch = next(iter(client_datasets[0]))
-        batch = next(iter(create_tf_dataset_for_client(2)))
+        batch = next(iter(create_test_dataset(2)))
         self.assertAllClose(test_batch, batch)
+
+    def test_get_validation_dataset_fn(self):
+        test_dataset = tff.simulation.client_data.ConcreteClientData(
+            [2], create_test_dataset
+        )
+
+        model_fn = create_test_model()
+        loss_fn = lambda: tf.keras.losses.CategoricalCrossentropy()
+        metrics_fn = lambda: tf.keras.metrics.CategoricalCrossentropy()
+
+        val_dataset_function = get_validation_dataset_fn(
+            test_dataset, model_fn, loss_fn, metrics_fn
+        )
+
+        self.assertIsInstance(val_dataset_function, dict)
 
 
 if __name__ == "__main__":
