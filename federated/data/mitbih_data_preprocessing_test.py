@@ -9,7 +9,7 @@ import tensorflow_federated as tff
 import collections
 
 
-def create_test_dataset(client_id):
+def create_test_dataset(client_id=None):
     dataset = tf.data.Dataset.from_tensor_slices(
         ([[1.0, 2.0], [3.0, 4.0]], [[5.0], [6.0]])
     )
@@ -26,14 +26,21 @@ def create_test_model():
             input_shape=(2,),
         )
     )
-
-    model.compile(
-        loss=tf.keras.losses.MeanSquaredError(),
-        optimizer=tf.keras.optimizers.SGD(learning_rate=0.01),
-        metrics=[tf.keras.metrics.MeanSquaredError()],
-    )
-
     return model
+
+
+def input_spec():
+    _, test = get_datasets(centralized=True)
+    return test.element_spec
+
+
+def model_fn():
+    return tff.learning.from_keras_model(
+        keras_model=create_test_model(),
+        input_spec=input_spec(),
+        loss=tf.keras.losses.CategoricalCrossentropy(),
+        metrics=[tf.keras.metrics.CategoricalAccuracy()],
+    )
 
 
 class DataPreprocessorTest(tf.test.TestCase):
@@ -93,19 +100,28 @@ class DataPreprocessorTest(tf.test.TestCase):
         self.assertAllClose(test_batch, batch)
 
     def test_get_validation_dataset_fn(self):
-        test_dataset = tff.simulation.client_data.ConcreteClientData(
-            [2], create_test_dataset
-        )
+        _, test_dataset = get_datasets(centralized=True)
 
-        model_fn = create_test_model()
         loss_fn = lambda: tf.keras.losses.CategoricalCrossentropy()
         metrics_fn = lambda: tf.keras.metrics.CategoricalCrossentropy()
 
         val_dataset_function = get_validation_dataset_fn(
-            test_dataset, model_fn, loss_fn, metrics_fn
+            test_dataset, create_test_model, loss_fn, metrics_fn
         )
 
-        self.assertIsInstance(val_dataset_function, dict)
+        iterative_process = tff.learning.build_federated_averaging_process(
+            model_fn,
+            client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
+        )
+
+        initial_state = iterative_process.initialize()
+
+        model = tff.learning.ModelWeights(
+            trainable=tuple(initial_state.model.trainable),
+            non_trainable=tuple(initial_state.model.non_trainable),
+        )
+
+        self.assertIsInstance(val_dataset_function(model), dict)
 
 
 if __name__ == "__main__":

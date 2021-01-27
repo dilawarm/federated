@@ -226,7 +226,7 @@ def get_validation_dataset_fn(test_dataset, model_fn, loss_fn, metrics_fn):
     """
     val_model = model_fn()
     val_model.compile(
-        loss=loss_fn(), optimizers=tf.keras.optimizers.SGD(), metrics=metrics_fn()
+        loss=loss_fn(), optimizer=tf.keras.optimizers.SGD(), metrics=metrics_fn()
     )
 
     test_dataset = test_dataset.map(lambda x, y: (x, y))
