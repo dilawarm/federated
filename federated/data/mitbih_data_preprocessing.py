@@ -219,25 +219,42 @@ def get_client_dataset_fn(
     return get_dataset_for_client
 
 
+def _convert_fn(dataset):
+    """
+    Converts dataset to tupled dataset.
+    Returns tupled dataset.
+    """
+    spec = dataset.element_spec
+    if isinstance(spec, collections.abc.Mapping):
+        return dataset.map(lambda observation: (observation["x"], observation["y"]))
+    else:
+        return dataset.map(lambda x, y: (x, y))
+
+
 def get_validation_dataset_fn(test_dataset, model_fn, loss_fn, metrics_fn):
     """
     This function makes a function for evaluating a model while training.
     Returns a validation function.
     """
-    val_model = model_fn()
-    val_model.compile(
-        loss=loss_fn(), optimizer=tf.keras.optimizers.SGD(), metrics=metrics_fn()
-    )
 
-    test_dataset = test_dataset.map(lambda x, y: (x, y))
+    def compiled_model():
+        val_model = model_fn()
+        val_model.compile(
+            loss=loss_fn(), optimizer=tf.keras.optimizers.SGD(), metrics=metrics_fn()
+        )
+        return val_model
+
+    test_dataset = _convert_fn(test_dataset)
 
     def validation_fn(trained_model):
+        val_model = compiled_model()
         trained_model_weights = tff.learning.ModelWeights(
             trainable=list(trained_model.trainable),
             non_trainable=list(trained_model.non_trainable),
         )
 
         trained_model_weights.assign_weights_to(val_model)
+        metrics = val_model.evaluate(test_dataset, verbose=0)
         return dict(
             zip(val_model.metrics_names, val_model.evaluate(test_dataset, verbose=0))
         )
