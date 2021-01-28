@@ -70,9 +70,9 @@ def federated_training_loop(
     number_of_rounds,
     name,
     output,
-    keras_model_fn,
-    loss_fn,
-    metrics_fn,
+    keras_model_fn=None,
+    loss_fn=None,
+    metrics_fn=None,
     validate_model=None,
     save_model=True,
 ):
