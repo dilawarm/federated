@@ -74,7 +74,7 @@ def federated_training_loop(
     loss_fn=None,
     metrics_fn=None,
     validate_model=None,
-    save_model=True,
+    save_model=False,
 ):
     """
     Function trains a model on a dataset using federated learning.
