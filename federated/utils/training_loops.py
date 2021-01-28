@@ -1,6 +1,7 @@
 import tensorflow as tf
 from absl import logging
 import os
+from federated.models.mitbih_model import create_dense_model
 
 
 def centralized_training_loop(
@@ -70,6 +71,7 @@ def federated_training_loop(
     number_of_rounds,
     name,
     output,
+    keras_model_fn,
     validate_model=None,
     get_test_dataset=None,
     save_model=True,
@@ -91,7 +93,7 @@ def federated_training_loop(
     state = initial_state
     round_number = 0
 
-    model = iterative_process.get_model_weights(state)
+    model_weights = iterative_process.get_model_weights(state)
 
     logging.info("Model metrics")
     while round_number < number_of_rounds:
@@ -101,7 +103,12 @@ def federated_training_loop(
         for name, value in metrics["train"].items():
             logging.info(f"\t{name}: {value}")
 
-        model = iterative_process.get_model_weights(state)
+        model_weights = iterative_process.get_model_weights(state)
         round_number += 1
+
+    if save_model:
+        model = keras_model_fn()
+        model_weights.assign_weights_to(model)
+        model.save(log_dir)
 
     return state

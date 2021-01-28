@@ -55,9 +55,7 @@ def federated_pipeline(
             metrics=[tf.keras.metrics.CategoricalAccuracy()],
         )
 
-    iterative_process = iterative_process_fn(
-        model_fn, server_optimizer_fn
-    )
+    iterative_process = iterative_process_fn(model_fn, server_optimizer_fn)
 
     get_client_dataset = get_client_dataset_fn(
         dataset=train_dataset,
@@ -71,6 +69,7 @@ def federated_pipeline(
         number_of_rounds=number_of_rounds,
         name=name,
         output=output,
+        keras_model_fn=model_func,
         save_model=True,
     )
 
