@@ -71,6 +71,8 @@ def federated_training_loop(
     name,
     output,
     keras_model_fn,
+    loss_fn,
+    metrics_fn,
     validate_model=None,
     save_model=True,
 ):
@@ -119,6 +121,9 @@ def federated_training_loop(
 
     if save_model:
         model = keras_model_fn()
+        model.compile(
+            loss=loss_fn(), optimizer=tf.keras.optimizers.SGD(), metrics=metrics_fn()
+        )
         model_weights.assign_weights_to(model)
         model.save(log_dir)
 
