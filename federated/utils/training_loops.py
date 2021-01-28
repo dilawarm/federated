@@ -92,21 +92,27 @@ def federated_training_loop(
     round_number = 0
 
     model_weights = iterative_process.get_model_weights(state)
+    summary_writer = tf.summary.create_file_writer(log_dir)
 
     print("Model metrics:")
-    while round_number < number_of_rounds:
-        federated_train_data = get_client_dataset(round_number)
+    with summary_writer.as_default():
+        while round_number < number_of_rounds:
+            federated_train_data = get_client_dataset(round_number)
 
-        state, metrics = iterative_process.next(state, federated_train_data)
-        for name, value in metrics["train"].items():
-            print(f"\t{name}: {value}")
+            state, metrics = iterative_process.next(state, federated_train_data)
+            for name, value in metrics["train"].items():
+                print(f"\t{name}: {value}")
+                tf.summary.scalar(name, value, step=round_number)
 
-        if validate_model:
-            val_metrics = validate_model(model_weights)
-            print(f"\tValidation metrics: {val_metrics}")
+            if validate_model:
+                validation_metrics = validate_model(model_weights)
+                for metric in validation_metrics:
+                    value = validation_metrics[metric]
+                    print(f"\t{metric}: {value:.4f}")
+                    tf.summary.scalar(metric, value, step=round_number)
 
-        model_weights = iterative_process.get_model_weights(state)
-        round_number += 1
+            model_weights = iterative_process.get_model_weights(state)
+            round_number += 1
 
     if save_model:
         model = keras_model_fn()
