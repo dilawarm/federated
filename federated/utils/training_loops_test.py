@@ -123,7 +123,7 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
 
         get_client_dataset = lambda round: training_data
 
-        def validate_model(curr_model, round):
+        def validate_model(curr_model):
             model = tff.simulation.models.mnist.create_keras_model(compile_model=True)
             curr_model.assign_weights_to(model)
             return {
@@ -145,8 +145,8 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
         trained_model = iterative_process.get_model_weights(state)
 
         self.assertLess(
-            validate_model(trained_model, 0)["loss"],
-            validate_model(untrained_model, 0)["loss"],
+            validate_model(trained_model)["loss"],
+            validate_model(untrained_model)["loss"],
         )
 
 
