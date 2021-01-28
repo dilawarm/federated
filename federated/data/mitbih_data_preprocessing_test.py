@@ -88,7 +88,7 @@ class DataPreprocessorTest(tf.test.TestCase):
         batch = next(iter(create_test_dataset(2)))
         self.assertAllClose(test_batch, batch)
 
-    def test_get_validation_dataset_fn(self):
+    def test_get_validation_fn(self):
         test_dataset = create_test_dataset()
 
         loss_fn = lambda: tf.keras.losses.CategoricalCrossentropy()
