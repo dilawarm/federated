@@ -231,13 +231,17 @@ def _convert_fn(dataset):
         return dataset.map(lambda x, y: (x, y))
 
 
-def get_validation_dataset_fn(test_dataset, model_fn, loss_fn, metrics_fn):
+def get_validation_fn(test_dataset, model_fn, loss_fn, metrics_fn):
     """
     This function makes a function for evaluating a model while training.
     Returns a validation function.
     """
 
     def compiled_model():
+        """
+        This function compiles an 'empty' model.
+        Returns a Keras Model object.
+        """
         val_model = model_fn()
         val_model.compile(
             loss=loss_fn(), optimizer=tf.keras.optimizers.SGD(), metrics=metrics_fn()
@@ -247,6 +251,10 @@ def get_validation_dataset_fn(test_dataset, model_fn, loss_fn, metrics_fn):
     test_dataset = _convert_fn(test_dataset)
 
     def validation_fn(trained_model):
+        """
+        Validates the model by running model.evaluate() on the keras model with the weights from a state from the interactive process.
+        Returns the metrics after evaluation.
+        """
         val_model = compiled_model()
         trained_model_weights = tff.learning.ModelWeights(
             trainable=list(trained_model.trainable),

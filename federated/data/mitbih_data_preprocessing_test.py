@@ -6,7 +6,7 @@ import tensorflow_federated as tff
 from federated.data.mitbih_data_preprocessing import (
     get_client_dataset_fn,
     get_datasets,
-    get_validation_dataset_fn,
+    get_validation_fn,
 )
 from federated.models.mitbih_model import create_dense_model
 
@@ -107,7 +107,7 @@ class DataPreprocessorTest(tf.test.TestCase):
                 metrics=[tf.keras.metrics.CategoricalAccuracy()],
             )
 
-        val_dataset_function = get_validation_dataset_fn(
+        val_dataset_function = get_validation_fn(
             test_dataset, create_test_model, loss_fn, metrics_fn
         )
 
