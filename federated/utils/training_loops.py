@@ -37,8 +37,8 @@ def centralized_training_loop(
 
         callbacks.append(tf.keras.callbacks.LearningRateScheduler(decay_fn, verbose=1))
 
-    logging.info("Training model")
-    logging.info(model.summary())
+    print("Training model")
+    print(model.summary())
 
     history = model.fit(
         dataset,
@@ -52,15 +52,15 @@ def centralized_training_loop(
 
     if validation_dataset:
         validation_metrics = model.evaluate(validation_dataset, return_dict=True)
-        logging.info("Evaluating validation metrics")
+        print("Evaluating validation metrics")
         for m in model.metrics:
-            logging.info(f"\t{m.name}: {validation_metrics[m.name]:.4f}")
+            print(f"\t{m.name}: {validation_metrics[m.name]:.4f}")
 
     if test_dataset:
         test_metrics = model.evaluate(test_dataset, return_dict=True)
-        logging.info("Evaluating test metrics")
+        print("Evaluating test metrics")
         for m in model.metrics:
-            logging.info(f"\t{m.name}: {test_metrics[m.name]:.4f}")
+            print(f"\t{m.name}: {test_metrics[m.name]:.4f}")
 
     return history
 

@@ -52,7 +52,7 @@ def federated_pipeline(
     get_keras_model = functools.partial(keras_model_fn)
 
     loss_fn = lambda: tf.keras.losses.CategoricalCrossentropy()
-    metrics_fn = lambda: [tf.keras.losses.CategoricalAccuracy()]
+    metrics_fn = lambda: [tf.keras.metrics.CategoricalAccuracy()]
 
     def model_fn():
         return tff.learning.from_keras_model(
@@ -80,7 +80,7 @@ def federated_pipeline(
         number_of_rounds=number_of_rounds,
         name=name,
         output=output,
-        keras_model_fn=model_func,
+        keras_model_fn=get_keras_model,
         save_model=True,
     )
 
