@@ -1,5 +1,4 @@
 import tensorflow as tf
-from absl import logging
 import os
 
 
@@ -70,8 +69,8 @@ def federated_training_loop(
     number_of_rounds,
     name,
     output,
+    keras_model_fn=None,
     validate_model=None,
-    get_test_dataset=None,
     save_model=True,
 ):
     """
@@ -91,17 +90,22 @@ def federated_training_loop(
     state = initial_state
     round_number = 0
 
-    model = iterative_process.get_model_weights(state)
+    model_weights = iterative_process.get_model_weights(state)
 
-    logging.info("Model metrics")
+    print("Model metrics:")
     while round_number < number_of_rounds:
         federated_train_data = get_client_dataset(round_number)
 
         state, metrics = iterative_process.next(state, federated_train_data)
         for name, value in metrics["train"].items():
-            logging.info(f"\t{name}: {value}")
+            print(f"\t{name}: {value}")
 
-        model = iterative_process.get_model_weights(state)
+        model_weights = iterative_process.get_model_weights(state)
+
+        if validate_model:
+            val_metrics = validate_model(model_weights)
+            print(f"\tValidation metrics: {val_metrics}")
+
         round_number += 1
 
     return state

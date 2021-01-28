@@ -29,6 +29,7 @@ def federated_pipeline(
     keras_model_fn,
     server_optimizer_fn,
     seed=None,
+    validate_model=True,
 ):
     """
     Function runs federated training pipeline
@@ -52,7 +53,7 @@ def federated_pipeline(
     get_keras_model = functools.partial(keras_model_fn)
 
     loss_fn = lambda: tf.keras.losses.CategoricalCrossentropy()
-    metrics_fn = lambda: [tf.keras.losses.CategoricalAccuracy()]
+    metrics_fn = lambda: [tf.keras.metrics.CategoricalAccuracy()]
 
     def model_fn():
         return tff.learning.from_keras_model(
@@ -70,9 +71,12 @@ def federated_pipeline(
         seed=seed,
     )
 
-    validation_fn = get_validation_fn(
-        test_dataset, get_keras_model, loss_fn, metrics_fn
-    )
+    if validate_model:
+        validation_fn = get_validation_fn(
+            test_dataset, get_keras_model, loss_fn, metrics_fn
+        )
+    else:
+        validation_fn = None
 
     federated_training_loop(
         iterative_process=iterative_process,
@@ -81,6 +85,7 @@ def federated_pipeline(
         name=name,
         output=output,
         save_model=True,
+        validate_model=validation_fn,
     )
 
 
