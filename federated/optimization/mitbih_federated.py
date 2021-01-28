@@ -84,6 +84,7 @@ def federated_pipeline(
         number_of_rounds=number_of_rounds,
         name=name,
         output=output,
+        keras_model_fn=get_keras_model,
         save_model=True,
         validate_model=validation_fn,
     )

@@ -1,5 +1,6 @@
 import tensorflow as tf
 import os
+from federated.models.mitbih_model import create_dense_model
 
 
 def centralized_training_loop(
@@ -35,8 +36,8 @@ def centralized_training_loop(
 
         callbacks.append(tf.keras.callbacks.LearningRateScheduler(decay_fn, verbose=1))
 
-    logging.info("Training model")
-    logging.info(model.summary())
+    print("Training model")
+    print(model.summary())
 
     history = model.fit(
         dataset,
@@ -50,15 +51,15 @@ def centralized_training_loop(
 
     if validation_dataset:
         validation_metrics = model.evaluate(validation_dataset, return_dict=True)
-        logging.info("Evaluating validation metrics")
+        print("Evaluating validation metrics")
         for m in model.metrics:
-            logging.info(f"\t{m.name}: {validation_metrics[m.name]:.4f}")
+            print(f"\t{m.name}: {validation_metrics[m.name]:.4f}")
 
     if test_dataset:
         test_metrics = model.evaluate(test_dataset, return_dict=True)
-        logging.info("Evaluating test metrics")
+        print("Evaluating test metrics")
         for m in model.metrics:
-            logging.info(f"\t{m.name}: {test_metrics[m.name]:.4f}")
+            print(f"\t{m.name}: {test_metrics[m.name]:.4f}")
 
     return history
 
@@ -69,7 +70,7 @@ def federated_training_loop(
     number_of_rounds,
     name,
     output,
-    keras_model_fn=None,
+    keras_model_fn,
     validate_model=None,
     save_model=True,
 ):
@@ -100,12 +101,16 @@ def federated_training_loop(
         for name, value in metrics["train"].items():
             print(f"\t{name}: {value}")
 
-        model_weights = iterative_process.get_model_weights(state)
-
         if validate_model:
             val_metrics = validate_model(model_weights)
             print(f"\tValidation metrics: {val_metrics}")
 
+        model_weights = iterative_process.get_model_weights(state)
         round_number += 1
+
+    if save_model:
+        model = keras_model_fn()
+        model_weights.assign_weights_to(model)
+        model.save(log_dir)
 
     return state
