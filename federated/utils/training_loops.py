@@ -78,6 +78,14 @@ def federated_training_loop(
     Function trains a model on a dataset using federated learning.
     Returns its state.
     """
+
+    log_dir = os.path.join(output, "logdir", name)
+    tf.io.gfile.makedirs(log_dir)
+
+    callbacks = [
+        tf.keras.callbacks.TensorBoard(log_dir=log_dir),
+    ]
+
     initial_state = iterative_process.initialize()
 
     state = initial_state
@@ -85,12 +93,13 @@ def federated_training_loop(
 
     model = iterative_process.get_model_weights(state)
 
+    logging.info("Model metrics")
     while round_number < number_of_rounds:
         federated_train_data = get_client_dataset(round_number)
 
         state, metrics = iterative_process.next(state, federated_train_data)
-
-        print(metrics)
+        for name, value in metrics["train"].items():
+            logging.info(f"\t{name}: {value}")
 
         model = iterative_process.get_model_weights(state)
         round_number += 1
