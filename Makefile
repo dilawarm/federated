@@ -14,3 +14,6 @@ test_training:
 
 run_federated:
 	python3 -m federated.optimization.mitbih_federated
+
+run_centralized:
+	python3 -m federated.optimization.mitbih_centralized
