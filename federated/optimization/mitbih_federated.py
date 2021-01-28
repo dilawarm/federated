@@ -2,7 +2,11 @@ import functools
 
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.data.mitbih_data_preprocessing import get_client_dataset_fn, get_datasets
+from federated.data.mitbih_data_preprocessing import (
+    get_client_dataset_fn,
+    get_datasets,
+    get_validation_fn,
+)
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
 from federated.utils.training_loops import federated_training_loop
 
@@ -45,24 +49,29 @@ def federated_pipeline(
         train_dataset.client_ids[0]
     ).element_spec
 
-    model_func = functools.partial(keras_model_fn)
+    get_keras_model = functools.partial(keras_model_fn)
+
+    loss_fn = lambda: tf.keras.losses.CategoricalCrossentropy()
+    metrics_fn = lambda: [tf.keras.losses.CategoricalAccuracy()]
 
     def model_fn():
         return tff.learning.from_keras_model(
-            keras_model=model_func(),
+            keras_model=get_keras_model(),
             input_spec=input_spec,
-            loss=tf.keras.losses.CategoricalCrossentropy(),
-            metrics=[tf.keras.metrics.CategoricalAccuracy()],
+            loss=loss_fn(),
+            metrics=metrics_fn(),
         )
 
-    iterative_process = iterative_process_fn(
-        model_fn, server_optimizer_fn
-    )
+    iterative_process = iterative_process_fn(model_fn, server_optimizer_fn)
 
     get_client_dataset = get_client_dataset_fn(
         dataset=train_dataset,
         number_of_clients_per_round=number_of_clients_per_round,
         seed=seed,
+    )
+
+    validation_fn = get_validation_fn(
+        test_dataset, get_keras_model, loss_fn, metrics_fn
     )
 
     federated_training_loop(
