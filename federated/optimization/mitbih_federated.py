@@ -100,9 +100,9 @@ if __name__ == "__main__":
         iterative_process_fn=iterative_process_fn,
         server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
         output="history",
-        client_epochs=2,
+        client_epochs=5,
         batch_size=32,
         number_of_clients_per_round=10,
         number_of_rounds=10,
-        keras_model_fn=create_cnn_model,
+        keras_model_fn=create_dense_model,
     )

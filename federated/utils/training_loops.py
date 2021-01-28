@@ -109,7 +109,7 @@ def federated_training_loop(
                 tf.summary.scalar(name, value, step=round_number)
 
         if validate_model:
-            validation_metrics = validate_model(model_weights, round_number)
+            validation_metrics = validate_model(model_weights)
             with validation_summary_writer.as_default():
                 for metric in validation_metrics:
                     value = validation_metrics[metric]
