@@ -104,5 +104,5 @@ if __name__ == "__main__":
         batch_size=32,
         number_of_clients_per_round=10,
         number_of_rounds=10,
-        keras_model_fn=create_dense_model,
+        keras_model_fn=create_cnn_model,
     )
