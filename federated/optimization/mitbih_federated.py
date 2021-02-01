@@ -98,7 +98,7 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.RMSprop(learning_rate=0.01),
+        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.01),
         output="history",
         client_epochs=10,
         batch_size=32,
