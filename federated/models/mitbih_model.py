@@ -91,8 +91,6 @@ def create_dense_model():
                 activation="relu",
             ),
             layers.Dense(50, activation="relu"),
-            layers.Dense(50, activation="relu"),
-            layers.Dense(50, activation="relu"),
             layers.Dense(5, activation="softmax"),
         ]
     )

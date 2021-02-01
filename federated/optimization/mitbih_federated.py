@@ -98,11 +98,11 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
+        server_optimizer_fn=lambda: tf.keras.optimizers.RMSprop(learning_rate=0.01),
         output="history",
-        client_epochs=5,
+        client_epochs=10,
         batch_size=32,
-        number_of_clients_per_round=10,
+        number_of_clients_per_round=5,
         number_of_rounds=10,
         keras_model_fn=create_dense_model,
     )
