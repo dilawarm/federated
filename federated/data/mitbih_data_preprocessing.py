@@ -37,7 +37,6 @@ def create_dataset(X, y):
         name_of_client = f"client_{i}"
         start = ecgs_per_set * (i - 1)
         end = ecgs_per_set * i
-
         data = collections.OrderedDict(
             (("label", y[start:end]), ("datapoints", X[start:end]))
         )
@@ -46,46 +45,40 @@ def create_dataset(X, y):
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
-def helpme(X, y):
+def create_class_distributed_dataset(X, y):
     n = len(X)
     clients_data = dict(
         [
-            ("Client_1", (None, None)),
-            ("Client_2", (None, None)),
-            ("Client_3", (None, None)),
-            ("Client_4", (None, None)),
-            ("Client_5", (None, None)),
+            ("client_1", [[], []]),
+            ("client_2", [[], []]),
+            ("client_3", [[], []]),
+            ("client_4", [[], []]),
+            ("client_5", [[], []]),
         ]
     )
 
-    for i in range(0, n):
-        if (y[i] == np.array([1, 0, 0, 0, 0])).all():
-            clients_data["Client_1"] = (X[i], y[i])
-        if (y[i] == np.array([0, 1, 0, 0, 0])).all():
-            clients_data["Client_2"] = (X[i], y[i])
-        if (y[i] == np.array([0, 0, 1, 0, 0])).all():
-            clients_data["Client_3"] = (X[i], y[i])
-        if (y[i] == np.array([0, 0, 0, 1, 0])).all():
-            clients_data["Client_4"] = (X[i], y[i])
-        if (y[i] == np.array([0, 0, 0, 0, 1])).all():
-            clients_data["Client_5"] = (X[i], y[i])
+    for i in range(n):
+        index = np.where(y[i] == 1)[0][0]
+        clients_data[f"client_{index+1}"][0].append(X[i])
+        clients_data[f"client_{index+1}"][1].append(y[i])
 
-    ecgs_per_set = int(np.floor(n / len(clients_data)))
     client_dataset = collections.OrderedDict()
-    for i in range(1, len(clients_data) + 1):
-        name_of_client = f"{clients_data[0]}"
-        start = ecgs_per_set * (i - 1)
-        end = ecgs_per_set * i
 
+    for client in clients_data:
         data = collections.OrderedDict(
-            (("label", y[start:end]), ("datapoints", X[start:end]))
+            (
+                ("label", np.array(clients_data[client][1], dtype=np.int64)),
+                ("datapoints", np.array(clients_data[client][0], dtype=np.float64)),
+            )
         )
-        client_dataset[name_of_client] = data
+        client_dataset[client] = data
 
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
-def load_data(normalized=False, data_analysis=False, transform=False):
+def load_data(
+    normalized=False, data_analysis=False, transform=False, data_selector=None
+):
     """
     Function loads data from csv-file
     and preprocesses the training and test data seperately.
@@ -132,7 +125,10 @@ def load_data(normalized=False, data_analysis=False, transform=False):
         for i in range(len(train_X)):
             train_X[i, :186] = transform_data(train_X[i, :186])
 
-    return helpme(train_X, train_y), helpme(test_X, test_y)
+    return (
+        data_selector(train_X, train_y),
+        data_selector(test_X, test_y),
+    )
 
 
 def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
@@ -179,13 +175,16 @@ def get_datasets(
     transform=False,
     centralized=False,
     normalized=True,
+    data_selector=create_dataset,
 ):
 
     """
     Function preprocesses datasets.
     Return input-ready datasets
     """
-    train_dataset, test_dataset = load_data(normalized=normalized, transform=transform)
+    train_dataset, test_dataset = load_data(
+        normalized=normalized, transform=transform, data_selector=data_selector
+    )
 
     if centralized:
         train_dataset, test_dataset = (
@@ -311,3 +310,12 @@ def get_validation_fn(test_dataset, model_fn, loss_fn, metrics_fn):
         )
 
     return validation_fn
+
+
+if __name__ == "__main__":
+    load_data(
+        normalized=False,
+        data_analysis=False,
+        transform=False,
+        data_selector=create_class_distributed_dataset,
+    )
