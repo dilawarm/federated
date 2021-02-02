@@ -13,7 +13,6 @@ NUM_OF_CLIENTS = 100
 
 transform_data = lambda wave: wave + np.random.normal(0, 0.5, 186)  # Data augmentation
 
-
 """
 Function seperates label column from datapoints columns.
 Returns tuple: dataframe without label, labels
@@ -36,6 +35,45 @@ def create_dataset(X, y):
     client_dataset = collections.OrderedDict()
     for i in range(1, num_of_clients + 1):
         name_of_client = f"client_{i}"
+        start = ecgs_per_set * (i - 1)
+        end = ecgs_per_set * i
+
+        data = collections.OrderedDict(
+            (("label", y[start:end]), ("datapoints", X[start:end]))
+        )
+        client_dataset[name_of_client] = data
+
+    return tff.simulation.FromTensorSlicesClientData(client_dataset)
+
+
+def helpme(X, y):
+    n = len(X)
+    clients_data = dict(
+        [
+            ("Client_1", (None, None)),
+            ("Client_2", (None, None)),
+            ("Client_3", (None, None)),
+            ("Client_4", (None, None)),
+            ("Client_5", (None, None)),
+        ]
+    )
+
+    for i in range(0, n):
+        if (y[i] == np.array([1, 0, 0, 0, 0])).all():
+            clients_data["Client_1"] = (X[i], y[i])
+        if (y[i] == np.array([0, 1, 0, 0, 0])).all():
+            clients_data["Client_2"] = (X[i], y[i])
+        if (y[i] == np.array([0, 0, 1, 0, 0])).all():
+            clients_data["Client_3"] = (X[i], y[i])
+        if (y[i] == np.array([0, 0, 0, 1, 0])).all():
+            clients_data["Client_4"] = (X[i], y[i])
+        if (y[i] == np.array([0, 0, 0, 0, 1])).all():
+            clients_data["Client_5"] = (X[i], y[i])
+
+    ecgs_per_set = int(np.floor(n / len(clients_data)))
+    client_dataset = collections.OrderedDict()
+    for i in range(1, len(clients_data) + 1):
+        name_of_client = f"{clients_data[0]}"
         start = ecgs_per_set * (i - 1)
         end = ecgs_per_set * i
 
@@ -94,7 +132,7 @@ def load_data(normalized=False, data_analysis=False, transform=False):
         for i in range(len(train_X)):
             train_X[i, :186] = transform_data(train_X[i, :186])
 
-    return create_dataset(train_X, train_y), create_dataset(test_X, test_y)
+    return helpme(train_X, train_y), helpme(test_X, test_y)
 
 
 def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
@@ -177,20 +215,24 @@ def get_datasets(
     return train_dataset, test_dataset
 
 
-def randomly_select_clients_for_round(population, num_of_clients, seed=None):
+def randomly_select_clients_for_round(
+    population, num_of_clients, replace=False, seed=None
+):
     """
     This function creates a partial function for sampling random clients.
     Returns a partial object.
     """
 
-    def select(round_number, seed):
+    def select(round_number, seed, replace):
         """
         Function for selecting random clients.
         Returns a random sample from the client id's.
         """
-        return np.random.RandomState().choice(population, num_of_clients, replace=False)
+        return np.random.RandomState().choice(
+            population, num_of_clients, replace=replace
+        )
 
-    return functools.partial(select, seed=seed)
+    return functools.partial(select, seed=seed, replace=False)
 
 
 def get_client_dataset_fn(
@@ -205,6 +247,7 @@ def get_client_dataset_fn(
     sample_clients = randomly_select_clients_for_round(
         dataset.client_ids,
         num_of_clients=number_of_clients_per_round,
+        replace=False,
         seed=seed,
     )
 
