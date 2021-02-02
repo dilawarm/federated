@@ -9,7 +9,7 @@ from keras.utils.np_utils import to_categorical
 from sklearn.utils import resample
 
 SAMPLES = 20_000
-NUM_OF_CLIENTS = 100
+NUM_OF_CLIENTS = 10
 
 transform_data = lambda wave: wave + np.random.normal(0, 0.5, 186)  # Data augmentation
 
@@ -175,7 +175,7 @@ def get_datasets(
     train_shuffle_buffer_size=10000,
     test_shuffle_buffer_size=10000,
     train_epochs=5,
-    test_epochs=1,
+    test_epochs=5,
     transform=False,
     centralized=False,
     normalized=True,
@@ -287,7 +287,7 @@ def get_validation_fn(test_dataset, model_fn, loss_fn, metrics_fn):
         """
         val_model = model_fn()
         val_model.compile(
-            loss=loss_fn(), optimizer=tf.keras.optimizers.SGD(), metrics=metrics_fn()
+            loss=loss_fn(), optimizer=tf.keras.optimizers.Adam(), metrics=metrics_fn()
         )
         return val_model
 
