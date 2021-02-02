@@ -78,8 +78,16 @@ def create_class_distributed_dataset(X, y, number_of_clients):
 
 def create_uniform_dataset(X, y, number_of_clients):
     # data_per_client = int(SAMPLES / number_of_clients)
-    for i in y:
-        print(i)
+    for i in range(number_of_clients):
+        clients_data = dict(
+            [
+                ("client_1", [[], []]),
+                ("client_2", [[], []]),
+                ("client_3", [[], []]),
+                ("client_4", [[], []]),
+                ("client_5", [[], []]),
+            ]
+        )
 
 
 def load_data(
