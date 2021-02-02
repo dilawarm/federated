@@ -24,7 +24,7 @@ split_dataframe = lambda df: (
 )
 
 
-def create_dataset(X, y):
+def create_dataset(X, y, number_of_clients):
     """
     Function converts pandas dataframe to tensorflow federated.
     Returns dataset of type tff.simulation.ClientData
