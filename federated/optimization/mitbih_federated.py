@@ -2,11 +2,8 @@ import functools
 
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.data.mitbih_data_preprocessing import (
-    get_client_dataset_fn,
-    get_datasets,
-    get_validation_fn,
-)
+from federated.data.mitbih_data_preprocessing import get_datasets
+from federated.utils.data_utils import get_validation_fn, get_client_dataset_fn
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
 from federated.utils.training_loops import federated_training_loop
 
