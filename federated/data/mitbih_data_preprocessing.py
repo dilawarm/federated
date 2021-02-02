@@ -215,6 +215,7 @@ def get_datasets(
 
 
 if __name__ == "__main__":
+
     load_data(
         normalized=False,
         data_analysis=False,

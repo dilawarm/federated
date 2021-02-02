@@ -7,6 +7,8 @@ from federated.data.mitbih_data_preprocessing import (
     get_client_dataset_fn,
     get_datasets,
     get_validation_fn,
+    create_class_distributed_dataset,
+    create_dataset,
 )
 from federated.models.mitbih_model import create_dense_model
 
@@ -39,7 +41,10 @@ class DataPreprocessorTest(tf.test.TestCase):
         It tests whether the shape of the data matches what is expected.
         """
         train, test = get_datasets(
-            train_batch_size=32, test_batch_size=100, centralized=True
+            train_batch_size=32,
+            test_batch_size=100,
+            centralized=True,
+            data_selector=create_dataset,
         )
 
         train_batch = next(iter(train))
@@ -55,7 +60,10 @@ class DataPreprocessorTest(tf.test.TestCase):
         It tests whether the shape of the data matches what is expected.
         """
         train, test = get_datasets(
-            train_batch_size=32, test_batch_size=100, centralized=False
+            train_batch_size=32,
+            test_batch_size=100,
+            centralized=False,
+            data_selector=create_class_distributed_dataset,
         )
 
         ds_train = train.create_tf_dataset_for_client(train.client_ids[0])
