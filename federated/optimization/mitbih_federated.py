@@ -37,10 +37,15 @@ def federated_pipeline(
         centralized=False,
         normalized=True,
         train_epochs=client_epochs,
+        number_of_clients=10,
     )
 
     _, test_dataset = get_datasets(
-        train_batch_size=batch_size, transform=False, centralized=True, normalized=False
+        train_batch_size=batch_size,
+        transform=False,
+        centralized=True,
+        normalized=False,
+        number_of_clients=10,
     )
 
     input_spec = train_dataset.create_tf_dataset_for_client(

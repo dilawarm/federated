@@ -45,7 +45,7 @@ def create_dataset(X, y):
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
-def create_class_distributed_dataset(X, y):
+def create_class_distributed_dataset(X, y, number_of_clients):
     n = len(X)
     clients_data = dict(
         [
@@ -76,8 +76,18 @@ def create_class_distributed_dataset(X, y):
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
+def create_uniform_dataset(X, y, number_of_clients):
+    # data_per_client = int(SAMPLES / number_of_clients)
+    for i in y:
+        print(i)
+
+
 def load_data(
-    normalized=False, data_analysis=False, transform=False, data_selector=None
+    normalized=False,
+    data_analysis=False,
+    transform=False,
+    data_selector=None,
+    number_of_clients=5,
 ):
     """
     Function loads data from csv-file
@@ -126,8 +136,8 @@ def load_data(
             train_X[i, :186] = transform_data(train_X[i, :186])
 
     return (
-        data_selector(train_X, train_y),
-        data_selector(test_X, test_y),
+        data_selector(train_X, train_y, number_of_clients),
+        data_selector(test_X, test_y, number_of_clients),
     )
 
 
@@ -176,6 +186,7 @@ def get_datasets(
     centralized=False,
     normalized=True,
     data_selector=create_dataset,
+    number_of_clients=5,
 ):
 
     """
@@ -183,7 +194,10 @@ def get_datasets(
     Return input-ready datasets
     """
     train_dataset, test_dataset = load_data(
-        normalized=normalized, transform=transform, data_selector=data_selector
+        normalized=normalized,
+        transform=transform,
+        data_selector=data_selector,
+        number_of_clients=number_of_clients,
     )
 
     if centralized:
@@ -217,8 +231,8 @@ def get_datasets(
 if __name__ == "__main__":
 
     load_data(
-        normalized=False,
+        normalized=True,
         data_analysis=False,
         transform=False,
-        data_selector=create_class_distributed_dataset,
+        data_selector=create_uniform_dataset,
     )
