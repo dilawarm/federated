@@ -47,15 +47,7 @@ def create_dataset(X, y):
 
 def create_class_distributed_dataset(X, y):
     n = len(X)
-    clients_data = dict(
-        [
-            ("client_1", [[], []]),
-            ("client_2", [[], []]),
-            ("client_3", [[], []]),
-            ("client_4", [[], []]),
-            ("client_5", [[], []]),
-        ]
-    )
+    clients_data = {f"client_{i}": [[], []] for i in range(1, 6)}
 
     for i in range(n):
         index = np.where(y[i] == 1)[0][0]
@@ -124,6 +116,12 @@ def load_data(
     if transform:
         for i in range(len(train_X)):
             train_X[i, :186] = transform_data(train_X[i, :186])
+
+    if data_selector == create_uniform_dataset:
+        if not normalized:
+            raise ValueError(
+                "The data has to be normalized to use create_uniform_dataset"
+            )
 
     return (
         data_selector(train_X, train_y),
