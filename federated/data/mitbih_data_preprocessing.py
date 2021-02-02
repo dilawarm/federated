@@ -45,15 +45,7 @@ def create_dataset(X, y):
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
-def create_class_distributed_dataset(X, y, number_of_clients):
-    n = len(X)
-    clients_data = {f"client_{i}": [[], []] for i in range(1, 6)}
-
-    for i in range(n):
-        index = np.where(y[i] == 1)[0][0]
-        clients_data[f"client_{index+1}"][0].append(X[i])
-        clients_data[f"client_{index+1}"][1].append(y[i])
-
+def create_tff_dataset(clients_data):
     client_dataset = collections.OrderedDict()
 
     for client in clients_data:
@@ -68,18 +60,26 @@ def create_class_distributed_dataset(X, y, number_of_clients):
     return tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
+def create_class_distributed_dataset(X, y, number_of_clients):
+    n = len(X)
+    clients_data = {f"client_{i}": [[], []] for i in range(1, 6)}
+
+    for i in range(n):
+        index = np.where(y[i] == 1)[0][0]
+        clients_data[f"client_{index+1}"][0].append(X[i])
+        clients_data[f"client_{index+1}"][1].append(y[i])
+
+    return create_tff_dataset(clients_data)
+
+
 def create_uniform_dataset(X, y, number_of_clients):
     # data_per_client = int(SAMPLES / number_of_clients)
-    for i in range(number_of_clients):
-        clients_data = dict(
-            [
-                ("client_1", [[], []]),
-                ("client_2", [[], []]),
-                ("client_3", [[], []]),
-                ("client_4", [[], []]),
-                ("client_5", [[], []]),
-            ]
-        )
+    clients_data = {f"client_{i}": [[], []] for i in range(1, number_of_clients + 1)}
+    for i in range(len(X)):
+        clients_data[f"client_{(i%number_of_clients)+1}"][0].append(X[i])
+        clients_data[f"client_{(i%number_of_clients)+1}"][1].append(y[i])
+
+    return create_tff_dataset(clients_data)
 
 
 def load_data(
