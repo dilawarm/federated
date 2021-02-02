@@ -7,6 +7,7 @@ import tensorflow as tf
 import tensorflow_federated as tff
 from keras.utils.np_utils import to_categorical
 from sklearn.utils import resample
+import random
 
 SAMPLES = 20_000
 NUM_OF_CLIENTS = 10
@@ -73,11 +74,27 @@ def create_class_distributed_dataset(X, y, number_of_clients):
 
 
 def create_uniform_dataset(X, y, number_of_clients):
-    # data_per_client = int(SAMPLES / number_of_clients)
     clients_data = {f"client_{i}": [[], []] for i in range(1, number_of_clients + 1)}
     for i in range(len(X)):
         clients_data[f"client_{(i%number_of_clients)+1}"][0].append(X[i])
         clients_data[f"client_{(i%number_of_clients)+1}"][1].append(y[i])
+
+    return create_tff_dataset(clients_data)
+
+
+def create_non_iid_dataset(X, y, number_of_clients):
+    indices = np.arange(X.shape[0])
+    np.random.shuffle(indices)
+    X = X[indices]
+    y = y[indices]
+
+    clients_data = {f"client_{i}": [[], []] for i in range(1, number_of_clients + 1)}
+    for i in range(len(X)):
+        client = random.randrange(
+            1, number_of_clients + 1, np.random.randint(1, number_of_clients + 1)
+        )
+        clients_data[f"client_{client}"][0].append(X[i])
+        clients_data[f"client_{client}"][1].append(y[i])
 
     return create_tff_dataset(clients_data)
 
@@ -237,8 +254,9 @@ def get_datasets(
 if __name__ == "__main__":
 
     load_data(
-        normalized=True,
+        normalized=not not False,
         data_analysis=False,
         transform=False,
-        data_selector=create_uniform_dataset,
+        data_selector=create_non_iid_dataset,
+        number_of_clients=17,
     )
