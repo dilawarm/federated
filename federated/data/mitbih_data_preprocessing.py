@@ -313,6 +313,7 @@ def get_validation_fn(test_dataset, model_fn, loss_fn, metrics_fn):
 
 
 if __name__ == "__main__":
+
     load_data(
         normalized=False,
         data_analysis=False,
