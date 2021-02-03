@@ -6,6 +6,11 @@ from federated.data.mitbih_data_preprocessing import get_datasets
 from federated.utils.data_utils import get_validation_fn, get_client_dataset_fn
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
 from federated.utils.training_loops import federated_training_loop
+from federated.data.mitbih_data_preprocessing import (
+    create_class_distributed_dataset,
+    create_non_iid_dataset,
+    create_uniform_dataset,
+)
 
 
 def iterative_process_fn(tff_model, server_optimizer_fn):
@@ -19,6 +24,7 @@ def federated_pipeline(
     name,
     iterative_process_fn,
     output,
+    data_selector,
     client_epochs,
     batch_size,
     number_of_clients_per_round,
@@ -38,14 +44,16 @@ def federated_pipeline(
         normalized=True,
         train_epochs=client_epochs,
         number_of_clients=10,
+        data_selector=data_selector,
     )
 
     _, test_dataset = get_datasets(
         train_batch_size=batch_size,
         transform=False,
         centralized=True,
-        normalized=False,
+        normalized=True,
         number_of_clients=10,
+        data_selector=data_selector,
     )
 
     input_spec = train_dataset.create_tf_dataset_for_client(
@@ -100,7 +108,8 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.01),
+        server_optimizer_fn=lambda: tf.keras.optimizers.Adam(learning_rate=0.01),
+        data_selector=create_uniform_dataset,
         output="history",
         client_epochs=10,
         batch_size=32,
