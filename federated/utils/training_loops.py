@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 from federated.models.mitbih_model import create_dense_model
+import time
 
 
 def centralized_training_loop(
@@ -99,7 +100,11 @@ def federated_training_loop(
     validation_summary_writer = tf.summary.create_file_writer(validation_log_dir)
 
     print("Model metrics:")
+
+    round_times = []
+    start_time = time.time()
     while round_number < number_of_rounds:
+        round_start_time = time.time()
         print(f"Round number: {round_number}")
         federated_train_data = get_client_dataset(round_number)
 
@@ -118,7 +123,13 @@ def federated_training_loop(
                     tf.summary.scalar(metric, value, step=round_number)
 
         model_weights = iterative_process.get_model_weights(state)
+
+        round_times.append(time.time() - round_start_time)
+
         round_number += 1
+
+    end_time = time.time()
+    avg_round_time = sum(round_times) / number_of_rounds
 
     if save_model:
         model = keras_model_fn()
@@ -128,4 +139,4 @@ def federated_training_loop(
         model_weights.assign_weights_to(model)
         model.save(log_dir)
 
-    return state
+    return state, end_time - start_time, avg_round_time

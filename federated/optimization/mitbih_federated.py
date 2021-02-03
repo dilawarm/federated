@@ -11,6 +11,7 @@ from federated.data.mitbih_data_preprocessing import (
     create_non_iid_dataset,
     create_uniform_dataset,
 )
+import inspect
 
 
 def iterative_process_fn(
@@ -104,7 +105,7 @@ def federated_pipeline(
     else:
         validation_fn = None
 
-    federated_training_loop(
+    _, training_time, avg_round_time = federated_training_loop(
         iterative_process=iterative_process,
         get_client_dataset=get_client_dataset,
         number_of_rounds=number_of_rounds,
@@ -116,6 +117,19 @@ def federated_pipeline(
         save_model=True,
         validate_model=validation_fn,
     )
+
+    server_opt_str = str(inspect.getsourcelines(server_optimizer_fn)[0][0]).strip()
+
+    client_opt_str = str(inspect.getsourcelines(client_optimizer_fn)[0][0]).strip()
+
+    with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
+        f.writelines(
+            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,server_optimizer_fn,client_optimizer_fn,fedavg\n"
+        )
+        f.writelines(
+            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{server_opt_str}{client_opt_str}{fedavg}"
+        )
+        f.close()
 
 
 if __name__ == "__main__":
