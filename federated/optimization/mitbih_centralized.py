@@ -28,7 +28,7 @@ def centralized_pipeline(
         metrics=["accuracy"],
     )
 
-    centralized_training_loop(
+    _, training_time = centralized_training_loop(
         model,
         train_dataset,
         name,
@@ -40,7 +40,12 @@ def centralized_pipeline(
         learning_rate_decay=learning_rate_decay,
     )
 
+    with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
+        f.writelines("name,training_time,epochs,optimizer\n")
+        f.writelines(f"{name},{training_time},{epochs},{optimizer}")
+        f.close()
+
 
 if __name__ == "__main__":
     name = input("Experiment name: ")
-    centralized_pipeline(name, "history", 10, 32, "adam")
+    centralized_pipeline(name, "history", 2, 32, "adam")

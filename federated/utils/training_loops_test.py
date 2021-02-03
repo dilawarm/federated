@@ -39,7 +39,7 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
     def test_reduces_loss(self):
         dataset = self.create_test_dataset()
         model = self.create_test_model()
-        history = centralized_training_loop(
+        history, _ = centralized_training_loop(
             model,
             dataset,
             "test_reduces_loss",
@@ -61,7 +61,7 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
         name = "test_write_metrics"
         output = self.get_temp_dir()
 
-        history = centralized_training_loop(
+        history, _ = centralized_training_loop(
             model, dataset, name, epochs=1, output=output, validation_dataset=dataset
         )
 
@@ -74,7 +74,7 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
     def test_learning_rate_reduction(self):
         dataset = self.create_test_dataset()
         model = self.create_test_model()
-        history = centralized_training_loop(
+        history, _ = centralized_training_loop(
             model,
             dataset,
             "test_reduces_loss",
@@ -133,7 +133,7 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
         initial_state = iterative_process.initialize()
         untrained_model = iterative_process.get_model_weights(initial_state)
 
-        state = federated_training_loop(
+        state, _, _ = federated_training_loop(
             iterative_process=iterative_process,
             get_client_dataset=get_client_dataset,
             validate_model=validate_model,

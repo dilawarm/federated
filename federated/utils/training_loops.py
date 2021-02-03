@@ -40,12 +40,14 @@ def centralized_training_loop(
     print("Training model")
     print(model.summary())
 
+    start_time = time.time()
     history = model.fit(
         dataset,
         validation_data=validation_dataset,
         epochs=epochs,
         callbacks=callbacks,
     )
+    end_time = time.time()
 
     if save_model:
         model.save(log_dir)
@@ -62,7 +64,7 @@ def centralized_training_loop(
         for m in model.metrics:
             print(f"\t{m.name}: {test_metrics[m.name]:.4f}")
 
-    return history
+    return history, end_time - start_time
 
 
 def federated_training_loop(
