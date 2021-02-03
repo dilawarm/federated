@@ -8,11 +8,20 @@ from federated.models.mitbih_model import create_cnn_model, create_dense_model
 from federated.utils.training_loops import federated_training_loop
 
 
-def iterative_process_fn(tff_model, server_optimizer_fn):
-    return tff.learning.build_federated_sgd_process(
-        tff_model,
-        server_optimizer_fn=server_optimizer_fn,
-    )
+def iterative_process_fn(
+    tff_model, server_optimizer_fn, fedavg=False, client_optimizer_fn=None
+):
+    if fedavg:
+        return tff.learning.build_federated_averaging_process(
+            tff_model,
+            server_optimizer_fn=server_optimizer_fn,
+            client_optimizer_fn=client_optimizer_fn,
+        )
+    else:
+        return tff.learning.build_federated_sgd_process(
+            tff_model,
+            server_optimizer_fn=server_optimizer_fn,
+        )
 
 
 def federated_pipeline(
@@ -25,6 +34,8 @@ def federated_pipeline(
     number_of_rounds,
     keras_model_fn,
     server_optimizer_fn,
+    fedavg=False,
+    client_optimizer_fn=None,
     seed=None,
     validate_model=True,
 ):
@@ -65,7 +76,12 @@ def federated_pipeline(
             metrics=metrics_fn(),
         )
 
-    iterative_process = iterative_process_fn(model_fn, server_optimizer_fn)
+    iterative_process = iterative_process_fn(
+        model_fn,
+        server_optimizer_fn,
+        fedavg=fedavg,
+        client_optimizer_fn=client_optimizer_fn,
+    )
 
     get_client_dataset = get_client_dataset_fn(
         dataset=train_dataset,
@@ -100,11 +116,13 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.01),
+        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
         output="history",
         client_epochs=10,
         batch_size=32,
         number_of_clients_per_round=5,
         number_of_rounds=10,
         keras_model_fn=create_dense_model,
+        client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
+        fedavg=True,
     )
