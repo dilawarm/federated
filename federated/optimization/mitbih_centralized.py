@@ -41,8 +41,10 @@ def centralized_pipeline(
     )
 
     with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
-        f.writelines("name,training_time,epochs,optimizer\n")
-        f.writelines(f"{name},{training_time},{epochs},{optimizer}")
+        f.writelines("name,training_time,epochs,time_per_epoch,optimizer\n")
+        f.writelines(
+            f"{name},{training_time},{epochs},{training_time/epochs},{optimizer}"
+        )
         f.close()
 
 
