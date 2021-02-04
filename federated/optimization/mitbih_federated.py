@@ -138,7 +138,7 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.Adam(learning_rate=0.01),
+        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
         data_selector=create_non_iid_dataset,
         output="history",
         client_epochs=10,
@@ -146,6 +146,6 @@ if __name__ == "__main__":
         number_of_clients_per_round=10,
         number_of_rounds=15,
         keras_model_fn=create_dense_model,
-        client_optimizer_fn=None,
-        fedavg=False,
+        client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
+        fedavg=True,
     )
