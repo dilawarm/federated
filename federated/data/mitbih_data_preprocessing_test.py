@@ -17,7 +17,7 @@ from federated.models.mitbih_model import create_dense_model
 
 def create_test_dataset(client_id=None):
     np.random.seed(client_id)
-    x = np.random.rand(6, 1).astype(np.float64)
+    x = np.random.rand(6, 1).astype(np.float32)
     dataset = tf.data.Dataset.from_tensor_slices(
         collections.OrderedDict([("x", x), ("y", 17 * x + 1)])
     )

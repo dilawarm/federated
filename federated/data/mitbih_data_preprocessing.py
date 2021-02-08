@@ -39,7 +39,10 @@ def create_dataset(X, y, number_of_clients):
         start = ecgs_per_set * (i - 1)
         end = ecgs_per_set * i
         data = collections.OrderedDict(
-            (("label", y[start:end]), ("datapoints", X[start:end]))
+            (
+                ("label", np.array(y[start:end], dtype=np.int32)),
+                ("datapoints", np.array(X[start:end], dtype=np.float32)),
+            )
         )
         client_dataset[name_of_client] = data
 
@@ -52,8 +55,8 @@ def create_tff_dataset(clients_data):
     for client in clients_data:
         data = collections.OrderedDict(
             (
-                ("label", np.array(clients_data[client][1], dtype=np.int64)),
-                ("datapoints", np.array(clients_data[client][0], dtype=np.float64)),
+                ("label", np.array(clients_data[client][1], dtype=np.int32)),
+                ("datapoints", np.array(clients_data[client][0], dtype=np.float32)),
             )
         )
         client_dataset[client] = data
@@ -179,8 +182,8 @@ def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
     @tff.tf_computation(
         tff.SequenceType(
             collections.OrderedDict(
-                label=tff.TensorType(tf.int64, shape=(5,)),
-                datapoints=tff.TensorType(tf.float64, shape=(186,)),
+                label=tff.TensorType(tf.int32, shape=(5,)),
+                datapoints=tff.TensorType(tf.float32, shape=(186,)),
             )
         )
     )
