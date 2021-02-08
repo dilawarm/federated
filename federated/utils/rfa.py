@@ -11,7 +11,7 @@ def create_robust_measured_process(model, iterations, v):
     def initialize_measured_process():
         return tff.federated_value((), tff.SERVER)
 
-    @tff.tf_computation(tf.float64, model, model)
+    @tff.tf_computation(tf.float32, model, model)
     def calculate_beta(alpha, server_weights, client_weights):
         """
         Function that calculates beta (scaled client weight).
@@ -30,7 +30,7 @@ def create_robust_measured_process(model, iterations, v):
     @tff.federated_computation(
         tff.type_at_server(()),
         tff.type_at_clients(model),
-        tff.type_at_clients(tf.float64),
+        tff.type_at_clients(tf.float32),
     )
     def weiszfeld_algorithm(state, weights, alpha):
         """

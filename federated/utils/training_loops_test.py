@@ -93,12 +93,12 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
 
     def get_batch(self):
         return self.TYPE(
-            x=np.ones([1, 784], dtype=np.float64), y=np.ones([1, 1], dtype=np.int64)
+            x=np.ones([1, 784], dtype=np.float32), y=np.ones([1, 1], dtype=np.int64)
         )
 
     def create_tff_model(self):
         input_spec = self.TYPE(
-            x=tf.TensorSpec(shape=[None, 784], dtype=tf.float64),
+            x=tf.TensorSpec(shape=[None, 784], dtype=tf.float32),
             y=tf.TensorSpec(shape=[None, 1], dtype=tf.int64),
         )
 

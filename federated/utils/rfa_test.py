@@ -8,8 +8,8 @@ import collections
 class RFATest(tf.test.TestCase):
     def get_test_data(self):
         random = np.random.RandomState(0)
-        X = random.rand(1000, 10).astype(np.float64)
-        y = random.rand(1000, 1).astype(np.float64)
+        X = random.rand(1000, 10).astype(np.float32)
+        y = random.rand(1000, 1).astype(np.float32)
 
         return [
             tf.data.Dataset.from_tensor_slices(
@@ -42,7 +42,7 @@ class RFATest(tf.test.TestCase):
         dataset = self.get_test_data()
         iterative_process = create_rfa_averaging(
             create_model_fn,
-            iterations=10,
+            iterations=2,
             v=1e-6,
             server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
             client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.01),
