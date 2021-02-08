@@ -50,7 +50,9 @@ def create_robust_measured_process(model, iterations, v):
     )
 
 
-def create_rfa_averaging(create_model, iterations, v):
+def create_rfa_averaging(
+    create_model, iterations, v, server_optimizer_fn, client_optimizer_fn
+):
     """
     Returns the robust measured aggregation process.
     """
@@ -59,5 +61,8 @@ def create_rfa_averaging(create_model, iterations, v):
         model = tff.framework.type_from_tensors(create_model().weights.trainable)
     robust_measured_process = create_robust_measured_process(model, iterations, v)
     return tff.learning.build_federated_averaging_process(
-        create_model, aggregation_process=robust_measured_process
+        create_model,
+        server_optimizer_fn=server_optimizer_fn,
+        client_optimizer_fn=client_optimizer_fn,
+        aggregation_process=robust_measured_process,
     )
