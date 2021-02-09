@@ -27,6 +27,7 @@ def iterative_process_fn(
     if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
         raise ValueError("Aggregation method does not exist")
     if aggregation_method == "rfa":
+        print("HALLA1")
         return create_rfa_averaging(
             tff_model, iterations, v, server_optimizer_fn, client_optimizer_fn
         )
@@ -106,7 +107,7 @@ def federated_pipeline(
     iterative_process = iterative_process_fn(
         model_fn,
         server_optimizer_fn,
-        aggregation_method="fedavg",
+        aggregation_method=aggregation_method,
         client_optimizer_fn=client_optimizer_fn,
         iterations=iterations,
         v=v,

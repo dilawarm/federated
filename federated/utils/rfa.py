@@ -57,7 +57,7 @@ def create_rfa_averaging(
     v,
     server_optimizer_fn,
     client_optimizer_fn,
-    compression=False,
+    compression=True,
 ):
     """
     Returns the robust measured aggregation process.
@@ -68,12 +68,13 @@ def create_rfa_averaging(
     robust_measured_process = create_robust_measured_process(model, iterations, v)
 
     if compression:
+        print("HALLA")
         return tff.learning.build_federated_averaging_process(
             create_model,
             server_optimizer_fn=server_optimizer_fn,
             client_optimizer_fn=client_optimizer_fn,
             aggregation_process=robust_measured_process,  # should be encoded_mean_process
-            broadcast_process=encoded_broadcast_process,
+            broadcast_process=encoded_broadcast_process(create_model),
         )
 
     else:
