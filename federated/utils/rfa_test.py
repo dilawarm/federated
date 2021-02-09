@@ -8,8 +8,8 @@ import collections
 class RFATest(tf.test.TestCase):
     def get_test_data(self):
         random = np.random.RandomState(0)
-        X = random.rand(1000, 10).astype(np.float32)
-        y = random.rand(1000, 1).astype(np.float32)
+        X = random.rand(10, 10).astype(np.float32)
+        y = random.rand(10, 1).astype(np.float32)
 
         return [
             tf.data.Dataset.from_tensor_slices(

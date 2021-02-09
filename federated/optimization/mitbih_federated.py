@@ -2,6 +2,7 @@ import functools
 
 import tensorflow as tf
 import tensorflow_federated as tff
+from federated.utils.rfa import create_rfa_averaging
 from federated.data.mitbih_data_preprocessing import get_datasets
 from federated.utils.data_utils import get_validation_fn, get_client_dataset_fn
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
@@ -15,15 +16,26 @@ import inspect
 
 
 def iterative_process_fn(
-    tff_model, server_optimizer_fn, fedavg=False, client_optimizer_fn=None
+    tff_model,
+    server_optimizer_fn,
+    aggregation_method="fedavg",
+    client_optimizer_fn=None,
+    iterations=None,
+    v=None,
 ):
-    if fedavg:
+    if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
+        raise ValueError("Aggregation method does not exist")
+    if aggregation_method == "rfa":
+        return create_rfa_averaging(
+            tff_model, iterations, v, server_optimizer_fn, client_optimizer_fn
+        )
+    if aggregation_method == "fedavg":
         return tff.learning.build_federated_averaging_process(
             tff_model,
             server_optimizer_fn=server_optimizer_fn,
             client_optimizer_fn=client_optimizer_fn,
         )
-    else:
+    if aggregation_method == "fedsgd":
         return tff.learning.build_federated_sgd_process(
             tff_model,
             server_optimizer_fn=server_optimizer_fn,
@@ -41,10 +53,12 @@ def federated_pipeline(
     number_of_rounds,
     keras_model_fn,
     server_optimizer_fn,
-    fedavg=False,
+    aggregation_method="fedavg",
     client_optimizer_fn=None,
     seed=None,
     validate_model=True,
+    iterations=None,
+    v=None,
 ):
     """
     Function runs federated training pipeline
@@ -88,8 +102,10 @@ def federated_pipeline(
     iterative_process = iterative_process_fn(
         model_fn,
         server_optimizer_fn,
-        fedavg=fedavg,
+        aggregation_method="fedavg",
         client_optimizer_fn=client_optimizer_fn,
+        iterations=iterations,
+        v=v,
     )
 
     get_client_dataset = get_client_dataset_fn(
@@ -124,10 +140,10 @@ def federated_pipeline(
 
     with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
         f.writelines(
-            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,server_optimizer_fn,client_optimizer_fn,fedavg\n"
+            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,server_optimizer_fn,client_optimizer_fn,aggregation_method\n"
         )
         f.writelines(
-            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{server_opt_str}{client_opt_str}{fedavg}"
+            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{server_opt_str}{client_opt_str}{aggregation_method}"
         )
         f.close()
 
@@ -144,8 +160,10 @@ if __name__ == "__main__":
         client_epochs=10,
         batch_size=32,
         number_of_clients_per_round=10,
-        number_of_rounds=15,
+        number_of_rounds=12,
         keras_model_fn=create_dense_model,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
-        fedavg=True,
+        aggregation_method="rfa",
+        iterations=2,
+        v=1e-6,
     )

@@ -50,4 +50,4 @@ def centralized_pipeline(
 
 if __name__ == "__main__":
     name = input("Experiment name: ")
-    centralized_pipeline(name, "history", 2, 32, "adam")
+    centralized_pipeline(name, "history", 15, 32, "sgd")
