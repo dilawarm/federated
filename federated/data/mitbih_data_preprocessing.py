@@ -8,13 +8,11 @@ import tensorflow_federated as tff
 from keras.utils.np_utils import to_categorical
 from sklearn.utils import resample
 import random
-import time
 import pickle
 
 SAMPLES = 20_000
 NUM_OF_CLIENTS = 10
 
-transform_data = lambda wave: wave + np.random.normal(0, 0.5, 186)  # Data augmentation
 
 """
 Function seperates label column from datapoints columns.
@@ -48,17 +46,10 @@ def create_dataset(X, y, number_of_clients):
         )
         client_dataset[name_of_client] = data
 
-    return tff.simulation.FromTensorSlicesClientData(client_dataset)
+    return None, tff.simulation.FromTensorSlicesClientData(client_dataset)
 
 
 def create_tff_dataset(clients_data):
-    start_time = time.time()
-    f = open("history/logdir/data_distribution", "ab")
-    pickle.dump(clients_data, f)
-    f.close()
-    end_time = time.time()
-    print("TID FOR SERIALISERING:", end_time - start_time)
-
     client_dataset = collections.OrderedDict()
 
     for client in clients_data:
@@ -82,7 +73,7 @@ def create_class_distributed_dataset(X, y, number_of_clients):
         clients_data[f"client_{index+1}"][0].append(X[i])
         clients_data[f"client_{index+1}"][1].append(y[i])
 
-    return create_tff_dataset(clients_data)
+    return clients_data, create_tff_dataset(clients_data)
 
 
 def create_uniform_dataset(X, y, number_of_clients):
@@ -91,7 +82,7 @@ def create_uniform_dataset(X, y, number_of_clients):
         clients_data[f"client_{(i%number_of_clients)+1}"][0].append(X[i])
         clients_data[f"client_{(i%number_of_clients)+1}"][1].append(y[i])
 
-    return create_tff_dataset(clients_data)
+    return clients_data, create_tff_dataset(clients_data)
 
 
 def create_non_iid_dataset(X, y, number_of_clients):
@@ -108,15 +99,15 @@ def create_non_iid_dataset(X, y, number_of_clients):
         clients_data[f"client_{client}"][0].append(X[i])
         clients_data[f"client_{client}"][1].append(y[i])
 
-    return create_tff_dataset(clients_data)
+    return clients_data, create_tff_dataset(clients_data)
 
 
 def load_data(
     normalized=False,
     data_analysis=False,
-    transform=False,
     data_selector=None,
     number_of_clients=5,
+    save_data=False,
 ):
     """
     Function loads data from csv-file
@@ -160,20 +151,22 @@ def load_data(
     if data_analysis:
         return test_X, test_y
 
-    if transform:
-        for i in range(len(train_X)):
-            train_X[i, :186] = transform_data(train_X[i, :186])
-
     if data_selector == create_uniform_dataset:
         if not normalized:
             raise ValueError(
                 "The data has to be normalized to use create_uniform_dataset"
             )
 
-    return (
-        data_selector(train_X, train_y, number_of_clients),
-        data_selector(test_X, test_y, number_of_clients),
-    )
+    train_client_data, train_data = data_selector(train_X, train_y, number_of_clients)
+    test_client_data, test_data = data_selector(test_X, test_y, number_of_clients)
+
+    if save_data:
+        f = open("history/logdir/data_distributions", "ab")
+        pickle.dump(train_client_data, f)
+        pickle.dump(test_client_data, f)
+        f.close()
+
+    return train_data, test_data
 
 
 def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
@@ -217,11 +210,11 @@ def get_datasets(
     test_shuffle_buffer_size=10000,
     train_epochs=5,
     test_epochs=5,
-    transform=False,
     centralized=False,
     normalized=True,
     data_selector=create_dataset,
     number_of_clients=5,
+    save_data=False,
 ):
 
     """
@@ -230,9 +223,9 @@ def get_datasets(
     """
     train_dataset, test_dataset = load_data(
         normalized=normalized,
-        transform=transform,
         data_selector=data_selector,
         number_of_clients=number_of_clients,
+        save_data=save_data,
     )
 
     if centralized:
