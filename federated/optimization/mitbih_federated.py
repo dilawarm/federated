@@ -7,6 +7,10 @@ from federated.data.mitbih_data_preprocessing import get_datasets
 from federated.utils.data_utils import get_validation_fn, get_client_dataset_fn
 from federated.models.mitbih_model import create_cnn_model, create_dense_model
 from federated.utils.training_loops import federated_training_loop
+from federated.utils.compression_utils import (
+    encoded_broadcast_process,
+    encoded_mean_process,
+)
 from federated.data.mitbih_data_preprocessing import (
     create_class_distributed_dataset,
     create_non_iid_dataset,
@@ -23,25 +27,42 @@ def iterative_process_fn(
     client_optimizer_fn=None,
     iterations=None,
     v=None,
+    compression=True,
 ):
     if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
         raise ValueError("Aggregation method does not exist")
     if aggregation_method == "rfa":
-        print("HALLA1")
         return create_rfa_averaging(
             tff_model, iterations, v, server_optimizer_fn, client_optimizer_fn
         )
     if aggregation_method == "fedavg":
-        return tff.learning.build_federated_averaging_process(
-            tff_model,
-            server_optimizer_fn=server_optimizer_fn,
-            client_optimizer_fn=client_optimizer_fn,
-        )
+        if compression:
+            return tff.learning.build_federated_averaging_process(
+                tff_model,
+                server_optimizer_fn=server_optimizer_fn,
+                client_optimizer_fn=client_optimizer_fn,
+                aggregation_process=encoded_mean_process(tff_model),
+                broadcast_process=encoded_broadcast_process(tff_model),
+            )
+        else:
+            return tff.learning.build_federated_averaging_process(
+                tff_model,
+                server_optimizer_fn=server_optimizer_fn,
+                client_optimizer_fn=client_optimizer_fn,
+            )
     if aggregation_method == "fedsgd":
-        return tff.learning.build_federated_sgd_process(
-            tff_model,
-            server_optimizer_fn=server_optimizer_fn,
-        )
+        if compression:
+            return tff.learning.build_federated_sgd_process(
+                tff_model,
+                server_optimizer_fn=server_optimizer_fn,
+                aggregation_process=encoded_mean_process(tff_model),
+                broadcast_process=encoded_broadcast_process(tff_model),
+            )
+        else:
+            return tff.learning.build_federated_sgd_process(
+                tff_model,
+                server_optimizer_fn=server_optimizer_fn,
+            )
 
 
 def federated_pipeline(
