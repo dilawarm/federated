@@ -13,6 +13,7 @@ from federated.data.mitbih_data_preprocessing import (
     create_uniform_dataset,
 )
 import inspect
+import os
 
 
 def iterative_process_fn(
@@ -49,10 +50,13 @@ def federated_pipeline(
     data_selector,
     client_epochs,
     batch_size,
+    number_of_clients,
     number_of_clients_per_round,
     number_of_rounds,
     keras_model_fn,
     server_optimizer_fn,
+    normalized=True,
+    save_data=True,
     aggregation_method="fedavg",
     client_optimizer_fn=None,
     seed=None,
@@ -65,21 +69,21 @@ def federated_pipeline(
     """
     train_dataset, _ = get_datasets(
         train_batch_size=batch_size,
-        transform=False,
         centralized=False,
-        normalized=True,
+        normalized=normalized,
         train_epochs=client_epochs,
-        number_of_clients=10,
+        number_of_clients=number_of_clients,
         data_selector=data_selector,
+        save_data=save_data,
     )
 
     _, test_dataset = get_datasets(
         train_batch_size=batch_size,
-        transform=False,
         centralized=True,
         normalized=True,
-        number_of_clients=10,
+        number_of_clients=number_of_clients,
         data_selector=data_selector,
+        save_data=save_data,
     )
 
     input_spec = train_dataset.create_tf_dataset_for_client(
@@ -138,6 +142,12 @@ def federated_pipeline(
 
     client_opt_str = str(inspect.getsourcelines(client_optimizer_fn)[0][0]).strip()
 
+    if save_data:
+        os.rename(
+            "history/logdir/data_distributions",
+            f"history/logdir/{name}/data_distributions",
+        )
+
     with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
         f.writelines(
             "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,server_optimizer_fn,client_optimizer_fn,aggregation_method\n"
@@ -159,9 +169,12 @@ if __name__ == "__main__":
         output="history",
         client_epochs=10,
         batch_size=32,
+        number_of_clients=10,
         number_of_clients_per_round=10,
-        number_of_rounds=12,
+        number_of_rounds=1,
         keras_model_fn=create_dense_model,
+        normalized=True,
+        save_data=True,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
         aggregation_method="rfa",
         iterations=2,
