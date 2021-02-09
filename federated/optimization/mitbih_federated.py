@@ -12,6 +12,7 @@ from federated.data.mitbih_data_preprocessing import (
     create_uniform_dataset,
 )
 import inspect
+import os
 
 
 def iterative_process_fn(
@@ -122,6 +123,10 @@ def federated_pipeline(
 
     client_opt_str = str(inspect.getsourcelines(client_optimizer_fn)[0][0]).strip()
 
+    os.rename(
+        "history/logdir/data_distribution", f"history/logdir/{name}/data_distribution"
+    )
+
     with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
         f.writelines(
             "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,server_optimizer_fn,client_optimizer_fn,fedavg\n"
@@ -144,7 +149,7 @@ if __name__ == "__main__":
         client_epochs=10,
         batch_size=32,
         number_of_clients_per_round=10,
-        number_of_rounds=15,
+        number_of_rounds=1,
         keras_model_fn=create_dense_model,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
         fedavg=True,

@@ -8,6 +8,8 @@ import tensorflow_federated as tff
 from keras.utils.np_utils import to_categorical
 from sklearn.utils import resample
 import random
+import time
+import pickle
 
 SAMPLES = 20_000
 NUM_OF_CLIENTS = 10
@@ -50,6 +52,13 @@ def create_dataset(X, y, number_of_clients):
 
 
 def create_tff_dataset(clients_data):
+    start_time = time.time()
+    f = open("history/logdir/data_distribution", "ab")
+    pickle.dump(clients_data, f)
+    f.close()
+    end_time = time.time()
+    print("TID FOR SERIALISERING:", end_time - start_time)
+
     client_dataset = collections.OrderedDict()
 
     for client in clients_data:
@@ -252,13 +261,3 @@ def get_datasets(
         test_dataset = test_dataset.preprocess(test_preprocess)
 
     return train_dataset, test_dataset
-
-
-if __name__ == "__main__":
-    load_data(
-        normalized=not not False,
-        data_analysis=False,
-        transform=False,
-        data_selector=create_non_iid_dataset,
-        number_of_clients=17,
-    )
