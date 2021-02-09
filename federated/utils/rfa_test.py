@@ -49,7 +49,8 @@ class RFATest(tf.test.TestCase):
         )
         state = iterative_process.initialize()
         state, _ = iterative_process.next(state, dataset)
-        print(type(state))
+
+        self.assertIsInstance(state, tff.learning.framework.optimizer_utils.ServerState)
 
 
 if __name__ == "__main__":
