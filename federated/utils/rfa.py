@@ -67,6 +67,7 @@ def create_rfa_averaging(
     client_optimizer_fn,
     compression=False,
 ):
+
     """
     Returns the robust measured aggregation process.
     """
