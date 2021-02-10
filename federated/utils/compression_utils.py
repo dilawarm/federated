@@ -27,7 +27,7 @@ def build_encoded_broadcast_fn(weights):
     """"""
     if weights.shape.num_elements() > 0:
         return te.encoders.as_simple_encoder(
-            te.encoders.uniform_quantization(bits=16),
+            te.encoders.uniform_quantization(bits=2),
             tf.TensorSpec(weights.shape, weights.dtype),
         )
 

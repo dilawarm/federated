@@ -2,7 +2,6 @@ import tensorflow as tf
 import tensorflow_federated as tff
 from federated.utils.compression_utils import (
     encoded_broadcast_process,
-    encoded_mean_process,
 )
 
 

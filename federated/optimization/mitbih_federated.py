@@ -9,7 +9,6 @@ from federated.models.mitbih_model import create_cnn_model, create_dense_model
 from federated.utils.training_loops import federated_training_loop
 from federated.utils.compression_utils import (
     encoded_broadcast_process,
-    encoded_mean_process,
 )
 from federated.data.mitbih_data_preprocessing import (
     create_class_distributed_dataset,
