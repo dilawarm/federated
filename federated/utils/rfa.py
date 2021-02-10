@@ -1,12 +1,17 @@
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.utils.compression_utils import encoded_broadcast_process
+from federated.utils.compression_utils import (
+    encoded_broadcast_process,
+    encoded_mean_process,
+)
 
 
 def create_robust_measured_process(model, iterations, v):
     """
     Function that creates robust measured process used in federated aggregation.
     """
+
+    model = encoded_mean_process(model)
 
     @tff.federated_computation
     def initialize_measured_process():
