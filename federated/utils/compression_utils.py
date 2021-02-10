@@ -3,9 +3,30 @@ import tensorflow_federated as tff
 from tensorflow_model_optimization.python.core.internal import tensor_encoding as te
 
 
+def set_communication_cost_env():
+    """"""
+    factory = tff.framework.sizing_executor_factory()
+    context = tff.framework.ExecutionContext(executor_fn=factory)
+    tff.framework.set_default_context(context)
+
+    return factory
+
+
+def bit_formatter(bits):
+    """"""
+    bits = float(bits)
+    units = ["bit", "Kibit", "Mibit", "Gibit"]
+    for u in units:
+        if bits < 1024.0:
+            return f"{bits:3.2f} {u}"
+        bits /= 1024.0
+    return f"{bits:3.2f} TiB"
+
+
 def build_encoded_broadcast_fn(weights):
     """"""
-    if weights.shape.num_elements() > 10000:
+    print("ANTALLET ELEMENTER: ", weights.shape.num_elements())
+    if weights.shape.num_elements() > 0:
         return te.encoders.as_simple_encoder(
             te.encoders.uniform_quantization(bits=8),
             tf.TensorSpec(weights.shape, weights.dtype),
@@ -19,7 +40,7 @@ def build_encoded_broadcast_fn(weights):
 
 def build_encoded_mean_fn(weights):
     """"""
-    if weights.shape.num_elements() > 10000:
+    if weights.shape.num_elements() > 0:
         return te.encoders.as_gather_encoder(
             te.encoders.uniform_quantization(bits=8),
             tf.TensorSpec(weights.shape, weights.dtype),

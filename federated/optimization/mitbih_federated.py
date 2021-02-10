@@ -189,6 +189,7 @@ def federated_pipeline(
 
 if __name__ == "__main__":
     name = input("Experiment name: ")
+    aggregation_method = input("Aggregation method: ")
 
     federated_pipeline(
         name=name,
@@ -205,8 +206,8 @@ if __name__ == "__main__":
         normalized=True,
         save_data=True,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
-        aggregation_method="fedsgd",
+        aggregation_method=aggregation_method,
         iterations=2,
         v=1e-6,
-        compression=True,
+        compression=False,
     )

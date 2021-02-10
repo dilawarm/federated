@@ -2,6 +2,7 @@ import tensorflow as tf
 import os
 from federated.models.mitbih_model import create_dense_model
 import time
+from federated.utils.compression_utils import set_communication_cost_env
 
 
 def centralized_training_loop(
@@ -20,6 +21,7 @@ def centralized_training_loop(
     Function trains a model on a dataset using centralized machine learning, and test its performance.
     Returns a history-object.
     """
+
     log_dir = os.path.join(output, "logdir", name)
     tf.io.gfile.makedirs(log_dir)
 
@@ -83,14 +85,17 @@ def federated_training_loop(
     Function trains a model on a dataset using federated learning.
     Returns its state.
     """
+    env = set_communication_cost_env()
 
     log_dir = os.path.join(output, "logdir", name)
     train_log_dir = os.path.join(log_dir, "train")
     validation_log_dir = os.path.join(log_dir, "validation")
+    communication_log_dir = os.path.join(log_dir, "communication")
 
     tf.io.gfile.makedirs(log_dir)
     tf.io.gfile.makedirs(train_log_dir)
     tf.io.gfile.makedirs(validation_log_dir)
+    tf.io.gfile.makedirs(communication_log_dir)
 
     initial_state = iterative_process.initialize()
 
@@ -100,6 +105,7 @@ def federated_training_loop(
     model_weights = iterative_process.get_model_weights(state)
     train_summary_writer = tf.summary.create_file_writer(train_log_dir)
     validation_summary_writer = tf.summary.create_file_writer(validation_log_dir)
+    compression_summary_writer = tf.summary.create_file_writer(communication_log_dir)
 
     print("Model metrics:")
 
@@ -123,6 +129,20 @@ def federated_training_loop(
                     value = validation_metrics[metric]
                     print(f"\tvalidation_{metric}: {value:.4f}")
                     tf.summary.scalar(metric, value, step=round_number)
+
+        with compression_summary_writer.as_default():
+            communication_info = env.get_size_info()
+            broadcasted_bits = communication_info.broadcast_bits[-1]
+            aggregated_bits = communication_info.aggregate_bits[-1]
+
+            tf.summary.scalar(
+                "cumulative_broadcasted_bits", broadcasted_bits, step=round_number
+            )
+            tf.summary.scalar(
+                "cumulative_aggregated_bits", aggregated_bits, step=round_number
+            )
+
+            compression_summary_writer.flush()
 
         model_weights = iterative_process.get_model_weights(state)
 
