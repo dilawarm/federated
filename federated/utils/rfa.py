@@ -11,6 +11,8 @@ def create_robust_measured_process(model, iterations, v, compression=False):
     Function that creates robust measured process used in federated aggregation.
     """
 
+    model = encoded_mean_process(model)
+
     @tff.federated_computation
     def initialize_measured_process():
         return tff.federated_value((), tff.SERVER)
