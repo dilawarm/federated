@@ -39,13 +39,6 @@ def create_robust_measured_process(model, iterations, v, compression=False):
         """
         Function that calculates geometric median using the Weiszfeld algorithm.
         """
-        if compression:
-            min_w = tf.reduce_min(weights)
-            max_w = tf.reduce_max(weights)
-            weights = tf.quantization.quantize(
-                weights, min_w, max_w, tf.quint16, mode="MIN_FIRST"
-            )
-
         mean = tff.federated_mean(weights, weight=alpha)
         for _ in range(iterations - 1):
             broadcast_mean = tff.federated_broadcast(mean)
