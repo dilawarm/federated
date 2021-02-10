@@ -1,5 +1,4 @@
 import tensorflow as tf
-
 import tensorflow_federated as tff
 from federated.utils.compression_utils import (
     encoded_broadcast_process,
@@ -44,7 +43,9 @@ def create_robust_measured_process(model, iterations, v, compression=False):
         if compression:
             min_w = tf.reduce_min(weights)
             max_w = tf.reduce_max(weights)
-            weights = tf.quantize(weights, min_w, max_w, tf.quint16, mode="MIN_FIRST")
+            weights = tf.quantization.quantize(
+                weights, min_w, max_w, tf.quint16, mode="MIN_FIRST"
+            )
 
         mean = tff.federated_mean(weights, weight=alpha)
         for _ in range(iterations - 1):
@@ -75,7 +76,9 @@ def create_rfa_averaging(
 
     with tf.Graph().as_default():
         model = tff.framework.type_from_tensors(create_model().weights.trainable)
-    robust_measured_process = create_robust_measured_process(model, iterations, v)
+    robust_measured_process = create_robust_measured_process(
+        model, iterations, v, compression=compression
+    )
 
     if compression:
         return tff.learning.build_federated_averaging_process(
