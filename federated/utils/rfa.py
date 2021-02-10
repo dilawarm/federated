@@ -1,9 +1,12 @@
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.utils.compression_utils import encoded_broadcast_process
+from federated.utils.compression_utils import (
+    encoded_broadcast_process,
+    encoded_mean_process,
+)
 
 
-def create_robust_measured_process(model, iterations, v):
+def create_robust_measured_process(model, iterations, v, compression=False):
     """
     Function that creates robust measured process used in federated aggregation.
     """
@@ -72,8 +75,9 @@ def create_rfa_averaging(
             create_model,
             server_optimizer_fn=server_optimizer_fn,
             client_optimizer_fn=client_optimizer_fn,
-            aggregation_process=robust_measured_process,  # should be encoded_mean_process
+            aggregation_process=encoded_mean_process(create_model),
             broadcast_process=encoded_broadcast_process(create_model),
+            model_update_aggregation_factory=tff.learning.robust_aggregator,
         )
 
     else:
