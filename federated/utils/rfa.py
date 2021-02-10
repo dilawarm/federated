@@ -11,8 +11,6 @@ def create_robust_measured_process(model, iterations, v, compression=False):
     Function that creates robust measured process used in federated aggregation.
     """
 
-    model = encoded_mean_process(model)
-
     @tff.federated_computation
     def initialize_measured_process():
         return tff.federated_value((), tff.SERVER)
@@ -42,6 +40,11 @@ def create_robust_measured_process(model, iterations, v, compression=False):
         """
         Function that calculates geometric median using the Weiszfeld algorithm.
         """
+        if compression:
+            min_w = tf.reduce_min(weights)
+            max_w = tf.reduce_max(weights)
+            weights = tf.quantize(weights, min_w, max_w, tf.quint16, mode="MIN_FIRST")
+
         mean = tff.federated_mean(weights, weight=alpha)
         for _ in range(iterations - 1):
             broadcast_mean = tff.federated_broadcast(mean)
@@ -77,9 +80,8 @@ def create_rfa_averaging(
             create_model,
             server_optimizer_fn=server_optimizer_fn,
             client_optimizer_fn=client_optimizer_fn,
-            aggregation_process=encoded_mean_process(create_model),
+            aggregation_process=robust_measured_process,
             broadcast_process=encoded_broadcast_process(create_model),
-            model_update_aggregation_factory=tff.learning.robust_aggregator,
         )
 
     else:
