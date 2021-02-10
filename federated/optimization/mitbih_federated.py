@@ -27,13 +27,18 @@ def iterative_process_fn(
     client_optimizer_fn=None,
     iterations=None,
     v=None,
-    compression=True,
+    compression=False,
 ):
     if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
         raise ValueError("Aggregation method does not exist")
     if aggregation_method == "rfa":
         return create_rfa_averaging(
-            tff_model, iterations, v, server_optimizer_fn, client_optimizer_fn
+            tff_model,
+            iterations,
+            v,
+            server_optimizer_fn,
+            client_optimizer_fn,
+            compression=compression,
         )
     if aggregation_method == "fedavg":
         if compression:
@@ -85,6 +90,7 @@ def federated_pipeline(
     validate_model=True,
     iterations=None,
     v=None,
+    compression=False,
 ):
     """
     Function runs federated training pipeline
@@ -132,6 +138,7 @@ def federated_pipeline(
         client_optimizer_fn=client_optimizer_fn,
         iterations=iterations,
         v=v,
+        compression=compression,
     )
 
     get_client_dataset = get_client_dataset_fn(
@@ -193,12 +200,13 @@ if __name__ == "__main__":
         batch_size=32,
         number_of_clients=10,
         number_of_clients_per_round=10,
-        number_of_rounds=1,
+        number_of_rounds=10,
         keras_model_fn=create_dense_model,
         normalized=True,
         save_data=True,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
-        aggregation_method="rfa",
+        aggregation_method="fedsgd",
         iterations=2,
         v=1e-6,
+        compression=True,
     )
