@@ -1,4 +1,4 @@
-image: ubuntu:latest
+image: run -it ubuntu:latest
 
 before_script:
   - apt update
