@@ -130,10 +130,10 @@ def load_data(
     )
 
     if normalized:
-        # From the data analysis, we can see that the normal heartbeats are overrepresented in the dataset
         df_0 = (train_df[train_df[187] == 0]).sample(n=SAMPLES, random_state=42)
+        df_5 = (train_df[train_df[187] == 4]).sample(n=1, random_state=42)
         train_df = pd.concat(
-            [df_0]
+            [df_0] + [df_5]
             + [
                 resample(
                     train_df[train_df[187] == i],
@@ -141,11 +141,12 @@ def load_data(
                     n_samples=SAMPLES,
                     random_state=int(f"12{i+2}"),
                 )
-                for i in range(1, 5)
+                for i in range(1, 4)
             ]
         )
 
     train_X, train_y = split_dataframe(train_df)
+
     test_X, test_y = split_dataframe(test_df)
 
     if data_analysis:
