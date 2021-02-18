@@ -45,7 +45,6 @@ def iterative_process_fn(
                 tff_model,
                 server_optimizer_fn=server_optimizer_fn,
                 client_optimizer_fn=client_optimizer_fn,
-                aggregation_process=encoded_mean_process(tff_model),
                 broadcast_process=encoded_broadcast_process(tff_model),
             )
         else:
@@ -59,7 +58,6 @@ def iterative_process_fn(
             return tff.learning.build_federated_sgd_process(
                 tff_model,
                 server_optimizer_fn=server_optimizer_fn,
-                aggregation_process=encoded_mean_process(tff_model),
                 broadcast_process=encoded_broadcast_process(tff_model),
             )
         else:
