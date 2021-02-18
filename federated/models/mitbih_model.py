@@ -53,8 +53,8 @@ def create_cnn_model():
             layers.BatchNormalization(),
             layers.MaxPool1D(pool_size=2, strides=2, padding="same"),
             layers.Flatten(),
-            layers.Dense(1024, activation="relu"),
-            layers.Dense(128, activation="relu"),
+            layers.Dense(64, activation="relu"),
+            layers.Dense(32, activation="relu"),
             layers.Dense(5, activation="softmax"),
         ]
     )
