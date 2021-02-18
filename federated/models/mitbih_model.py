@@ -1,4 +1,6 @@
 from tensorflow.keras import Sequential, layers
+from keras.models import Model
+from keras.layers import Input, Dense, Conv1D, MaxPooling1D, Softmax, Add, Flatten, Activation
 
 
 def create_cnn_model():
@@ -51,8 +53,8 @@ def create_cnn_model():
             layers.BatchNormalization(),
             layers.MaxPool1D(pool_size=2, strides=2, padding="same"),
             layers.Flatten(),
-            layers.Dense(64, activation="relu"),
-            layers.Dense(32, activation="relu"),
+            layers.Dense(1024, activation="relu"),
+            layers.Dense(128, activation="relu"),
             layers.Dense(5, activation="softmax"),
         ]
     )
@@ -99,6 +101,5 @@ def create_dense_model():
 
     return model
 
-
 if __name__ == "__main__":
-    create_dense_model().summary()
+    create_cnn_model().summary()
