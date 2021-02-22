@@ -1,6 +1,15 @@
 from tensorflow.keras import Sequential, layers
 from keras.models import Model
-from keras.layers import Input, Dense, Conv1D, MaxPooling1D, Softmax, Add, Flatten, Activation
+from keras.layers import (
+    Input,
+    Dense,
+    Conv1D,
+    MaxPooling1D,
+    Softmax,
+    Add,
+    Flatten,
+    Activation,
+)
 
 
 def create_cnn_model():
@@ -62,6 +71,28 @@ def create_cnn_model():
     return model
 
 
+def create_new_cnn_model():
+    model = Sequential(
+        [
+            layers.Convolution1D(filters=16, kernel_size=7, input_shape=[186, 1]),
+            layers.LeakyReLU(),
+            layers.MaxPool1D(pool_size=2),
+            layers.Convolution1D(filters=16, kernel_size=5),
+            layers.LeakyReLU(),
+            layers.Convolution1D(filters=16, kernel_size=5),
+            layers.LeakyReLU(),
+            layers.Convolution1D(filters=16, kernel_size=5),
+            layers.LeakyReLU(),
+            layers.MaxPool1D(pool_size=2),
+            layers.Flatten(),
+            layers.Dense(128),
+            layers.LeakyReLU(),
+            layers.Dense(5, activation="softmax"),
+        ]
+    )
+    return model
+
+
 def create_dense_model():
     """
     _________________________________________________________________
@@ -100,6 +131,7 @@ def create_dense_model():
     )
 
     return model
+
 
 if __name__ == "__main__":
     create_cnn_model().summary()
