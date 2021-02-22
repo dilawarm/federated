@@ -196,7 +196,7 @@ if __name__ == "__main__":
         name=name,
         iterative_process_fn=iterative_process_fn,
         server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
-        data_selector=create_uniform_dataset,
+        data_selector=create_non_iid_dataset,
         output="history",
         client_epochs=10,
         batch_size=32,
