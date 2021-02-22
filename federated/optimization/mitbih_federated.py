@@ -5,7 +5,11 @@ import tensorflow_federated as tff
 from federated.utils.rfa import create_rfa_averaging
 from federated.data.mitbih_data_preprocessing import get_datasets
 from federated.utils.data_utils import get_validation_fn, get_client_dataset_fn
-from federated.models.mitbih_model import create_cnn_model, create_dense_model
+from federated.models.mitbih_model import (
+    create_cnn_model,
+    create_dense_model,
+    create_new_cnn_model,
+)
 from federated.utils.training_loops import federated_training_loop
 from federated.utils.compression_utils import (
     encoded_broadcast_process,
@@ -191,20 +195,20 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
+        server_optimizer_fn=lambda: tf.keras.optimizers.Adam(learning_rate=0.001),
         data_selector=create_non_iid_dataset,
         output="history",
         client_epochs=10,
         batch_size=32,
-        number_of_clients=10,
-        number_of_clients_per_round=10,
+        number_of_clients=2,
+        number_of_clients_per_round=2,
         number_of_rounds=15,
-        keras_model_fn=create_cnn_model,
+        keras_model_fn=create_new_cnn_model,
         normalized=True,
         save_data=True,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
         aggregation_method=aggregation_method,
         iterations=2,
         v=1e-6,
-        compression=True,
+        compression=False,
     )
