@@ -21,7 +21,7 @@ def centralized_pipeline(
     Function runs centralized training pipeline
     """
     train_dataset, test_dataset = get_datasets(
-        train_batch_size=batch_size, transform=False, centralized=True
+        train_batch_size=batch_size, centralized=True
     )
 
     model = create_new_cnn_model()
