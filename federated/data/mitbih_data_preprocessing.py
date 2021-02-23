@@ -12,7 +12,7 @@ import pickle
 
 SAMPLES = 20_000
 NUM_OF_CLIENTS = 10
-S = 1
+S = 100
 
 
 """
