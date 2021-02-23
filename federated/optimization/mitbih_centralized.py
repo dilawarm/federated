@@ -24,7 +24,7 @@ def centralized_pipeline(
         train_batch_size=batch_size, centralized=True
     )
 
-    model = create_dense_model()
+    model = create_new_cnn_model()
 
     model.compile(
         loss="categorical_crossentropy",
