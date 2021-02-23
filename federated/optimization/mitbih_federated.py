@@ -195,7 +195,7 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.Adam(learning_rate=0.001),
+        server_optimizer_fn=lambda: tf.keras.optimizers.Adam(learning_rate=1.0),
         data_selector=create_non_iid_dataset,
         output="history",
         client_epochs=10,

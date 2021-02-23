@@ -134,4 +134,4 @@ def create_dense_model():
 
 
 if __name__ == "__main__":
-    create_cnn_model().summary()
+    create_dense_model().summary()
