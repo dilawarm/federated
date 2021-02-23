@@ -203,7 +203,7 @@ if __name__ == "__main__":
         number_of_clients=10,
         number_of_clients_per_round=10,
         number_of_rounds=15,
-        keras_model_fn=create_new_cnn_model,
+        keras_model_fn=create_dense_model,
         normalized=True,
         save_data=False,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
