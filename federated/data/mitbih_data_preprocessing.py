@@ -12,9 +12,6 @@ import pickle
 
 SAMPLES = 20_000
 NUM_OF_CLIENTS = 10
-S = 1
-
-print(f"S = {S}")
 
 
 """
@@ -96,13 +93,11 @@ def create_unbalanced_data(X, y, number_of_clients):
 
     clients_data = {f"client_{i}": [[], []] for i in range(1, number_of_clients + 1)}
     for i in range(len(X)):
-        if np.where(y[i] == 1)[0][0] == 4:
-            clients_data[f"client_{5}"][0].append(X[i])
-            clients_data[f"client_{5}"][1].append(y[i])
+        if np.where(y[i] == 1)[0][0] == 0:
+            clients_data[f"client_{1}"][0].append(X[i])
+            clients_data[f"client_{1}"][1].append(y[i])
         else:
-            client = random.randrange(
-                1, number_of_clients, np.random.randint(1, number_of_clients)
-            )
+            client = random.choice([i for i in range(1, 6) if i not in [1]])
             clients_data[f"client_{client}"][0].append(X[i])
             clients_data[f"client_{client}"][1].append(y[i])
 
@@ -127,7 +122,7 @@ def create_non_iid_dataset(X, y, number_of_clients):
 
 
 def load_data(
-    normalized=False,
+    normalized=True,
     data_analysis=False,
     data_selector=None,
     number_of_clients=5,
@@ -141,7 +136,7 @@ def load_data(
     train_file = "data/mitbih/mitbih_train.csv"
     test_file = "data/mitbih/mitbih_test.csv"
 
-    if data_analysis:
+    if data_analysis or data_selector == create_unbalanced_data:
         train_file = "../" + train_file
         test_file = "../" + test_file
 
@@ -184,6 +179,9 @@ def load_data(
 
     train_client_data, train_data = data_selector(train_X, train_y, number_of_clients)
     test_client_data, test_data = data_selector(test_X, test_y, number_of_clients)
+
+    if data_selector == create_unbalanced_data:
+        return train_client_data, test_client_data
 
     if save_data:
         f = open("history/logdir/data_distributions", "ab")
