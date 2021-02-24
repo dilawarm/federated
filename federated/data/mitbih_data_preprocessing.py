@@ -88,6 +88,27 @@ def create_uniform_dataset(X, y, number_of_clients):
     return clients_data, create_tff_dataset(clients_data)
 
 
+def create_unbalanced_data(X, y, number_of_clients):
+    indices = np.arange(X.shape[0])
+    np.random.shuffle(indices)
+    X = X[indices]
+    y = y[indices]
+
+    clients_data = {f"client_{i}": [[], []] for i in range(1, number_of_clients + 1)}
+    for i in range(len(X)):
+        if np.where(y[i] == 1)[0][0] == 4:
+            clients_data[f"client_{5}"][0].append(X[i])
+            clients_data[f"client_{5}"][1].append(y[i])
+        else:
+            client = random.randrange(
+                1, number_of_clients, np.random.randint(1, number_of_clients)
+            )
+            clients_data[f"client_{client}"][0].append(X[i])
+            clients_data[f"client_{client}"][1].append(y[i])
+
+    return clients_data, create_tff_dataset(clients_data)
+
+
 def create_non_iid_dataset(X, y, number_of_clients):
     indices = np.arange(X.shape[0])
     np.random.shuffle(indices)
@@ -258,3 +279,7 @@ def get_datasets(
         test_dataset = test_dataset.preprocess(test_preprocess)
 
     return train_dataset, test_dataset
+
+
+if __name__ == "__main__":
+    get_datasets(data_selector=create_unbalanced_data)
