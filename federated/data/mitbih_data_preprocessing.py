@@ -110,8 +110,6 @@ def create_unbalanced_data(X, y, number_of_clients):
 
 
 def create_non_iid_dataset(X, y, number_of_clients):
-
-    print("HEI!")
     indices = np.arange(X.shape[0])
     np.random.shuffle(indices)
     X = X[indices]
