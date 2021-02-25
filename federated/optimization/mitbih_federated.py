@@ -210,5 +210,5 @@ if __name__ == "__main__":
         aggregation_method=aggregation_method,
         iterations=3,
         v=1e-6,
-        compression=False,
+        compression=True,
     )
