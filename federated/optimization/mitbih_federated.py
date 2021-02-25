@@ -180,10 +180,10 @@ def federated_pipeline(
 
     with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
         f.writelines(
-            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,server_optimizer_fn,client_optimizer_fn,aggregation_method\n"
+            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,iterations,server_optimizer_fn,client_optimizer_fn,aggregation_method,normalized,compression,data_selector\n"
         )
         f.writelines(
-            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{server_opt_str}{client_opt_str}{aggregation_method}"
+            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{iterations},{server_opt_str}{client_opt_str}{aggregation_method},{normalized},{compression},{data_selector} "
         )
         f.close()
 
@@ -202,7 +202,7 @@ if __name__ == "__main__":
         batch_size=32,
         number_of_clients=10,
         number_of_clients_per_round=10,
-        number_of_rounds=15,
+        number_of_rounds=1,
         keras_model_fn=create_new_cnn_model,
         normalized=True,
         save_data=False,
@@ -210,5 +210,5 @@ if __name__ == "__main__":
         aggregation_method=aggregation_method,
         iterations=2,
         v=1e-6,
-        compression=False,
+        compression=True,
     )
