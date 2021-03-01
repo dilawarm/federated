@@ -31,6 +31,7 @@ def iterative_process_fn(
     iterations=None,
     v=None,
     compression=False,
+    aggregation_factory=None,
 ):
     if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
         raise ValueError("Aggregation method does not exist")
@@ -50,6 +51,7 @@ def iterative_process_fn(
                 server_optimizer_fn=server_optimizer_fn,
                 client_optimizer_fn=client_optimizer_fn,
                 broadcast_process=encoded_broadcast_process(tff_model),
+                model_update_aggregation_factory=aggregation_factory,
             )
         else:
             return tff.learning.build_federated_averaging_process(
@@ -92,6 +94,7 @@ def federated_pipeline(
     iterations=None,
     v=None,
     compression=False,
+    aggregation_factory=None,
 ):
     """
     Function runs federated training pipeline
@@ -140,6 +143,7 @@ def federated_pipeline(
         iterations=iterations,
         v=v,
         compression=compression,
+        aggregation_factory=aggregation_factory,
     )
 
     get_client_dataset = get_client_dataset_fn(
@@ -202,7 +206,7 @@ if __name__ == "__main__":
         batch_size=32,
         number_of_clients=10,
         number_of_clients_per_round=10,
-        number_of_rounds=15,
+        number_of_rounds=1,
         keras_model_fn=create_dense_model,
         normalized=True,
         save_data=False,
@@ -210,5 +214,6 @@ if __name__ == "__main__":
         aggregation_method=aggregation_method,
         iterations=3,
         v=1e-6,
-        compression=True,
+        compression=False,
+        aggregation_factory=None,
     )
