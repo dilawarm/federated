@@ -12,5 +12,17 @@ def gaussian_fixed_aggregation_factory(
     )
 
 
-if __name__ == "__main__":
-    gaussian_fixed_aggregation_factory(0.01, 2, 0.1)
+def gaussian_adaptive_aggregation_factory(
+    noise_multiplier,
+    clients_per_round,
+    clipping_value,
+    target_unclipped_quantile,
+    learning_rate,
+):
+    return tff.aggregators.DifferentiallyPrivateFactory.gaussian_adaptive(
+        noise_multiplier=noise_multiplier,
+        clients_per_round=clients_per_round,
+        initial_l2_norm_clip=clipping_value,
+        target_unclipped_quantile=target_unclipped_quantile,
+        learning_rate=learning_rate,
+    )

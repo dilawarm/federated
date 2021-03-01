@@ -21,6 +21,10 @@ from federated.data.mitbih_data_preprocessing import (
 )
 import inspect
 import os
+from federated.utils.differential_privacy import (
+    gaussian_fixed_aggregation_factory,
+    gaussian_adaptive_aggregation_factory,
+)
 
 
 def iterative_process_fn(
@@ -184,10 +188,10 @@ def federated_pipeline(
 
     with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
         f.writelines(
-            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,iterations,server_optimizer_fn,client_optimizer_fn,aggregation_method,normalized,compression,data_selector\n"
+            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,iterations,server_optimizer_fn,client_optimizer_fn,aggregation_method,normalized,compression,data_selector,aggregation_factory\n"
         )
         f.writelines(
-            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{iterations},{server_opt_str}{client_opt_str}{aggregation_method},{normalized},{compression},{data_selector} "
+            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{iterations},{server_opt_str}{client_opt_str}{aggregation_method},{normalized},{compression},{data_selector},{aggregation_factory}"
         )
         f.close()
 
@@ -195,6 +199,7 @@ def federated_pipeline(
 if __name__ == "__main__":
     name = input("Experiment name: ")
     aggregation_method = input("Aggregation method: ")
+    number_of_clients_per_round = 10
 
     federated_pipeline(
         name=name,
@@ -205,7 +210,7 @@ if __name__ == "__main__":
         client_epochs=10,
         batch_size=32,
         number_of_clients=10,
-        number_of_clients_per_round=10,
+        number_of_clients_per_round=number_of_clients_per_round,
         number_of_rounds=1,
         keras_model_fn=create_dense_model,
         normalized=True,
@@ -215,5 +220,7 @@ if __name__ == "__main__":
         iterations=3,
         v=1e-6,
         compression=False,
-        aggregation_factory=None,
+        aggregation_factory=gaussian_fixed_aggregation_factory(
+            0.01, number_of_clients_per_round, 0.5
+        ),
     )
