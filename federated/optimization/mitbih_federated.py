@@ -33,9 +33,10 @@ def iterative_process_fn(
     aggregation_method="fedavg",
     client_optimizer_fn=None,
     iterations=None,
+    client_weighting=None,
     v=None,
     compression=False,
-    aggregation_factory=None,
+    model_update_aggregation_factory=None,
 ):
     if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
         raise ValueError("Aggregation method does not exist")
@@ -54,26 +55,33 @@ def iterative_process_fn(
                 tff_model,
                 server_optimizer_fn=server_optimizer_fn,
                 client_optimizer_fn=client_optimizer_fn,
+                client_weighting=client_weighting,
                 broadcast_process=encoded_broadcast_process(tff_model),
-                model_update_aggregation_factory=aggregation_factory,
+                model_update_aggregation_factory=model_update_aggregation_factory,
             )
         else:
             return tff.learning.build_federated_averaging_process(
                 tff_model,
                 server_optimizer_fn=server_optimizer_fn,
                 client_optimizer_fn=client_optimizer_fn,
+                client_weighting=client_weighting,
+                model_update_aggregation_factory=model_update_aggregation_factory,
             )
     if aggregation_method == "fedsgd":
         if compression:
             return tff.learning.build_federated_sgd_process(
                 tff_model,
                 server_optimizer_fn=server_optimizer_fn,
+                client_weighting=client_weighting,
                 broadcast_process=encoded_broadcast_process(tff_model),
+                model_update_aggregation_factory=model_update_aggregation_factory,
             )
         else:
             return tff.learning.build_federated_sgd_process(
                 tff_model,
                 server_optimizer_fn=server_optimizer_fn,
+                client_weighting=client_weighting,
+                model_update_aggregation_factory=model_update_aggregation_factory,
             )
 
 
@@ -93,12 +101,13 @@ def federated_pipeline(
     save_data=True,
     aggregation_method="fedavg",
     client_optimizer_fn=None,
+    client_weighting=None,
     seed=None,
     validate_model=True,
     iterations=None,
     v=None,
     compression=False,
-    aggregation_factory=None,
+    model_update_aggregation_factory=None,
 ):
     """
     Function runs federated training pipeline
@@ -145,9 +154,10 @@ def federated_pipeline(
         aggregation_method=aggregation_method,
         client_optimizer_fn=client_optimizer_fn,
         iterations=iterations,
+        client_weighting=client_weighting,
         v=v,
         compression=compression,
-        aggregation_factory=aggregation_factory,
+        model_update_aggregation_factory=model_update_aggregation_factory(),
     )
 
     get_client_dataset = get_client_dataset_fn(
@@ -180,6 +190,9 @@ def federated_pipeline(
 
     client_opt_str = str(inspect.getsourcelines(client_optimizer_fn)[0][0]).strip()
 
+    agg_factory_tuple = inspect.getsourcelines(model_update_aggregation_factory)[0]
+    agg_factory_str = "".join(str(i).strip() for i in agg_factory_tuple)
+
     if save_data:
         os.rename(
             "history/logdir/data_distributions",
@@ -191,7 +204,7 @@ def federated_pipeline(
             "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,iterations,server_optimizer_fn,client_optimizer_fn,aggregation_method,normalized,compression,data_selector,aggregation_factory\n"
         )
         f.writelines(
-            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{iterations},{server_opt_str}{client_opt_str}{aggregation_method},{normalized},{compression},{data_selector},{aggregation_factory}"
+            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{iterations},{server_opt_str}{client_opt_str}{aggregation_method},{normalized},{compression},{data_selector},{agg_factory_str}"
         )
         f.close()
 
@@ -217,10 +230,11 @@ if __name__ == "__main__":
         save_data=False,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
         aggregation_method=aggregation_method,
+        client_weighting=tff.learning.ClientWeighting.UNIFORM,
         iterations=3,
         v=1e-6,
         compression=False,
-        aggregation_factory=gaussian_fixed_aggregation_factory(
+        model_update_aggregation_factory=lambda: gaussian_fixed_aggregation_factory(
             0.01, number_of_clients_per_round, 0.5
         ),
     )

@@ -5,6 +5,7 @@ import tensorflow_federated as tff
 def gaussian_fixed_aggregation_factory(
     noise_multiplier, clients_per_round, clipping_value
 ):
+    print("hei jeg bruker DP (DilawarPernille :))")
     return tff.aggregators.DifferentiallyPrivateFactory.gaussian_fixed(
         noise_multiplier=noise_multiplier,
         clients_per_round=clients_per_round,
@@ -26,3 +27,11 @@ def gaussian_adaptive_aggregation_factory(
         target_unclipped_quantile=target_unclipped_quantile,
         learning_rate=learning_rate,
     )
+
+
+if __name__ == "__main__":
+    import inspect
+
+    aggregation_factory = lambda: gaussian_fixed_aggregation_factory(0.01, 10, 0.5)
+    agg_factory_str = str(inspect.getsourcelines(aggregation_factory[0])[0][0]).strip()
+    print(agg_factory_str)
