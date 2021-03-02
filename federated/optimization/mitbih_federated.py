@@ -224,7 +224,7 @@ if __name__ == "__main__":
         batch_size=32,
         number_of_clients=10,
         number_of_clients_per_round=number_of_clients_per_round,
-        number_of_rounds=1,
+        number_of_rounds=15,
         keras_model_fn=create_dense_model,
         normalized=True,
         save_data=False,
