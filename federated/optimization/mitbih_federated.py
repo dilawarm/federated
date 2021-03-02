@@ -234,7 +234,8 @@ if __name__ == "__main__":
         iterations=3,
         v=1e-6,
         compression=False,
-        model_update_aggregation_factory=lambda: gaussian_fixed_aggregation_factory(
-            0.01, number_of_clients_per_round, 0.5
+        model_update_aggregation_factory=lambda: gaussian_adaptive_aggregation_factory(
+            0.5, number_of_clients_per_round, 0.5, 0.5
         ),
     )
+    

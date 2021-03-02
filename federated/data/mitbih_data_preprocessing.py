@@ -12,7 +12,7 @@ import pickle
 
 SAMPLES = 20_000
 NUM_OF_CLIENTS = 10
-
+S = 100
 
 """
 Function seperates label column from datapoints columns.
@@ -150,9 +150,9 @@ def load_data(
 
     if normalized:
         df_0 = (train_df[train_df[187] == 0]).sample(n=SAMPLES, random_state=42)
-        # df_5 = (train_df[train_df[187] == 4]).sample(n=S, random_state=42)
+        df_5 = (train_df[train_df[187] == 4]).sample(n=S, random_state=42)
         train_df = pd.concat(
-            [df_0]
+            [df_0] + [df_5]
             + [
                 resample(
                     train_df[train_df[187] == i],
