@@ -235,7 +235,10 @@ if __name__ == "__main__":
         v=1e-6,
         compression=False,
         model_update_aggregation_factory=lambda: gaussian_adaptive_aggregation_factory(
-            0.5, number_of_clients_per_round, 0.5, 0.5
+            noise_multiplier=0.5,
+            clients_per_round=number_of_clients_per_round,
+            clipping_value=0.45,
+            target_unclipped_quantile=0.8,
+            learning_rate=0.1,
         ),
     )
-    
