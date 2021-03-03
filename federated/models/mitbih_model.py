@@ -132,5 +132,16 @@ def create_dense_model():
     return model
 
 
+def create_linear_model():
+    model = Sequential(
+        [
+            layers.InputLayer(input_shape=[186, 1]),
+            layers.Flatten(),
+            layers.Dense(5),
+        ]
+    )
+    return model
+
+
 if __name__ == "__main__":
-    create_dense_model().summary()
+    create_linear_model().summary()

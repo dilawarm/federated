@@ -9,6 +9,7 @@ from federated.models.mitbih_model import (
     create_cnn_model,
     create_dense_model,
     create_new_cnn_model,
+    create_linear_model,
 )
 from federated.utils.training_loops import federated_training_loop
 from federated.utils.compression_utils import (
@@ -18,6 +19,7 @@ from federated.data.mitbih_data_preprocessing import (
     create_class_distributed_dataset,
     create_non_iid_dataset,
     create_uniform_dataset,
+    create_unbalanced_data,
 )
 import inspect
 import os
@@ -212,20 +214,20 @@ def federated_pipeline(
 if __name__ == "__main__":
     name = input("Experiment name: ")
     aggregation_method = input("Aggregation method: ")
-    number_of_clients_per_round = 10
+    number_of_clients_per_round = 5
 
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
         server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
-        data_selector=create_non_iid_dataset,
+        data_selector=create_unbalanced_data,
         output="history",
         client_epochs=10,
         batch_size=32,
-        number_of_clients=10,
+        number_of_clients=5,
         number_of_clients_per_round=number_of_clients_per_round,
-        number_of_rounds=15,
-        keras_model_fn=create_new_cnn_model,
+        number_of_rounds=10,
+        keras_model_fn=create_linear_model,
         normalized=True,
         save_data=False,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
@@ -234,9 +236,5 @@ if __name__ == "__main__":
         iterations=3,
         v=1e-6,
         compression=False,
-        model_update_aggregation_factory=lambda: gaussian_fixed_aggregation_factory(
-            noise_multiplier=0.5,
-            clients_per_round=number_of_clients_per_round,
-            clipping_value=0.75,
-        ),
+        model_update_aggregation_factory=None,
     )

@@ -150,10 +150,9 @@ def load_data(
 
     if normalized:
         df_0 = (train_df[train_df[187] == 0]).sample(n=SAMPLES, random_state=42)
-        df_5 = (train_df[train_df[187] == 4]).sample(n=S, random_state=42)
+        # df_5 = (train_df[train_df[187] == 4]).sample(n=S, random_state=42)
         train_df = pd.concat(
             [df_0]
-            + [df_5]
             + [
                 resample(
                     train_df[train_df[187] == i],
@@ -161,7 +160,7 @@ def load_data(
                     n_samples=SAMPLES,
                     random_state=int(f"12{i+2}"),
                 )
-                for i in range(1, 4)
+                for i in range(1, 5)
             ]
         )
 
