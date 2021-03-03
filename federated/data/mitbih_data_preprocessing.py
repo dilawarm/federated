@@ -136,7 +136,7 @@ def load_data(
     train_file = "data/mitbih/mitbih_train.csv"
     test_file = "data/mitbih/mitbih_test.csv"
 
-    if data_analysis or data_selector == create_unbalanced_data:
+    if data_analysis and data_selector == create_unbalanced_data:
         train_file = "../" + train_file
         test_file = "../" + test_file
 
@@ -180,7 +180,7 @@ def load_data(
     train_client_data, train_data = data_selector(train_X, train_y, number_of_clients)
     test_client_data, test_data = data_selector(test_X, test_y, number_of_clients)
 
-    if data_selector == create_unbalanced_data:
+    if data_selector == create_unbalanced_data and False:
         return train_client_data, test_client_data
 
     if save_data:
