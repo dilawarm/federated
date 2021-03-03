@@ -193,8 +193,11 @@ def federated_pipeline(
 
     client_opt_str = str(inspect.getsourcelines(client_optimizer_fn)[0][0]).strip()
 
-    agg_factory_tuple = inspect.getsourcelines(model_update_aggregation_factory)[0]
-    agg_factory_str = "".join(str(i).strip() for i in agg_factory_tuple)
+    if model_update_aggregation_factory:
+        agg_factory_tuple = inspect.getsourcelines(model_update_aggregation_factory)[0]
+        agg_factory_str = "".join(str(i).strip() for i in agg_factory_tuple)
+    else:
+        agg_factory_str = ""
 
     test = str(keras_model_fn)
     print(test)
