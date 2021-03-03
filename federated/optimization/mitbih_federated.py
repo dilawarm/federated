@@ -148,6 +148,9 @@ def federated_pipeline(
             metrics=metrics_fn(),
         )
 
+    if model_update_aggregation_factory:
+        model_update_aggregation_factory = model_update_aggregation_factory()
+
     iterative_process = iterative_process_fn(
         model_fn,
         server_optimizer_fn,
@@ -157,7 +160,7 @@ def federated_pipeline(
         client_weighting=client_weighting,
         v=v,
         compression=compression,
-        model_update_aggregation_factory=model_update_aggregation_factory(),
+        model_update_aggregation_factory=model_update_aggregation_factory,
     )
 
     get_client_dataset = get_client_dataset_fn(
