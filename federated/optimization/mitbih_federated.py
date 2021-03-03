@@ -72,7 +72,6 @@ def iterative_process_fn(
             return tff.learning.build_federated_sgd_process(
                 tff_model,
                 server_optimizer_fn=server_optimizer_fn,
-                client_weighting=client_weighting,
                 broadcast_process=encoded_broadcast_process(tff_model),
                 model_update_aggregation_factory=model_update_aggregation_factory,
             )
@@ -80,7 +79,6 @@ def iterative_process_fn(
             return tff.learning.build_federated_sgd_process(
                 tff_model,
                 server_optimizer_fn=server_optimizer_fn,
-                client_weighting=client_weighting,
                 model_update_aggregation_factory=model_update_aggregation_factory,
             )
 
@@ -193,6 +191,8 @@ def federated_pipeline(
     agg_factory_tuple = inspect.getsourcelines(model_update_aggregation_factory)[0]
     agg_factory_str = "".join(str(i).strip() for i in agg_factory_tuple)
 
+    test = str(keras_model_fn)
+    print(test)
     if save_data:
         os.rename(
             "history/logdir/data_distributions",
@@ -201,10 +201,10 @@ def federated_pipeline(
 
     with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
         f.writelines(
-            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,iterations,server_optimizer_fn,client_optimizer_fn,aggregation_method,normalized,compression,data_selector,aggregation_factory\n"
+            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,iterations,server_optimizer_fn,client_optimizer_fn,aggregation_method,normalized,compression,data_selector,aggregation_factory, model_type\n"
         )
         f.writelines(
-            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{iterations},{server_opt_str}{client_opt_str}{aggregation_method},{normalized},{compression},{data_selector},{agg_factory_str}"
+            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{iterations},{server_opt_str}{client_opt_str}{aggregation_method},{normalized},{compression},{data_selector},{agg_factory_str}{keras_model_fn}"
         )
         f.close()
 
