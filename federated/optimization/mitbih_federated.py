@@ -202,8 +202,6 @@ def federated_pipeline(
     else:
         agg_factory_str = ""
 
-    test = str(keras_model_fn)
-    print(test)
     if save_data:
         os.rename(
             "history/logdir/data_distributions",
