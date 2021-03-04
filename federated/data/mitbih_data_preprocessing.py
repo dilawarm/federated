@@ -277,7 +277,3 @@ def get_datasets(
         test_dataset = test_dataset.preprocess(test_preprocess)
 
     return (train_dataset, test_dataset, n)
-
-
-if __name__ == "__main__":
-    train_dataset, _ = get_datasets()

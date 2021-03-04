@@ -9,6 +9,8 @@ from federated.utils.training_loops import (
     federated_training_loop,
 )
 
+BATCH_SIZE = 2
+
 
 class CentralizedTrainingLoopTest(tf.test.TestCase):
     def create_test_dataset(self):
@@ -16,7 +18,7 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
             ([[1.0, 2.0], [3.0, 4.0]], [[5.0], [6.0]])
         )
 
-        return dataset.repeat(4).batch(2)
+        return dataset.repeat(4).batch(BATCH_SIZE)
 
     def create_test_model(self):
         model = tf.keras.Sequential(
@@ -140,6 +142,7 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
             number_of_rounds=7,
             name="test_reduces_loss",
             output=self.get_temp_dir(),
+            batch_size=BATCH_SIZE,
         )
 
         trained_model = iterative_process.get_model_weights(state)
