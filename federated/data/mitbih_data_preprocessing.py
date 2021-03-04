@@ -65,6 +65,7 @@ def create_tff_dataset(clients_data):
 
 
 def create_class_distributed_dataset(X, y, number_of_clients):
+    n = len(X)
     clients_data = {f"client_{i}": [[], []] for i in range(1, 6)}
 
     for i in range(n):
