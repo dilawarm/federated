@@ -152,13 +152,9 @@ def federated_training_loop(
         with compression_summary_writer.as_default():
             communication_info = env.get_size_info()
             broadcasted_bits = communication_info.broadcast_bits[-1]
-            aggregated_bits = communication_info.aggregate_bits[-1]
 
             tf.summary.scalar(
                 "cumulative_broadcasted_bits", broadcasted_bits, step=round_number
-            )
-            tf.summary.scalar(
-                "cumulative_aggregated_bits", aggregated_bits, step=round_number
             )
 
             compression_summary_writer.flush()
