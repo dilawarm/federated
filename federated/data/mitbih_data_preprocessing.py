@@ -65,7 +65,6 @@ def create_tff_dataset(clients_data):
 
 
 def create_class_distributed_dataset(X, y, number_of_clients):
-    n = len(X)
     clients_data = {f"client_{i}": [[], []] for i in range(1, 6)}
 
     for i in range(n):
@@ -189,7 +188,7 @@ def load_data(
         pickle.dump(test_client_data, f)
         f.close()
 
-    return train_data, test_data
+    return train_data, test_data, len(train_X)
 
 
 def preprocess_dataset(epochs, batch_size, shuffle_buffer_size):
@@ -244,7 +243,7 @@ def get_datasets(
     Function preprocesses datasets.
     Return input-ready datasets
     """
-    train_dataset, test_dataset = load_data(
+    train_dataset, test_dataset, n = load_data(
         normalized=normalized,
         data_selector=data_selector,
         number_of_clients=number_of_clients,
@@ -276,8 +275,8 @@ def get_datasets(
         train_dataset = train_dataset.preprocess(train_preprocess)
         test_dataset = test_dataset.preprocess(test_preprocess)
 
-    return train_dataset, test_dataset
+    return (train_dataset, test_dataset, n)
 
 
 if __name__ == "__main__":
-    get_datasets(data_selector=create_unbalanced_data)
+    train_dataset, _ = get_datasets()
