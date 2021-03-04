@@ -77,7 +77,7 @@ def federated_training_loop(
     name,
     output,
     batch_size,
-    traning_points,
+    traning_points=None,
     keras_model_fn=None,
     loss_fn=None,
     metrics_fn=None,
