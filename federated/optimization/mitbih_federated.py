@@ -223,7 +223,7 @@ def federated_pipeline(
 if __name__ == "__main__":
     name = input("Experiment name: ")
     aggregation_method = input("Aggregation method: ")
-    number_of_clients_per_round = 5
+    number_of_clients_per_round = 10
     noise_multiplier = 0.5
     clipping_value = 0.75
 
@@ -231,14 +231,14 @@ if __name__ == "__main__":
         name=name,
         iterative_process_fn=iterative_process_fn,
         server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
-        data_selector=create_unbalanced_data,
+        data_selector=create_non_iid_dataset,
         output="history",
         client_epochs=10,
         batch_size=32,
-        number_of_clients=5,
+        number_of_clients=10,
         number_of_clients_per_round=number_of_clients_per_round,
-        number_of_rounds=1,
-        keras_model_fn=create_linear_model,
+        number_of_rounds=15,
+        keras_model_fn=create_dense_model,
         normalized=True,
         save_data=False,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
