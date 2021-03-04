@@ -167,7 +167,7 @@ def federated_training_loop(
                     delta=1 / traning_points,
                 )
 
-                tf.summary.scalar("", eps, step=round_number)
+                tf.summary.scalar("epsilon", eps, step=round_number)
 
         model_weights = iterative_process.get_model_weights(state)
 
