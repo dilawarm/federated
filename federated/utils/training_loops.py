@@ -76,17 +76,22 @@ def federated_training_loop(
     number_of_rounds,
     name,
     output,
+    batch_size,
     keras_model_fn=None,
     loss_fn=None,
     metrics_fn=None,
-    validate_model=None,
     save_model=False,
+    validate_model=None,
     noise_multiplier=None,
 ):
     """
     Function trains a model on a dataset using federated learning.
     Returns its state.
     """
+
+    print("HALLO FRA P")
+    print(f"Noise={noise_multiplier}, batch={batch_size}")
+
     env = set_communication_cost_env()
 
     log_dir = os.path.join(output, "logdir", name)

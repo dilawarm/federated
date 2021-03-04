@@ -182,11 +182,13 @@ def federated_pipeline(
         number_of_rounds=number_of_rounds,
         name=name,
         output=output,
+        batch_size=batch_size,
         keras_model_fn=get_keras_model,
         loss_fn=loss_fn,
         metrics_fn=metrics_fn,
         save_model=True,
         validate_model=validation_fn,
+        noise_multiplier=noise_multiplier,
     )
 
     server_opt_str = str(inspect.getsourcelines(server_optimizer_fn)[0][0]).strip()
@@ -221,6 +223,8 @@ if __name__ == "__main__":
     name = input("Experiment name: ")
     aggregation_method = input("Aggregation method: ")
     number_of_clients_per_round = 5
+    noise_multiplier = 0.5
+    clipping_value = 0.75
 
     federated_pipeline(
         name=name,
@@ -232,7 +236,7 @@ if __name__ == "__main__":
         batch_size=32,
         number_of_clients=5,
         number_of_clients_per_round=number_of_clients_per_round,
-        number_of_rounds=10,
+        number_of_rounds=1,
         keras_model_fn=create_linear_model,
         normalized=True,
         save_data=False,
@@ -243,8 +247,8 @@ if __name__ == "__main__":
         v=1e-6,
         compression=False,
         model_update_aggregation_factory=lambda: gaussian_fixed_aggregation_factory(
-            noise_multiplier=0.5,
+            noise_multiplier=noise_multiplier,
             clients_per_round=number_of_clients_per_round,
-            clipping_value=0.75,
+            clipping_value=clipping_value,
         ),
     )
