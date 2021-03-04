@@ -76,6 +76,7 @@ def federated_training_loop(
     name,
     output,
     batch_size,
+    traning_points,
     keras_model_fn=None,
     loss_fn=None,
     metrics_fn=None,
@@ -89,7 +90,9 @@ def federated_training_loop(
     """
 
     print("HALLO FRA P")
-    print(f"Noise={noise_multiplier}, batch={batch_size}")
+    print(
+        f"Noise={noise_multiplier}, batch={batch_size}, training points={traning_points}"
+    )
 
     env = set_communication_cost_env()
 
