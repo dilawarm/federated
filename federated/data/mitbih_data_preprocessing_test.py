@@ -42,7 +42,7 @@ class DataPreprocessorTest(tf.test.TestCase):
         Function that tests function for centeralized data preprocessing.
         It tests whether the shape of the data matches what is expected.
         """
-        train, test = get_datasets(
+        train, test, _ = get_datasets(
             train_batch_size=32,
             test_batch_size=100,
             centralized=True,
@@ -61,7 +61,7 @@ class DataPreprocessorTest(tf.test.TestCase):
         Function that tests function for federated data preprocessing.
         It tests whether the shape of the data matches what is expected.
         """
-        train, test = get_datasets(
+        train, test, _ = get_datasets(
             train_batch_size=32,
             test_batch_size=100,
             centralized=False,
