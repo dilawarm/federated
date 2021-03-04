@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy_lib
 import os
 from federated.models.mitbih_model import create_dense_model
 import time
@@ -100,27 +101,39 @@ def federated_training_loop(
     train_log_dir = os.path.join(log_dir, "train")
     validation_log_dir = os.path.join(log_dir, "validation")
     communication_log_dir = os.path.join(log_dir, "communication")
+    moments_accountant_log_dir = os.path.join(log_dir, "moments_accountant")
 
     tf.io.gfile.makedirs(log_dir)
     tf.io.gfile.makedirs(train_log_dir)
     tf.io.gfile.makedirs(validation_log_dir)
     tf.io.gfile.makedirs(communication_log_dir)
+    tf.io.gfile.makedirs(moments_accountant_log_dir)
 
     initial_state = iterative_process.initialize()
 
     state = initial_state
-    round_number = 0
+    round_number = 1
 
     model_weights = iterative_process.get_model_weights(state)
     train_summary_writer = tf.summary.create_file_writer(train_log_dir)
     validation_summary_writer = tf.summary.create_file_writer(validation_log_dir)
     compression_summary_writer = tf.summary.create_file_writer(communication_log_dir)
+    moments_accountant_writer = tf.summary.create_file_writer(
+        moments_accountant_log_dir
+    )
+
+    if noise_multiplier:
+        moments_accountant_log_dir = os.path.join(log_dir, "moments_accountant")
+        tf.io.gfile.makedirs(moments_accountant_log_dir)
+        moments_accountant_writer = tf.summary.create_file_writer(
+            moments_accountant_log_dir
+        )
 
     print("Model metrics:")
 
     round_times = []
     start_time = time.time()
-    while round_number < number_of_rounds:
+    while round_number < number_of_rounds + 1:
         round_start_time = time.time()
         print(f"Round number: {round_number}")
         federated_train_data = get_client_dataset(round_number)
@@ -152,6 +165,18 @@ def federated_training_loop(
             )
 
             compression_summary_writer.flush()
+
+        if noise_multiplier:
+            with moments_accountant_writer.as_default():
+                eps, _ = compute_dp_sgd_privacy_lib.compute_dp_sgd_privacy(
+                    n=100000,
+                    batch_size=batch_size,
+                    noise_multiplier=noise_multiplier,
+                    epochs=round_number,
+                    delta=1 / n,
+                )
+
+                tf.summary.scalar("", eps, step=round_number)
 
         model_weights = iterative_process.get_model_weights(state)
 
