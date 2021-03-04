@@ -90,11 +90,6 @@ def federated_training_loop(
     Returns its state.
     """
 
-    print("HALLO FRA P")
-    print(
-        f"Noise={noise_multiplier}, batch={batch_size}, training points={traning_points}"
-    )
-
     env = set_communication_cost_env()
 
     log_dir = os.path.join(output, "logdir", name)
@@ -169,11 +164,11 @@ def federated_training_loop(
         if noise_multiplier:
             with moments_accountant_writer.as_default():
                 eps, _ = compute_dp_sgd_privacy_lib.compute_dp_sgd_privacy(
-                    n=100000,
+                    n=traning_points,
                     batch_size=batch_size,
                     noise_multiplier=noise_multiplier,
                     epochs=round_number,
-                    delta=1 / n,
+                    delta=1 / traning_points,
                 )
 
                 tf.summary.scalar("", eps, step=round_number)
