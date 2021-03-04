@@ -112,7 +112,7 @@ def federated_pipeline(
     """
     Function runs federated training pipeline
     """
-    train_dataset, _ = get_datasets(
+    train_dataset, _, len_train_X = get_datasets(
         train_batch_size=batch_size,
         centralized=False,
         normalized=normalized,
@@ -122,7 +122,7 @@ def federated_pipeline(
         save_data=save_data,
     )
 
-    _, test_dataset = get_datasets(
+    _, test_dataset, _ = get_datasets(
         train_batch_size=batch_size,
         centralized=True,
         normalized=True,
@@ -183,6 +183,7 @@ def federated_pipeline(
         name=name,
         output=output,
         batch_size=batch_size,
+        traning_points=len_train_X,
         keras_model_fn=get_keras_model,
         loss_fn=loss_fn,
         metrics_fn=metrics_fn,

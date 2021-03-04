@@ -77,6 +77,7 @@ def federated_training_loop(
     name,
     output,
     batch_size,
+    traning_points,
     keras_model_fn=None,
     loss_fn=None,
     metrics_fn=None,
@@ -88,9 +89,6 @@ def federated_training_loop(
     Function trains a model on a dataset using federated learning.
     Returns its state.
     """
-
-    print("HALLO FRA P")
-    print(f"Noise={noise_multiplier}, batch={batch_size}")
 
     env = set_communication_cost_env()
 
@@ -162,11 +160,11 @@ def federated_training_loop(
         if noise_multiplier:
             with moments_accountant_writer.as_default():
                 eps, _ = compute_dp_sgd_privacy_lib.compute_dp_sgd_privacy(
-                    n=100000,
+                    n=traning_points,
                     batch_size=batch_size,
                     noise_multiplier=noise_multiplier,
                     epochs=round_number,
-                    delta=1 / n,
+                    delta=1 / traning_points,
                 )
 
                 tf.summary.scalar("", eps, step=round_number)
