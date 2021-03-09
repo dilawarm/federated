@@ -30,15 +30,15 @@ from federated.utils.training_loops import federated_training_loop
 
 def iterative_process_fn(
     tff_model: tff.learning.Model,
-    server_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer],
+    server_optimizer_fn: Callable[[], tf.keras.optimizers.Optimizer],
     aggregation_method: str = "fedavg",
-    client_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer] = None,
+    client_optimizer_fn: Callable[[], tf.keras.optimizers.Optimizer] = None,
     iterations: int = None,
     client_weighting: tff.learning.ClientWeighting = None,
     v: float = None,
     compression: bool = False,
     model_update_aggregation_factory: Callable[
-        Optional, tff.aggregators.UnweightedAggregationFactory
+        [], tff.aggregators.UnweightedAggregationFactory
     ] = None,
 ) -> tff.templates.IterativeProcess:
 
@@ -104,12 +104,12 @@ def federated_pipeline(
     number_of_clients: int,
     number_of_clients_per_round: int,
     number_of_rounds: int,
-    keras_model_fn: Callable[Optional, tf.keras.Sequential],
-    server_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer],
+    keras_model_fn: Callable[[], tf.keras.Sequential],
+    server_optimizer_fn: Callable[[], tf.keras.optimizers.Optimizer],
     normalized: bool = True,
     save_data: bool = True,
     aggregation_method: str = "fedavg",
-    client_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer] = None,
+    client_optimizer_fn: Callable[[], tf.keras.optimizers.Optimizer] = None,
     client_weighting: tff.learning.ClientWeighting = None,
     seed: int = None,
     validate_model: bool = True,
@@ -117,7 +117,7 @@ def federated_pipeline(
     v: int = None,
     compression: bool = False,
     model_update_aggregation_factory: Callable[
-        Optional, tff.aggregators.UnweightedAggregationFactory
+        [], tff.aggregators.UnweightedAggregationFactory
     ] = None,
 ) -> None:
 
