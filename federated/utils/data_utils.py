@@ -3,7 +3,7 @@ import functools
 import numpy as np
 import collections
 import tensorflow_federated as tff
-from typing import Callable
+from typing import Callable, Optional
 
 
 def randomly_select_clients_for_round(
@@ -30,7 +30,7 @@ def get_client_dataset_fn(
     dataset: tf.data.Dataset,
     number_of_clients_per_round: int,
     seed: int = None,
-):
+) -> Callable[[Optional],]:
     """
     This function generates a function for selecting client-datasets for each round number.
     Returns a function for choosing clients while training.
@@ -53,7 +53,7 @@ def get_client_dataset_fn(
     return get_dataset_for_client
 
 
-def _convert_fn(dataset):
+def _convert_fn(dataset: tf.data.Dataset) -> tf.data.Dataset:
     """
     Converts dataset to tupled dataset.
     Returns tupled dataset.

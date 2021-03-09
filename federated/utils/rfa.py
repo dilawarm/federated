@@ -68,11 +68,11 @@ def create_robust_measured_process(
 
 
 def create_rfa_averaging(
-    create_model: Callable[Optional, tff.learning.Model],
+    create_model: Callable[[], tff.learning.Model],
     iterations: int,
     v: float,
-    server_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer],
-    client_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer],
+    server_optimizer_fn: Callable[[], tf.keras.optimizers.Optimizer],
+    client_optimizer_fn: Callable[[], tf.keras.optimizers.Optimizer],
     compression: bool = False,
 ) -> tff.templates.IterativeProcess:
 
