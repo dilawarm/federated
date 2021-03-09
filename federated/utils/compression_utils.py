@@ -3,8 +3,13 @@ import tensorflow_federated as tff
 from tensorflow_model_optimization.python.core.internal import tensor_encoding as te
 
 
-def set_communication_cost_env():
-    """"""
+def set_communication_cost_env() -> tff.framework.ExecutorFactory:
+
+    """
+    Set environment for loggging communication cost.
+    Returns ExecutorFactory for that environment
+    """
+
     factory = tff.framework.sizing_executor_factory()
     context = tff.framework.ExecutionContext(executor_fn=factory)
     tff.framework.set_default_context(context)
@@ -12,19 +17,11 @@ def set_communication_cost_env():
     return factory
 
 
-def bit_formatter(bits):
-    """"""
-    bits = float(bits)
-    units = ["bit", "Kibit", "Mibit", "Gibit"]
-    for u in units:
-        if bits < 1024.0:
-            return f"{bits:3.2f} {u}"
-        bits /= 1024.0
-    return f"{bits:3.2f} TiB"
-
-
-def build_encoded_broadcast_fn(weights):
-    """"""
+def build_encoded_broadcast_fn(weights: tf.Tensor) -> te.core.Encoder:
+    """
+    Function for encoding weights with uniform quantization.
+    Returns the encoded weights.
+    """
     if weights.shape.num_elements() > 0:
         return te.encoders.as_simple_encoder(
             te.encoders.uniform_quantization(bits=4),
@@ -37,8 +34,13 @@ def build_encoded_broadcast_fn(weights):
         )
 
 
-def encoded_broadcast_process(tff_model_fn):
-    """"""
+def encoded_broadcast_process(
+    tff_model_fn: tff.learning.Model,
+) -> tff.templates.MeasuredProcess:
+    """
+    Function for creating a MeasuredProcess used in federated learning. Uses `build_encoded_broadcast_fn` defined above.
+    Returns MeasuredProcess
+    """
     return tff.learning.framework.build_encoded_broadcast_process_from_model(
         tff_model_fn, build_encoded_broadcast_fn
     )
