@@ -1,24 +1,25 @@
 import tensorflow as tf
-from federated.utils.training_loops import centralized_training_loop
 from federated.data.mitbih_data_preprocessing import get_datasets
 from federated.models.mitbih_model import (
     create_cnn_model,
     create_dense_model,
     create_new_cnn_model,
 )
+from federated.utils.training_loops import centralized_training_loop
 
 
 def centralized_pipeline(
-    name,
-    output,
-    epochs,
-    batch_size,
-    optimizer,
-    decay_epochs=None,
-    learning_rate_decay=0,
-):
+    name: str,
+    output: str,
+    epochs: int,
+    batch_size: int,
+    optimizer: tf.keras.optimizers.Optimizer,
+    decay_epochs: int = None,
+    learning_rate_decay: float = 0,
+) -> None:
     """
-    Function runs centralized training pipeline
+    Function runs centralized training pipeline.
+    Also logs traning configurations used during training.
     """
     train_dataset, test_dataset = get_datasets(
         train_batch_size=batch_size, centralized=True

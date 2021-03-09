@@ -16,7 +16,7 @@ def centralized_training_loop(
     epochs: int,
     output: str,
     decay_epochs: int = None,
-    learning_rate_decay: int = 0,
+    learning_rate_decay: float = 0,
     save_model: bool = True,
     validation_dataset: tf.data.Dataset = None,
     test_dataset: tf.data.Dataset = None,
