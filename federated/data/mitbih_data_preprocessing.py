@@ -159,7 +159,7 @@ def load_data(
     normalized: bool = True,
     data_analysis: bool = False,
     data_selector: Callable[
-        [np.ndarray, np.ndarray, int], [Dict, tff.simulation.ClientData]
+        [np.ndarray, np.ndarray, int], [dict, tff.simulation.ClientData]
     ] = None,
     number_of_clients: int = 5,
     save_data: bool = False,
@@ -274,7 +274,7 @@ def get_datasets(
     centralized: bool = False,
     normalized: bool = True,
     data_selector: Callable[
-        [np.ndarray, np.ndarray, int], [Dict, tff.simulation.ClientData]
+        [np.ndarray, np.ndarray, int], [dict, tff.simulation.ClientData]
     ] = create_dataset,
     number_of_clients: int = 5,
     save_data: bool = False,
