@@ -20,7 +20,7 @@ def centralized_training_loop(
     save_model: bool = True,
     validation_dataset: tf.data.Dataset = None,
     test_dataset: tf.data.Dataset = None,
-) -> List[tf.keras.callbacks.History, float]:
+) -> [tf.keras.callbacks.History, float]:
     """
     Function trains a model on a dataset using centralized machine learning, and tests its performance.
     Returns the history object after fitting the model, and training time.
@@ -87,7 +87,7 @@ def federated_training_loop(
     save_model: bool = False,
     validate_model: Callable[[Any, int], Dict[str, float]] = None,
     noise_multiplier: int = None,
-) -> List[tff.Computation, float, float]:
+) -> [tff.Computation, float, float]:
     """
     Function trains a model on a dataset using federated learning.
 

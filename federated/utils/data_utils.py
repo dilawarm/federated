@@ -3,14 +3,15 @@ import functools
 import numpy as np
 import collections
 import tensorflow_federated as tff
+from typing import Callable
 
 
 def randomly_select_clients_for_round(
-    population, num_of_clients, replace=False, seed=None
-):
+    population: int, num_of_clients: int, replace: bool = False, seed: int = None
+) -> functools.partial:
     """
     This function creates a partial function for sampling random clients.
-    Returns a partial object.
+    Returns a partial function.
     """
 
     def select(round_number, seed, replace):
@@ -26,9 +27,9 @@ def randomly_select_clients_for_round(
 
 
 def get_client_dataset_fn(
-    dataset,
-    number_of_clients_per_round,
-    seed=None,
+    dataset: tf.data.Dataset,
+    number_of_clients_per_round: int,
+    seed: int = None,
 ):
     """
     This function generates a function for selecting client-datasets for each round number.
@@ -41,7 +42,7 @@ def get_client_dataset_fn(
         seed=seed,
     )
 
-    def get_dataset_for_client(round_number):
+    def get_dataset_for_client(round_number: int):
         """
         This function chooses the client datasets.
         Returns a list of client datasets.
