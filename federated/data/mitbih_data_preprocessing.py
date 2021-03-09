@@ -159,7 +159,7 @@ def load_data(
     normalized: bool = True,
     data_analysis: bool = False,
     data_selector: Callable[
-        [np.ndarray, np.ndarray, int], List[[dict, tff.simulation.ClientData]]
+        [np.ndarray, np.ndarray, int], tff.simulation.ClientData
     ] = None,
     number_of_clients: int = 5,
     save_data: bool = False,
