@@ -1,45 +1,54 @@
 import functools
+import inspect
+import os
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.utils.rfa import create_rfa_averaging
-from federated.data.mitbih_data_preprocessing import get_datasets
-from federated.utils.data_utils import get_validation_fn, get_client_dataset_fn
-from federated.models.mitbih_model import (
-    create_cnn_model,
-    create_dense_model,
-    create_new_cnn_model,
-    create_linear_model,
-)
-from federated.utils.training_loops import federated_training_loop
-from federated.utils.compression_utils import (
-    encoded_broadcast_process,
-)
 from federated.data.mitbih_data_preprocessing import (
     create_class_distributed_dataset,
     create_non_iid_dataset,
-    create_uniform_dataset,
     create_unbalanced_data,
+    create_uniform_dataset,
+    get_datasets,
 )
-import inspect
-import os
+from federated.models.mitbih_model import (
+    create_cnn_model,
+    create_dense_model,
+    create_linear_model,
+    create_new_cnn_model,
+)
+from federated.utils.compression_utils import encoded_broadcast_process
+from federated.utils.data_utils import get_client_dataset_fn, get_validation_fn
 from federated.utils.differential_privacy import (
-    gaussian_fixed_aggregation_factory,
     gaussian_adaptive_aggregation_factory,
+    gaussian_fixed_aggregation_factory,
 )
+from federated.utils.rfa import create_rfa_averaging
+from federated.utils.training_loops import federated_training_loop
 
 
 def iterative_process_fn(
-    tff_model,
-    server_optimizer_fn,
-    aggregation_method="fedavg",
-    client_optimizer_fn=None,
-    iterations=None,
-    client_weighting=None,
-    v=None,
-    compression=False,
-    model_update_aggregation_factory=None,
-):
+    tff_model: tff.learning.Model,
+    server_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer],
+    aggregation_method: str = "fedavg",
+    client_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer] = None,
+    iterations: int = None,
+    client_weighting: tff.learning.ClientWeighting = None,
+    v: float = None,
+    compression: bool = False,
+    model_update_aggregation_factory: Callable[
+        Optional, tff.aggregators.UnweightedAggregationFactory
+    ] = None,
+) -> tff.templates.IterativeProcess:
+
+    """
+    Function builds an iterative process that performs federated aggregation.
+    The function offers federated averaging, federated stochastic gradient descent
+    and robust federated aggregation.
+    Returns an iterativeProcess.
+
+    """
     if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
         raise ValueError("Aggregation method does not exist")
     if aggregation_method == "rfa":
@@ -86,31 +95,35 @@ def iterative_process_fn(
 
 
 def federated_pipeline(
-    name,
-    iterative_process_fn,
-    output,
-    data_selector,
-    client_epochs,
-    batch_size,
-    number_of_clients,
-    number_of_clients_per_round,
-    number_of_rounds,
-    keras_model_fn,
-    server_optimizer_fn,
-    normalized=True,
-    save_data=True,
-    aggregation_method="fedavg",
-    client_optimizer_fn=None,
-    client_weighting=None,
-    seed=None,
-    validate_model=True,
-    iterations=None,
-    v=None,
-    compression=False,
-    model_update_aggregation_factory=None,
-):
+    name: str,
+    iterative_process_fn: Callable[Sequence, tff.templates.IterativeProcess],
+    output: str,
+    data_selector: Callable[[List, List, int], [Dict, tff.simulation.ClientData]],
+    client_epochs: int,
+    batch_size: int,
+    number_of_clients: int,
+    number_of_clients_per_round: int,
+    number_of_rounds: int,
+    keras_model_fn: Callable[Optional, tf.keras.Sequential],
+    server_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer],
+    normalized: bool = True,
+    save_data: bool = True,
+    aggregation_method: str = "fedavg",
+    client_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer] = None,
+    client_weighting: tff.learning.ClientWeighting = None,
+    seed: int = None,
+    validate_model: bool = True,
+    iterations: int = None,
+    v: int = None,
+    compression: bool = False,
+    model_update_aggregation_factory: Callable[
+        Optional, tff.aggregators.UnweightedAggregationFactory
+    ] = None,
+) -> None:
+
     """
-    Function runs federated training pipeline
+    Function runs federated training pipeline on the dataset.
+    Also logs training configurations used during training.
     """
     train_dataset, _, len_train_X = get_datasets(
         train_batch_size=batch_size,
@@ -140,7 +153,10 @@ def federated_pipeline(
     loss_fn = lambda: tf.keras.losses.CategoricalCrossentropy()
     metrics_fn = lambda: [tf.keras.metrics.CategoricalAccuracy()]
 
-    def model_fn():
+    def model_fn() -> tff.learning.Model:
+        """
+        Function that takes a keras model and creates an tensorflow federated learning model.
+        """
         return tff.learning.from_keras_model(
             keras_model=get_keras_model(),
             input_spec=input_spec,
