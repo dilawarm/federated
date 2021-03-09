@@ -3,21 +3,32 @@ import tensorflow_federated as tff
 from federated.utils.compression_utils import (
     encoded_broadcast_process,
 )
+from typing import Callable, Optional
 
 
-def create_robust_measured_process(model, iterations, v, compression=False):
+def create_robust_measured_process(
+    model, iterations: int, v: float, compression: bool = False
+) -> tff.templates.MeasuredProcess:
     """
     Function that creates robust measured process used in federated aggregation.
+    Returns a `tff.templates.MeasuredProcess` which defines how to aggregate client updates.
     """
 
     @tff.federated_computation
-    def initialize_measured_process():
+    def initialize_measured_process() -> tff.FederatedType:
+        """
+        Function for initializing server with an initial federated value.
+        Returns a federated value on the server.
+        """
         return tff.federated_value((), tff.SERVER)
 
     @tff.tf_computation(tf.float32, model, model)
-    def calculate_beta(alpha, server_weights, client_weights):
+    def calculate_beta(
+        alpha: float, server_weights: tf.Tensor, client_weights: tf.Tensor
+    ) -> float:
         """
         Function that calculates beta (scaled client weight).
+        Returns scaled client weight.
         """
 
         func = lambda x, y: tf.norm(x - y) ** 2
@@ -35,9 +46,12 @@ def create_robust_measured_process(model, iterations, v, compression=False):
         tff.type_at_clients(model),
         tff.type_at_clients(tf.float32),
     )
-    def weiszfeld_algorithm(state, weights, alpha):
+    def weiszfeld_algorithm(
+        state: tff.Computation, weights: tf.Tensor, alpha: float
+    ) -> tff.templates.MeasuredProcessOutput:
         """
         Function that calculates geometric median using the Weiszfeld algorithm.
+        Returns the output of the `MeasuredProcess`, the average weight.
         """
         mean = tff.federated_mean(weights, weight=alpha)
         for _ in range(iterations - 1):
@@ -54,16 +68,17 @@ def create_robust_measured_process(model, iterations, v, compression=False):
 
 
 def create_rfa_averaging(
-    create_model,
-    iterations,
-    v,
-    server_optimizer_fn,
-    client_optimizer_fn,
-    compression=False,
-):
+    create_model: Callable[Optional, tff.learning.Model],
+    iterations: int,
+    v: float,
+    server_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer],
+    client_optimizer_fn: Callable[Optional, tf.keras.optimizers.Optimizer],
+    compression: bool = False,
+) -> tff.templates.IterativeProcess:
 
     """
-    Returns the robust measured aggregation process.
+    Function for setting up Robust Federated Aggregation.
+    Returns an Iterative Process with the RFA Averaging scheme
     """
 
     with tf.Graph().as_default():
