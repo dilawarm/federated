@@ -3,14 +3,15 @@ import functools
 import numpy as np
 import collections
 import tensorflow_federated as tff
+from typing import Callable, Optional
 
 
 def randomly_select_clients_for_round(
-    population, num_of_clients, replace=False, seed=None
-):
+    population: int, num_of_clients: int, replace: bool = False, seed: int = None
+) -> functools.partial:
     """
     This function creates a partial function for sampling random clients.
-    Returns a partial object.
+    Returns a partial function.
     """
 
     def select(round_number, seed, replace):
@@ -26,10 +27,10 @@ def randomly_select_clients_for_round(
 
 
 def get_client_dataset_fn(
-    dataset,
-    number_of_clients_per_round,
-    seed=None,
-):
+    dataset: tf.data.Dataset,
+    number_of_clients_per_round: int,
+    seed: int = None,
+) -> Callable[[], tf.data.Dataset]:
     """
     This function generates a function for selecting client-datasets for each round number.
     Returns a function for choosing clients while training.
@@ -41,7 +42,7 @@ def get_client_dataset_fn(
         seed=seed,
     )
 
-    def get_dataset_for_client(round_number):
+    def get_dataset_for_client(round_number: int):
         """
         This function chooses the client datasets.
         Returns a list of client datasets.
@@ -52,7 +53,7 @@ def get_client_dataset_fn(
     return get_dataset_for_client
 
 
-def _convert_fn(dataset):
+def _convert_fn(dataset: tf.data.Dataset) -> tf.data.Dataset:
     """
     Converts dataset to tupled dataset.
     Returns tupled dataset.
@@ -64,13 +65,18 @@ def _convert_fn(dataset):
         return dataset.map(lambda x, y: (x, y))
 
 
-def get_validation_fn(test_dataset, model_fn, loss_fn, metrics_fn):
+def get_validation_fn(
+    test_dataset: tf.data.Dataset,
+    model_fn: Callable[[], tf.keras.models.Model],
+    loss_fn: Callable[[], tf.keras.losses.Loss],
+    metrics_fn: Callable[[], tf.keras.metrics.Metric],
+) -> Callable[[], tf.data.Dataset]:
     """
     This function makes a function for evaluating a model while training.
     Returns a validation function.
     """
 
-    def compiled_model():
+    def compiled_model() -> tf.keras.Model:
         """
         This function compiles an 'empty' model.
         Returns a Keras Model object.
@@ -83,7 +89,9 @@ def get_validation_fn(test_dataset, model_fn, loss_fn, metrics_fn):
 
     test_dataset = _convert_fn(test_dataset)
 
-    def validation_fn(trained_model):
+    def validation_fn(
+        trained_model: tff.learning.Model,
+    ) -> Callable[[], tf.data.Dataset]:
         """
         Validates the model by running model.evaluate() on the keras model with the weights from a state from the interactive process.
         Returns the metrics after evaluation.
