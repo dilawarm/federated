@@ -2,7 +2,7 @@ import collections
 import functools
 import pickle
 import random
-from typing import Callable, Dict
+from typing import Callable, Dict, List
 
 import numpy as np
 import pandas as pd
