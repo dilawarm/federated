@@ -1,26 +1,29 @@
-import tensorflow as tf
-from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy_lib
 import os
-from federated.models.mitbih_model import create_dense_model
 import time
+from typing import Any, Callable, Dict, List, Optional
+
+import tensorflow as tf
+import tensorflow_federated as tff
+from federated.models.mitbih_model import create_dense_model
 from federated.utils.compression_utils import set_communication_cost_env
+from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy_lib
 
 
 def centralized_training_loop(
-    model,
-    dataset,
-    name,
-    epochs,
-    output,
-    decay_epochs=None,
-    learning_rate_decay=0,
-    save_model=True,
-    validation_dataset=None,
-    test_dataset=None,
-):
+    model: tf.keras.Model,
+    dataset: tf.data.Dataset,
+    name: str,
+    epochs: int,
+    output: str,
+    decay_epochs: int = None,
+    learning_rate_decay: int = 0,
+    save_model: bool = True,
+    validation_dataset: tf.data.Dataset = None,
+    test_dataset: tf.data.Dataset = None,
+) -> List[tf.keras.callbacks.History, float]:
     """
-    Function trains a model on a dataset using centralized machine learning, and test its performance.
-    Returns a history-object.
+    Function trains a model on a dataset using centralized machine learning, and tests its performance.
+    Returns the history object after fitting the model, and training time.
     """
 
     log_dir = os.path.join(output, "logdir", name)
@@ -71,23 +74,24 @@ def centralized_training_loop(
 
 
 def federated_training_loop(
-    iterative_process,
-    get_client_dataset,
-    number_of_rounds,
-    name,
-    output,
-    batch_size,
-    traning_points=None,
-    keras_model_fn=None,
-    loss_fn=None,
-    metrics_fn=None,
-    save_model=False,
-    validate_model=None,
-    noise_multiplier=None,
-):
+    iterative_process: tff.templates.IterativeProcess,
+    get_client_dataset: Callable[[int], List[tf.data.Dataset]],
+    number_of_rounds: int,
+    name: str,
+    output: str,
+    batch_size: int,
+    number_of_training_points: int = None,
+    keras_model_fn: Callable[Optional, tf.keras.Model] = None,
+    loss_fn: Callable[Optional, tf.keras.losses.Loss] = None,
+    metrics_fn: Callable[Optional, tf.keras.metrics.Metric] = None,
+    save_model: bool = False,
+    validate_model: Callable[[Any, int], Dict[str, float]] = None,
+    noise_multiplier: int = None,
+) -> List[tff.Computation, float, float]:
     """
     Function trains a model on a dataset using federated learning.
-    Returns its state.
+
+    Returns the last state of the server, training time, and average round time.
     """
 
     env = set_communication_cost_env()
@@ -160,11 +164,11 @@ def federated_training_loop(
         if noise_multiplier:
             with moments_accountant_writer.as_default():
                 eps, _ = compute_dp_sgd_privacy_lib.compute_dp_sgd_privacy(
-                    n=traning_points,
+                    n=number_of_training_points,
                     batch_size=batch_size,
                     noise_multiplier=noise_multiplier,
                     epochs=round_number,
-                    delta=1 / traning_points,
+                    delta=1 / number_of_training_points,
                 )
 
                 tf.summary.scalar("cumulative_privacy_loss", eps, step=round_number)
