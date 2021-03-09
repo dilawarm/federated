@@ -1,18 +1,19 @@
-from tensorflow.keras import Sequential, layers
-from keras.models import Model
 from keras.layers import (
-    Input,
-    Dense,
+    Activation,
+    Add,
     Conv1D,
+    Dense,
+    Flatten,
+    Input,
     MaxPooling1D,
     Softmax,
-    Add,
-    Flatten,
-    Activation,
 )
+from keras.models import Model
+import tensorflow as tf
+from tensorflow.keras import Sequential, layers
 
 
-def create_cnn_model():
+def create_cnn_model() -> tf.keras.Sequential:
     """
     _________________________________________________________________
     Layer (type)                 Output Shape              Param #
@@ -71,7 +72,7 @@ def create_cnn_model():
     return model
 
 
-def create_new_cnn_model():
+def create_new_cnn_model() -> tf.keras.Sequential:
     model = Sequential(
         [
             layers.Convolution1D(filters=16, kernel_size=7, input_shape=[186, 1]),
@@ -93,7 +94,7 @@ def create_new_cnn_model():
     return model
 
 
-def create_dense_model():
+def create_dense_model() -> tf.keras.Sequential:
     """
     _________________________________________________________________
     Layer (type)                 Output Shape              Param #
@@ -132,7 +133,20 @@ def create_dense_model():
     return model
 
 
-def create_linear_model():
+def create_linear_model() -> tf.keras.Sequential:
+    """
+    _________________________________________________________________
+    Layer (type)                 Output Shape              Param #
+    =================================================================
+    flatten (Flatten)            (None, 186)               0
+    _________________________________________________________________
+    dense (Dense)                (None, 5)                 935
+    =================================================================
+    Total params: 935
+    Trainable params: 935
+    Non-trainable params: 0
+    _________________________________________________________________
+    """
     model = Sequential(
         [
             layers.InputLayer(input_shape=[186, 1]),
