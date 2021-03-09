@@ -30,7 +30,7 @@ def get_client_dataset_fn(
     dataset: tf.data.Dataset,
     number_of_clients_per_round: int,
     seed: int = None,
-) -> Callable[[Optional], tf.data.Dataset]:
+) -> Callable[[], tf.data.Dataset]:
     """
     This function generates a function for selecting client-datasets for each round number.
     Returns a function for choosing clients while training.
@@ -68,8 +68,8 @@ def _convert_fn(dataset: tf.data.Dataset) -> tf.data.Dataset:
 def get_validation_fn(
     test_dataset: tf.data.Dataset,
     model_fn: Callable[[], tf.keras.models.Model],
-    loss_fn,
-    metrics_fn,
+    loss_fn: Callable[[], tf.keras.losses.Loss],
+    metrics_fn: Callable[[], tf.keras.metrics.Metric],
 ):
     """
     This function makes a function for evaluating a model while training.
