@@ -70,13 +70,13 @@ def get_validation_fn(
     model_fn: Callable[[], tf.keras.models.Model],
     loss_fn: Callable[[], tf.keras.losses.Loss],
     metrics_fn: Callable[[], tf.keras.metrics.Metric],
-):
+) -> Callable[[], tf.data.Dataset]:
     """
     This function makes a function for evaluating a model while training.
     Returns a validation function.
     """
 
-    def compiled_model():
+    def compiled_model() -> tf.keras.Model:
         """
         This function compiles an 'empty' model.
         Returns a Keras Model object.
@@ -89,7 +89,9 @@ def get_validation_fn(
 
     test_dataset = _convert_fn(test_dataset)
 
-    def validation_fn(trained_model):
+    def validation_fn(
+        trained_model: tff.learning.Model,
+    ) -> Callable[[], tf.data.Dataset]:
         """
         Validates the model by running model.evaluate() on the keras model with the weights from a state from the interactive process.
         Returns the metrics after evaluation.
