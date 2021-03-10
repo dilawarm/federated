@@ -5,14 +5,14 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.data.mitbih_data_preprocessing import (
+from federated.data.data_preprocessing import (
     create_class_distributed_dataset,
     create_non_iid_dataset,
     create_unbalanced_data,
     create_uniform_dataset,
     get_datasets,
 )
-from federated.models.mitbih_model import (
+from federated.models.models import (
     create_cnn_model,
     create_dense_model,
     create_linear_model,

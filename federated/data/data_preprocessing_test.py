@@ -3,7 +3,7 @@ import collections
 import numpy as np
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.data.mitbih_data_preprocessing import (
+from federated.data.data_preprocessing import (
     get_datasets,
     create_class_distributed_dataset,
     create_dataset,
@@ -12,7 +12,7 @@ from federated.utils.data_utils import (
     get_client_dataset_fn,
     get_validation_fn,
 )
-from federated.models.mitbih_model import create_dense_model
+from federated.models.models import create_dense_model
 
 
 def create_test_dataset(client_id=None):

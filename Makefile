@@ -4,10 +4,10 @@ init:
 test: test_data test_models test_training test_rfa
 
 test_data:
-	python3 -m federated.data.mitbih_data_preprocessing_test
+	python3 -m federated.data.data_preprocessing_test
 
 test_models:
-	python3 -m federated.models.mitbih_model_test
+	python3 -m federated.models.models_test
 
 test_training:
 	python3 -m federated.utils.training_loops_test
@@ -16,7 +16,7 @@ test_rfa:
 	python3 -m federated.utils.rfa_test
 
 run_federated:
-	python3 -m federated.optimization.mitbih_federated
+	python3 -m federated.optimization.federated
 
 run_centralized:
-	python3 -m federated.optimization.mitbih_centralized
+	python3 -m federated.optimization.centralized

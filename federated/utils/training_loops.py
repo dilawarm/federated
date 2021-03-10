@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.models.mitbih_model import create_dense_model
+from federated.models.models import create_dense_model
 from federated.utils.compression_utils import set_communication_cost_env
 from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy_lib
 

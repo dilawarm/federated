@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from federated.models.mitbih_model import create_cnn_model
+from federated.models.models import create_cnn_model
 
 
 class ModelTest(tf.test.TestCase):
