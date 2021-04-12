@@ -1,5 +1,8 @@
 black==20.8b1
+graphviz==0.16
 pandas==1.2.1
-phe==1.4.0 
+phe==1.4.0
+plotly==4.14.3
+pydot==1.4.2
 scikit-learn==0.24.0
 tensorflow-federated-nightly==0.17.0.dev20210123
