@@ -22,7 +22,7 @@ def centralized_pipeline(
     Function runs centralized training pipeline.
     Also logs traning configurations used during training.
     """
-    train_dataset, test_dataset = get_datasets(
+    train_dataset, test_dataset, _ = get_datasets(
         train_batch_size=batch_size, centralized=True
     )
 
