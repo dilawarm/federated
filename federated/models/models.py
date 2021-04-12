@@ -1,4 +1,4 @@
-from keras.layers import (
+from tensorflow.keras.layers import (
     Activation,
     Add,
     Conv1D,
@@ -8,7 +8,7 @@ from keras.layers import (
     MaxPooling1D,
     Softmax,
 )
-from keras.models import Model
+from tensorflow.keras.models import Model
 import tensorflow as tf
 from tensorflow.keras import Sequential, layers
 
