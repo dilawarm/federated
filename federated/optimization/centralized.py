@@ -14,6 +14,7 @@ def centralized_pipeline(
     epochs: int,
     batch_size: int,
     optimizer: tf.keras.optimizers.Optimizer,
+    model: tf.keras.Model,
     decay_epochs: int = None,
     learning_rate_decay: float = 0,
 ) -> None:
@@ -24,8 +25,6 @@ def centralized_pipeline(
     train_dataset, test_dataset = get_datasets(
         train_batch_size=batch_size, centralized=True
     )
-
-    model = create_new_cnn_model()
 
     model.compile(
         loss="categorical_crossentropy",
@@ -55,4 +54,4 @@ def centralized_pipeline(
 
 if __name__ == "__main__":
     name = input("Experiment name: ")
-    centralized_pipeline(name, "history", 15, 32, "sgd")
+    centralized_pipeline(name, "history", 15, 32, "sgd", create_dense_model())
