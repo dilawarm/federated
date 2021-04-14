@@ -164,6 +164,7 @@ def federated_pipeline(
             metrics=metrics_fn(),
         )
 
+    aggregation_factory = None
     if model_update_aggregation_factory:
         aggregation_factory = model_update_aggregation_factory()
 
@@ -261,9 +262,5 @@ if __name__ == "__main__":
         iterations=3,
         v=1e-6,
         compression=False,
-        model_update_aggregation_factory=lambda: gaussian_fixed_aggregation_factory(
-            noise_multiplier=noise_multiplier,
-            clients_per_round=number_of_clients_per_round,
-            clipping_value=clipping_value,
-        ),
+        model_update_aggregation_factory=None
     )

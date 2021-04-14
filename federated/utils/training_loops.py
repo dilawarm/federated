@@ -111,7 +111,7 @@ def federated_training_loop(
     initial_state = iterative_process.initialize()
 
     state = initial_state
-    round_number = 1
+    round_number = 0
 
     model_weights = iterative_process.get_model_weights(state)
     train_summary_writer = tf.summary.create_file_writer(train_log_dir)
@@ -134,7 +134,7 @@ def federated_training_loop(
     start_time = time.time()
     while round_number < number_of_rounds + 1:
         round_start_time = time.time()
-        print(f"Round number: {round_number}")
+        print(f"Round number: {round_number+1}")
         federated_train_data = get_client_dataset(round_number)
 
         state, metrics = iterative_process.next(state, federated_train_data)
