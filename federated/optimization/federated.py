@@ -96,7 +96,7 @@ def iterative_process_fn(
 
 def federated_pipeline(
     name: str,
-    iterative_process_fn: Callable[Sequence, tff.templates.IterativeProcess],
+    iterative_process_fn: Callable[List, tff.templates.IterativeProcess],
     output: str,
     data_selector: Callable[[List, List, int], [Dict, tff.simulation.ClientData]],
     client_epochs: int,
