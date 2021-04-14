@@ -98,29 +98,27 @@ def iterative_process_fn(
 
 def federated_pipeline(
     name: str,
-    iterative_process_fn,
+    iterative_process_fn: Any,
     output: str,
-    data_selector: Callable[[List, List, int], [Dict, tff.simulation.ClientData]],
+    data_selector: Any,
     client_epochs: int,
     batch_size: int,
     number_of_clients: int,
     number_of_clients_per_round: int,
     number_of_rounds: int,
-    keras_model_fn: Callable[[], tf.keras.Sequential],
-    server_optimizer_fn: Callable[[], tf.keras.optimizers.Optimizer],
+    keras_model_fn: Any,
+    server_optimizer_fn: Any,
     normalized: bool = True,
     save_data: bool = True,
     aggregation_method: str = "fedavg",
-    client_optimizer_fn: Callable[[], tf.keras.optimizers.Optimizer] = None,
+    client_optimizer_fn: Any = None,
     client_weighting: tff.learning.ClientWeighting = None,
     seed: int = None,
     validate_model: bool = True,
     iterations: int = None,
     v: int = None,
     compression: bool = False,
-    model_update_aggregation_factory: Callable[
-        [], tff.aggregators.UnweightedAggregationFactory
-    ] = None,
+    model_update_aggregation_factory: Any = None,
 ) -> None:
 
     """
