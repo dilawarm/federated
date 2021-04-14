@@ -238,8 +238,8 @@ if __name__ == "__main__":
     name = input("Experiment name: ")
     aggregation_method = input("Aggregation method: ")
     number_of_clients_per_round = 10
-    noise_multiplier = 0.5
-    clipping_value = 0.75
+    noise_multiplier = None
+    clipping_value = None
 
     federated_pipeline(
         name=name,
