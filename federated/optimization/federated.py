@@ -199,7 +199,7 @@ def federated_pipeline(
         name=name,
         output=output,
         batch_size=batch_size,
-        traning_points=len_train_X,
+        number_of_training_points=len_train_X,
         keras_model_fn=get_keras_model,
         loss_fn=loss_fn,
         metrics_fn=metrics_fn,
