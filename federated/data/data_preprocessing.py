@@ -172,7 +172,7 @@ def create_corrupted_non_iid_dataset(
             1, number_of_clients + 1, np.random.randint(1, number_of_clients + 1)
         )
 
-        if client == 0:
+        if client == 1:
             clients_data[f"client_{client}"][0].append(np.full(shape=(186,), fill_value=0.5, dtype=np.float32))
         else:
             clients_data[f"client_{client}"][0].append(X[i])
