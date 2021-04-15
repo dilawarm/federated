@@ -240,7 +240,11 @@ def load_data(
             )
 
     train_client_data, train_data = data_selector(train_X, train_y, number_of_clients)
-    test_client_data, test_data = data_selector(test_X, test_y, number_of_clients)
+
+    if data_selector == create_corrupted_non_iid_dataset:
+        test_client_data, test_data = create_non_iid_dataset(test_X, test_y, number_of_clients)
+    else:
+        test_client_data, test_data = data_selector(test_X, test_y, number_of_clients)
 
     if data_selector == create_unbalanced_data:
         return train_client_data, test_client_data
