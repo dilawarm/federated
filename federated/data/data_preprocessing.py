@@ -154,6 +154,32 @@ def create_non_iid_dataset(
 
     return clients_data, create_tff_dataset(clients_data)
 
+def create_corrupted_non_iid_dataset(
+    X: np.ndarray, y: np.ndarray, number_of_clients: int
+) -> [Dict, tff.simulation.ClientData]:
+
+    """
+    Function distributes the data such that each client has non-iid data except client 1, which only has ones (a straight line with value 1.0).
+    """
+    indices = np.arange(X.shape[0])
+    np.random.shuffle(indices)
+    X = X[indices]
+    y = y[indices]
+
+    clients_data = {f"client_{i}": [[], []] for i in range(1, number_of_clients + 1)}
+    for i in range(len(X)):
+        client = random.randrange(
+            1, number_of_clients + 1, np.random.randint(1, number_of_clients + 1)
+        )
+
+        if client != 1:
+            clients_data[f"client_{client}"][0].append(X[i])
+            clients_data[f"client_{client}"][1].append(y[i])    
+
+    clients_data["client_1"][0] = [(40 - 20)*np.random.random_sample((186,))+20 for _ in range(SAMPLES)]
+    clients_data["client_1"][1] = [np.array([1,0,0,0,0], dtype=np.int32) for _ in range(SAMPLES)]
+
+    return clients_data, create_tff_dataset(clients_data)
 
 def load_data(
     normalized: bool = True,
@@ -214,7 +240,11 @@ def load_data(
             )
 
     train_client_data, train_data = data_selector(train_X, train_y, number_of_clients)
-    test_client_data, test_data = data_selector(test_X, test_y, number_of_clients)
+
+    if data_selector == create_corrupted_non_iid_dataset:
+        test_client_data, test_data = create_non_iid_dataset(test_X, test_y, number_of_clients)
+    else:
+        test_client_data, test_data = data_selector(test_X, test_y, number_of_clients)
 
     if data_selector == create_unbalanced_data:
         return train_client_data, test_client_data
@@ -317,3 +347,4 @@ def get_datasets(
         test_dataset = test_dataset.preprocess(test_preprocess)
 
     return (train_dataset, test_dataset, n)
+
