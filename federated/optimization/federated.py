@@ -10,6 +10,7 @@ import tensorflow_federated as tff
 from federated.data.data_preprocessing import (
     create_class_distributed_dataset,
     create_non_iid_dataset,
+    create_corrupted_non_iid_dataset,
     create_unbalanced_data,
     create_uniform_dataset,
     get_datasets,
@@ -245,8 +246,8 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.Adam(learning_rate=0.01),
-        data_selector=create_non_iid_dataset,
+        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.01),
+        data_selector=create_corrupted_non_iid_dataset,
         output="history",
         client_epochs=10,
         batch_size=32,

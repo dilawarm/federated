@@ -154,6 +154,31 @@ def create_non_iid_dataset(
 
     return clients_data, create_tff_dataset(clients_data)
 
+def create_corrupted_non_iid_dataset(
+    X: np.ndarray, y: np.ndarray, number_of_clients: int
+) -> [Dict, tff.simulation.ClientData]:
+
+    """
+    Function distributes the data such that each client has non-iid data.
+    """
+    indices = np.arange(X.shape[0])
+    np.random.shuffle(indices)
+    X = X[indices]
+    y = y[indices]
+
+    clients_data = {f"client_{i}": [[], []] for i in range(1, number_of_clients + 1)}
+    for i in range(len(X)):
+        client = random.randrange(
+            1, number_of_clients + 1, np.random.randint(1, number_of_clients + 1)
+        )
+
+        if client == 0:
+            clients_data[f"client_{client}"][0].append(np.full(shape=(186,), fill_value=0.5, dtype=np.float32))
+        else:
+            clients_data[f"client_{client}"][0].append(X[i])
+        clients_data[f"client_{client}"][1].append(y[i])
+
+    return clients_data, create_tff_dataset(clients_data)
 
 def load_data(
     normalized: bool = True,
@@ -317,3 +342,4 @@ def get_datasets(
         test_dataset = test_dataset.preprocess(test_preprocess)
 
     return (train_dataset, test_dataset, n)
+
