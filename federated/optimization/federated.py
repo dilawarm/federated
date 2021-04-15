@@ -245,7 +245,7 @@ if __name__ == "__main__":
     federated_pipeline(
         name=name,
         iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.Adam(learning_rate=1.0),
+        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
         data_selector=create_non_iid_dataset,
         output="history",
         client_epochs=10,
@@ -258,7 +258,7 @@ if __name__ == "__main__":
         save_data=False,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
         aggregation_method=aggregation_method,
-        client_weighting=tff.learning.ClientWeighting.UNIFORM,
+        client_weighting=tff.learning.ClientWeighting.NUM_EXAMPLES,
         iterations=3,
         v=1e-6,
         compression=False,
