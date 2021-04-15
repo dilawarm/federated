@@ -176,7 +176,7 @@ def create_corrupted_non_iid_dataset(
             clients_data[f"client_{client}"][0].append(X[i])
             clients_data[f"client_{client}"][1].append(y[i])    
 
-    clients_data["client_1"][0] = [np.full(shape=(186,), fill_value=1.0, dtype=np.float32) for _ in range(SAMPLES)]
+    clients_data["client_1"][0] = [(40 - 20)*np.random.random_sample((186,))+20 for _ in range(SAMPLES)]
     clients_data["client_1"][1] = [np.array([1,0,0,0,0], dtype=np.int32) for _ in range(SAMPLES)]
 
     return clients_data, create_tff_dataset(clients_data)
