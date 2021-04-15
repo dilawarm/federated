@@ -159,7 +159,7 @@ def create_corrupted_non_iid_dataset(
 ) -> [Dict, tff.simulation.ClientData]:
 
     """
-    Function distributes the data such that each client has non-iid data.
+    Function distributes the data such that each client has non-iid data except client 1, which only has ones (a straight line with value 1.0).
     """
     indices = np.arange(X.shape[0])
     np.random.shuffle(indices)
@@ -172,11 +172,10 @@ def create_corrupted_non_iid_dataset(
             1, number_of_clients + 1, np.random.randint(1, number_of_clients + 1)
         )
 
-        if client == 1:
-            clients_data[f"client_{client}"][0].append(np.full(shape=(186,), fill_value=0.5, dtype=np.float32))
-        else:
-            clients_data[f"client_{client}"][0].append(X[i])
-        clients_data[f"client_{client}"][1].append(y[i])
+        clients_data[f"client_{client}"][0].append(X[i])
+        clients_data[f"client_{client}"][1].append(y[i])    
+
+    clients_data["client_1"] = [np.full(shape=(186,), fill_value=1.0, dtype=np.float32) for _ in range(SAMPLES)]
 
     return clients_data, create_tff_dataset(clients_data)
 
