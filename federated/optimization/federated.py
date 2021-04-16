@@ -240,8 +240,8 @@ if __name__ == "__main__":
     name = input("Experiment name: ")
     aggregation_method = input("Aggregation method: ")
     number_of_clients_per_round = 10
-    noise_multiplier = None
-    clipping_value = None
+    noise_multiplier = 0.5
+    clipping_value = 0.75
 
     federated_pipeline(
         name=name,
@@ -263,5 +263,14 @@ if __name__ == "__main__":
         iterations=3,
         v=1e-6,
         compression=False,
-        model_update_aggregation_factory=None,
+        model_update_aggregation_factory=None
     )
+
+"""
+lambda: gaussian_fixed_aggregation_factory(
+            noise_multiplier=noise_multiplier,
+            clients_per_round=number_of_clients_per_round,
+            clipping_value=clipping_value,
+        ),
+
+"""
