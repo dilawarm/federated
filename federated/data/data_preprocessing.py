@@ -229,7 +229,7 @@ def load_data(
                     n_samples=SAMPLES,
                     random_state=int(f"12{i+2}"),
                 )
-                for i in range(1, 5)
+                for i in range(1, 4)
             ]
         )
 

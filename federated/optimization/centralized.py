@@ -54,4 +54,4 @@ def centralized_pipeline(
 
 if __name__ == "__main__":
     name = input("Experiment name: ")
-    centralized_pipeline(name, "history", 15, 32, "sgd", create_new_cnn_model())
+    centralized_pipeline(name, "history", 15, 32, "sgd", create_dense_model())
