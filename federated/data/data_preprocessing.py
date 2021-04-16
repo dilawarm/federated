@@ -154,6 +154,7 @@ def create_non_iid_dataset(
 
     return clients_data, create_tff_dataset(clients_data)
 
+
 def create_corrupted_non_iid_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
 ) -> [Dict, tff.simulation.ClientData]:
@@ -174,12 +175,17 @@ def create_corrupted_non_iid_dataset(
 
         if client != 1:
             clients_data[f"client_{client}"][0].append(X[i])
-            clients_data[f"client_{client}"][1].append(y[i])    
+            clients_data[f"client_{client}"][1].append(y[i])
 
-    clients_data["client_1"][0] = [(40 - 20)*np.random.random_sample((186,))+20 for _ in range(SAMPLES)]
-    clients_data["client_1"][1] = [np.array([1,0,0,0,0], dtype=np.int32) for _ in range(SAMPLES)]
+    clients_data["client_1"][0] = [
+        (40 - 20) * np.random.random_sample((186,)) + 20 for _ in range(SAMPLES)
+    ]
+    clients_data["client_1"][1] = [
+        np.array([1, 0, 0, 0, 0], dtype=np.int32) for _ in range(SAMPLES)
+    ]
 
     return clients_data, create_tff_dataset(clients_data)
+
 
 def load_data(
     normalized: bool = True,
@@ -212,9 +218,10 @@ def load_data(
 
     if normalized:
         df_0 = (train_df[train_df[187] == 0]).sample(n=SAMPLES, random_state=42)
-        # df_5 = (train_df[train_df[187] == 4]).sample(n=S, random_state=42)
+        df_5 = (train_df[train_df[187] == 4]).sample(n=S, random_state=42)
         train_df = pd.concat(
             [df_0]
+            + [df_5]
             + [
                 resample(
                     train_df[train_df[187] == i],
@@ -242,7 +249,9 @@ def load_data(
     train_client_data, train_data = data_selector(train_X, train_y, number_of_clients)
 
     if data_selector == create_corrupted_non_iid_dataset:
-        test_client_data, test_data = create_non_iid_dataset(test_X, test_y, number_of_clients)
+        test_client_data, test_data = create_non_iid_dataset(
+            test_X, test_y, number_of_clients
+        )
     else:
         test_client_data, test_data = data_selector(test_X, test_y, number_of_clients)
 
@@ -347,4 +356,3 @@ def get_datasets(
         test_dataset = test_dataset.preprocess(test_preprocess)
 
     return (train_dataset, test_dataset, n)
-
