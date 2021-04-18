@@ -261,7 +261,7 @@ if __name__ == "__main__":
         save_data=False,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
         aggregation_method=aggregation_method,
-        client_weighting=tff.learning.ClientWeighting.NUM_EXAMPLES,
+        client_weighting=tff.learning.ClientWeighting.UNIFORM,
         iterations=3,
         v=1e-6,
         compression=False,
