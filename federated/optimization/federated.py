@@ -168,7 +168,6 @@ def federated_pipeline(
     aggregation_factory = None
 
     if model_update_aggregation_factory:
-        print("hei")
         aggregation_factory = model_update_aggregation_factory()
 
     iterative_process = iterative_process_fn(
