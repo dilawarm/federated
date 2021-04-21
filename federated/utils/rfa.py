@@ -1,3 +1,5 @@
+# The implementation is inspired by https://github.com/google-research/federated/tree/master/robust_aggregation
+
 import tensorflow as tf
 import tensorflow_federated as tff
 from federated.utils.compression_utils import (
