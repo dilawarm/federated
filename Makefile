@@ -1,7 +1,7 @@
 init:
 	pip3 install -r requirements.txt
 
-tes: test_data test_models test_training test_rfa
+test: test_data test_models test_training test_rfa
 
 test_data:
 	python3 -m federated.data.data_preprocessing_test
