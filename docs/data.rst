@@ -1,8 +1,5 @@
-data package
+Data package
 ============
-
-Submodules
-----------
 
 data.data\_preprocessing module
 -------------------------------
@@ -16,15 +13,6 @@ data.data\_preprocessing\_test module
 -------------------------------------
 
 .. automodule:: federated.data.data_preprocessing_test
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: federated.data
     :members:
     :undoc-members:
     :show-inheritance:

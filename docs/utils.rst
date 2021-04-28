@@ -1,8 +1,5 @@
-utils package
+Utils package
 =============
-
-Submodules
-----------
 
 utils.compression\_utils module
 -------------------------------
@@ -56,15 +53,6 @@ utils.training\_loops\_test module
 ----------------------------------
 
 .. automodule:: federated.utils.training_loops_test
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: federated.utils
     :members:
     :undoc-members:
     :show-inheritance:

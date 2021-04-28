@@ -1,8 +1,5 @@
-optimization package
+Optimization package
 ====================
-
-Submodules
-----------
 
 optimization.centralized module
 -------------------------------
@@ -16,15 +13,6 @@ optimization.federated module
 -----------------------------
 
 .. automodule:: federated.optimization.federated
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: federated.optimization
     :members:
     :undoc-members:
     :show-inheritance:
