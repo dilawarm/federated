@@ -9,5 +9,6 @@ deploy_docs:
   script:
     - apt update
     - apt install -y python3-pip
+    - pip3 install pip==21.0.1
     - pip3 install -r requirements.txt
     - cd docs && make html
