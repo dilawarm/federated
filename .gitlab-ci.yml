@@ -3,10 +3,9 @@ federated:
   script:
     - make test
     - black .
-    - cd docs && make html
 
 deploy_docs:
   image: node:latest
   script:
+    - apt-get install -y python3-sphinx
     - cd docs && make html
-    
