@@ -1,9 +1,14 @@
-image: dilawarm/federated:latest
+federated:
+  image: dilawarm/federated:latest
 
-test:
-  script:
-    - make test
+  test:
+    script:
+      - make test
 
-format:
-  script:
-    - black .
+  format:
+    script:
+      - black .
+
+  docs:
+    script:
+      - cd docs && make html
