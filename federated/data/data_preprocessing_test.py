@@ -1,5 +1,4 @@
 import collections
-
 import numpy as np
 import tensorflow as tf
 import tensorflow_federated as tff
@@ -8,6 +7,7 @@ from federated.data.data_preprocessing import (
     create_class_distributed_dataset,
     create_dataset,
 )
+
 from federated.utils.data_utils import (
     get_client_dataset_fn,
     get_validation_fn,
