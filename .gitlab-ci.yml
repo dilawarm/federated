@@ -9,4 +9,5 @@ deploy_docs:
   script:
     - apt update
     - apt-get install -y python3-sphinx
+    - pip3 install sphinx-rtd-theme==0.5.2
     - cd docs && make html
