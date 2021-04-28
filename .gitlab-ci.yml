@@ -13,3 +13,4 @@ deploy_docs:
     - pip3 install -r requirements.txt
     - cd docs && make html
     - echo $FIREBASE_DEPLOY_KEY
+    - npm install -g firebase-tools
