@@ -8,4 +8,5 @@ federated:
 deploy_docs:
   image: node:latest
   script:
-    - cd docs/_build/
+    - cd docs && make html
+    
