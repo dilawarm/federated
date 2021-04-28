@@ -3,8 +3,9 @@ federated:
   script:
     - make test
     - black .
+    - cd docs && make html
 
 deploy_docs:
   image: node:latest
   script:
-    - cd docs && make html
+    - cd docs/_build/
