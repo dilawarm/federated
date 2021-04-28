@@ -1,14 +1,6 @@
 federated:
   image: dilawarm/federated:latest
-
-  test:
-    script:
-      - make test
-
-  format:
-    script:
-      - black .
-
-  docs:
-    script:
-      - cd docs && make html
+  script:
+    - make test
+    - black .
+    - cd docs && make html
