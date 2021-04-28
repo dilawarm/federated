@@ -6,7 +6,14 @@ import collections
 
 
 class RFATest(tf.test.TestCase):
-    def get_test_data(self):
+    """Class for testing RFA."""
+
+    def get_test_data(self) -> tf.data.Dataset:
+        """Creates data for RFA tests.
+
+        Returns:
+            tf.data.Dataset: Dataset.
+        """
         random = np.random.RandomState(0)
         X = random.rand(10, 10).astype(np.float32)
         y = random.rand(10, 1).astype(np.float32)
@@ -18,7 +25,13 @@ class RFATest(tf.test.TestCase):
             for i in range(X.shape[0])
         ]
 
-    def create_model(self):
+    def create_model(self) -> tf.keras.Model:
+        """Creates model for RFA tests.
+
+        Returns:
+            tf.keras.Model: Model.
+        """
+
         def create_model_fn():
             keras_model = tf.keras.models.Sequential(
                 [
@@ -38,6 +51,7 @@ class RFATest(tf.test.TestCase):
         return create_model_fn
 
     def test_rfa(self):
+        """Function for testing RFA."""
         create_model_fn = self.create_model()
         dataset = self.get_test_data()
         iterative_process = create_rfa_averaging(

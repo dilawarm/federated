@@ -15,22 +15,27 @@ SAMPLES = 20_000
 NUM_OF_CLIENTS = 10
 S = 100
 
-"""
-Function seperates label column from datapoints columns.
-Returns tuple: dataframe without label, labels
-"""
 split_dataframe = lambda df: (
     df.iloc[:, :186].values,
     to_categorical(df[187]).astype(int),
+)
+split_dataframe.__doc__ = (
+    """Function for splitting dataframe into (input, output) pairs."""
 )
 
 
 def create_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
 ) -> [None, tff.simulation.ClientData]:
-    """
-    Function converts pandas dataframe to tensorflow federated.
-    Returns dataset of type tff.simulation.ClientData
+    """Function converts pandas dataframe to tensorflow federated dataset.
+
+    Args:
+        X (np.ndarray): Inputs.\n
+        y (np.ndarray): Outputs.\n
+        number_of_clients (int): The number of clients to split the data between.\n
+
+    Returns:
+        [None, tff.simulation.ClientData]: Returns federated data distribution.
     """
     num_of_clients = NUM_OF_CLIENTS
     total_ecg_count = len(X)
@@ -53,11 +58,14 @@ def create_dataset(
 
 
 def create_tff_dataset(clients_data: Dict) -> tff.simulation.ClientData:
+    """Function converts dictionary to tensorflow federated dataset.
 
-    """
-    Function creates a tensorflow federated dataset from a dictionary that contains the data for the different clients.
-    """
+    Args:
+        clients_data (Dict): Inputs.
 
+    Returns:
+        tff.simulation.ClientData: Returns federated data distribution.
+    """
     client_dataset = collections.OrderedDict()
 
     for client in clients_data:
@@ -75,10 +83,14 @@ def create_tff_dataset(clients_data: Dict) -> tff.simulation.ClientData:
 def create_class_distributed_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
 ) -> [Dict, tff.simulation.ClientData]:
+    """Function distributes the data in a way such that each client gets one type of data.
 
-    """
-    Function distributes the data in a way such that each client gets one type of data.
-    Returns a dictionary and a tensorflow federated dataset containing the distributed dataset.
+    Args:
+        X (np.ndarray): Input.\n
+        y (np.ndarray): Output.\n
+        number_of_clients (int): Number of clients.\n
+    Returns:
+        [Dict, tff.simulation.ClientData]: A dictionary and a tensorflow federated dataset containing the distributed dataset.
     """
     n = len(X)
     clients_data = {f"client_{i}": [[], []] for i in range(1, 6)}
@@ -94,9 +106,14 @@ def create_class_distributed_dataset(
 def create_uniform_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
 ) -> [Dict, tff.simulation.ClientData]:
+    """Function distributes the data equally such that each client holds equal amounts of each class.
 
-    """
-    Function distributes the data equally such that each client holds equal amounts of each class.
+    Args:
+        X (np.ndarray): Input.\n
+        y (np.ndarray): Output.\n
+        number_of_clients (int): Number of clients.\n
+    Returns:
+        [Dict, tff.simulation.ClientData]: A dictionary and a tensorflow federated dataset containing the distributed dataset.
     """
     clients_data = {f"client_{i}": [[], []] for i in range(1, number_of_clients + 1)}
     for i in range(len(X)):
@@ -109,10 +126,14 @@ def create_uniform_dataset(
 def create_unbalanced_data(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
 ) -> [Dict, tff.simulation.ClientData]:
+    """Function distributes the data in such a way that one client only has one type of data, while the rest of the clients has non-iid data.
 
-    """
-    Function distributes the data in such a way that one client only has one type of data,
-    while the rest of the clients has non-iid data.
+    Args:
+        X (np.ndarray): Input.\n
+        y (np.ndarray): Output.\n
+        number_of_clients (int): Number of clients.\n
+    Returns:
+        [Dict, tff.simulation.ClientData]: A dictionary and a tensorflow federated dataset containing the distributed dataset.
     """
     indices = np.arange(X.shape[0])
     np.random.shuffle(indices)
@@ -135,9 +156,14 @@ def create_unbalanced_data(
 def create_non_iid_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
 ) -> [Dict, tff.simulation.ClientData]:
+    """Function distributes the data such that each client has non-iid data.
 
-    """
-    Function distributes the data such that each client has non-iid data.
+    Args:
+        X (np.ndarray): Input.\n
+        y (np.ndarray): Output.\n
+        number_of_clients (int): Number of clients.\n
+    Returns:
+        [Dict, tff.simulation.ClientData]: A dictionary and a tensorflow federated dataset containing the distributed dataset.
     """
     indices = np.arange(X.shape[0])
     np.random.shuffle(indices)
@@ -158,9 +184,14 @@ def create_non_iid_dataset(
 def create_corrupted_non_iid_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
 ) -> [Dict, tff.simulation.ClientData]:
+    """Function distributes the data such that each client has non-iid data except client 1, which only has values in the interval [20, 40].
 
-    """
-    Function distributes the data such that each client has non-iid data except client 1, which only has ones (a straight line with value 1.0).
+    Args:
+        X (np.ndarray): Input.\n
+        y (np.ndarray): Output.\n
+        number_of_clients (int): Number of clients.\n
+    Returns:
+        [Dict, tff.simulation.ClientData]: A dictionary and a tensorflow federated dataset containing the distributed dataset.
     """
     indices = np.arange(X.shape[0])
     np.random.shuffle(indices)
@@ -196,10 +227,20 @@ def load_data(
     number_of_clients: int = 5,
     save_data: bool = False,
 ) -> [tff.simulation.ClientData, tff.simulation.ClientData, int]:
-    """
-    Function loads data from csv-file
-    and preprocesses the training and test data seperately.
-    Returns a tuple of tff.simulation.ClientData
+    """Function loads data from csv-file and preprocesses the training and test data seperately.
+
+    Args:
+        normalized (bool, optional): Whether to normalize the data. Defaults to True.\n
+        data_analysis (bool, optional): Load data for data analysis. Defaults to False.\n
+        data_selector (Callable[ [np.ndarray, np.ndarray, int], tff.simulation.ClientData ], optional): Data distribution. Defaults to None.\n
+        number_of_clients (int, optional): Number of clients. Defaults to 5.\n
+        save_data (bool, optional): Whether the data distribution should be written to disk. Defaults to False.\n
+
+    Raises:
+        ValueError: The data has to be normalized to use create_uniform_dataset.
+
+    Returns:
+        [tff.simulation.ClientData, tff.simulation.ClientData, int]: A tuple of tff.simulation.ClientData.
     """
     train_file = "data/mitbih/mitbih_train.csv"
     test_file = "data/mitbih/mitbih_test.csv"
@@ -269,14 +310,18 @@ def load_data(
 def preprocess_dataset(
     epochs: int, batch_size: int, shuffle_buffer_size: int
 ) -> Callable[[tf.data.Dataset], tf.data.Dataset]:
-    """
-    Function returns a function for preprocessing of a dataset
+    """Function returns a function for preprocessing of a dataset.
+
+    Args:
+        epochs (int): How many times to repeat a batch.\n
+        batch_size (int): Batch size.\n
+        shuffle_buffer_size (int): Buffer size for shuffling the dataset.\n
+
+    Returns:
+        Callable[[tf.data.Dataset], tf.data.Dataset]: A callable for preprocessing a dataset object.
     """
 
     def _reshape(element: collections.OrderedDict) -> tf.Tensor:
-        """
-        Function returns reshaped tensors
-        """
 
         return (tf.expand_dims(element["datapoints"], axis=-1), element["label"])
 
@@ -316,11 +361,24 @@ def get_datasets(
     ] = create_dataset,
     number_of_clients: int = 5,
     save_data: bool = False,
-):
+) -> [tf.data.Dataset, tf.data.Dataset, int]:
+    """Function preprocesses datasets. Return input-ready datasets
 
-    """
-    Function preprocesses datasets.
-    Return input-ready datasets
+    Args:
+        train_batch_size (int, optional): Training batch size. Defaults to 32.\n
+        test_batch_size (int, optional): Test batch size. Defaults to 32.\n
+        train_shuffle_buffer_size (int, optional): Training shuffle buffer size. Defaults to 10000.\n
+        test_shuffle_buffer_size (int, optional): Testing shuffle buffer size. Defaults to 10000.\n
+        train_epochs (int, optional): Training epochs. Defaults to 5.\n
+        test_epochs (int, optional): Test epochs. Defaults to 5.\n
+        centralized (bool, optional): Whether to create dataset for centralized learning. Defaults to False.\n
+        normalized (bool, optional): If the data should be normalized. Defaults to True.\n
+        data_selector (Callable[ [np.ndarray, np.ndarray, int], tff.simulation.ClientData ], optional): Which data distribution to use. Defaults to create_dataset.\n
+        number_of_clients (int, optional): Number of clients. Defaults to 5.\n
+        save_data (bool, optional): If the data should be saved or not. Defaults to False.\n
+
+    Returns:
+        [tf.data.Dataset, tf.data.Dataset, int]: Input-ready datasets, and number of datapoints.
     """
     train_dataset, test_dataset, n = load_data(
         normalized=normalized,

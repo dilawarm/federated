@@ -13,14 +13,26 @@ BATCH_SIZE = 2
 
 
 class CentralizedTrainingLoopTest(tf.test.TestCase):
-    def create_test_dataset(self):
+    """Class for testing centralized training loop."""
+
+    def create_test_dataset(self) -> tf.data.Dataset:
+        """Creates data for CL tests.
+
+        Returns:
+            tf.data.Dataset: Dataset.
+        """
         dataset = tf.data.Dataset.from_tensor_slices(
             ([[1.0, 2.0], [3.0, 4.0]], [[5.0], [6.0]])
         )
 
         return dataset.repeat(4).batch(BATCH_SIZE)
 
-    def create_test_model(self):
+    def create_test_model(self) -> tf.keras.Model:
+        """Creates model for CL tests.
+
+        Returns:
+            tf.keras.Model: Model.
+        """
         model = tf.keras.Sequential(
             tf.keras.layers.Dense(
                 units=1,
@@ -39,6 +51,7 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
         return model
 
     def test_reduces_loss(self):
+        """Test for checking if the CL loop reduces loss."""
         dataset = self.create_test_dataset()
         model = self.create_test_model()
         history, _ = centralized_training_loop(
@@ -58,6 +71,7 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
             self.assertLess(history.history[metric][-1], history.history[metric][0])
 
     def test_write_metrics(self):
+        """Tests if CL loop writes metrics correctly to TensorBoard"""
         dataset = self.create_test_dataset()
         model = self.create_test_model()
         name = "test_write_metrics"
@@ -74,6 +88,7 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
             self.assertTrue(tf.io.gfile.exists(gfile))
 
     def test_learning_rate_reduction(self):
+        """Tests learning rate decay."""
         dataset = self.create_test_dataset()
         model = self.create_test_model()
         history, _ = centralized_training_loop(
@@ -91,14 +106,26 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
 
 
 class FederatedTrainingLoopTest(tf.test.TestCase):
+    """Class for testing federated learning loop."""
+
     TYPE = collections.namedtuple("B", ["x", "y"])
 
-    def get_batch(self):
+    def get_batch(self) -> TYPE:
+        """Function for getting a batch.
+
+        Returns:
+            self.TYPE: Batch.
+        """
         return self.TYPE(
             x=np.ones([1, 784], dtype=np.float32), y=np.ones([1, 1], dtype=np.int64)
         )
 
-    def create_tff_model(self):
+    def create_tff_model(self) -> TYPE:
+        """Function for creating TFF model.
+
+        Returns:
+            self.TYPE: TFF Model.
+        """
         input_spec = self.TYPE(
             x=tf.TensorSpec(shape=[None, 784], dtype=tf.float32),
             y=tf.TensorSpec(shape=[None, 1], dtype=tf.int64),
@@ -113,6 +140,11 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
         )
 
     def get_iterative_process(self):
+        """Function for creating Iterative Process.
+
+        Returns:
+            Iterative Process.
+        """
         return tff.learning.build_federated_averaging_process(
             self.create_tff_model,
             client_optimizer_fn=tf.keras.optimizers.SGD,
@@ -120,6 +152,7 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
         )
 
     def test_reduces_loss(self):
+        """Test for checking if the FL loop reduces loss."""
         training_data = [[self.get_batch()]]
         iterative_process = self.get_iterative_process()
 

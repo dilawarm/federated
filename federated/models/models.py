@@ -14,40 +14,10 @@ from tensorflow.keras import Sequential, layers
 
 
 def create_cnn_model() -> tf.keras.Sequential:
-    """
-    _________________________________________________________________
-    Layer (type)                 Output Shape              Param #
-    =================================================================
-    conv1d (Conv1D)              (None, 182, 64)           448
-    _________________________________________________________________
-    batch_normalization (BatchNo (None, 182, 64)           256
-    _________________________________________________________________
-    max_pooling1d (MaxPooling1D) (None, 91, 64)            0
-    _________________________________________________________________
-    conv1d_1 (Conv1D)            (None, 89, 64)            12352
-    _________________________________________________________________
-    batch_normalization_1 (Batch (None, 89, 64)            256
-    _________________________________________________________________
-    max_pooling1d_1 (MaxPooling1 (None, 45, 64)            0
-    _________________________________________________________________
-    conv1d_2 (Conv1D)            (None, 43, 64)            12352
-    _________________________________________________________________
-    batch_normalization_2 (Batch (None, 43, 64)            256
-    _________________________________________________________________
-    max_pooling1d_2 (MaxPooling1 (None, 22, 64)            0
-    _________________________________________________________________
-    flatten (Flatten)            (None, 1408)              0
-    _________________________________________________________________
-    dense (Dense)                (None, 64)                90176
-    _________________________________________________________________
-    dense_1 (Dense)              (None, 32)                2080
-    _________________________________________________________________
-    dense_2 (Dense)              (None, 5)                 165
-    =================================================================
-    Total params: 118,341
-    Trainable params: 117,957
-    Non-trainable params: 384
-    _________________________________________________________________
+    """Creates 1D CNN with ReLU activation function.
+
+    Returns:
+        tf.keras.Sequential: A 1D CNN model.
     """
     model = Sequential(
         [
@@ -73,6 +43,11 @@ def create_cnn_model() -> tf.keras.Sequential:
 
 
 def create_new_cnn_model() -> tf.keras.Sequential:
+    """Creates 1D CNN with Leaky ReLU activation function.
+
+    Returns:
+        tf.keras.Sequential: A 1D CNN model.
+    """
     model = Sequential(
         [
             layers.Convolution1D(filters=16, kernel_size=7, input_shape=[186, 1]),
@@ -95,26 +70,10 @@ def create_new_cnn_model() -> tf.keras.Sequential:
 
 
 def create_dense_model() -> tf.keras.Sequential:
-    """
-    _________________________________________________________________
-    Layer (type)                 Output Shape              Param #
-    =================================================================
-    flatten (Flatten)            (None, 186)               0
-    _________________________________________________________________
-    dense (Dense)                (None, 50)                9350
-    _________________________________________________________________
-    dense_1 (Dense)              (None, 50)                2550
-    _________________________________________________________________
-    dense_2 (Dense)              (None, 50)                2550
-    _________________________________________________________________
-    dense_3 (Dense)              (None, 50)                2550
-    _________________________________________________________________
-    dense_4 (Dense)              (None, 5)                 255
-    =================================================================
-    Total params: 17,255
-    Trainable params: 17,255
-    Non-trainable params: 0
-    _________________________________________________________________
+    """Creates ANN model.
+
+    Returns:
+        tf.keras.Sequential: An ANN model.
     """
     model = Sequential(
         [
@@ -134,18 +93,10 @@ def create_dense_model() -> tf.keras.Sequential:
 
 
 def create_linear_model() -> tf.keras.Sequential:
-    """
-    _________________________________________________________________
-    Layer (type)                 Output Shape              Param #
-    =================================================================
-    flatten (Flatten)            (None, 186)               0
-    _________________________________________________________________
-    dense (Dense)                (None, 5)                 935
-    =================================================================
-    Total params: 935
-    Trainable params: 935
-    Non-trainable params: 0
-    _________________________________________________________________
+    """Creates a softmax regression model.
+
+    Returns:
+        tf.keras.Sequential: A softmax regresion model.
     """
     model = Sequential(
         [

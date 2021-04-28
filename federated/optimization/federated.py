@@ -44,13 +44,24 @@ def iterative_process_fn(
         [], tff.aggregators.UnweightedAggregationFactory
     ] = None,
 ) -> tff.templates.IterativeProcess:
+    """Function builds an iterative process that performs federated aggregation. The function offers federated averaging, federated stochastic gradient descent and robust federated aggregation.
 
-    """
-    Function builds an iterative process that performs federated aggregation.
-    The function offers federated averaging, federated stochastic gradient descent
-    and robust federated aggregation.
-    Returns an iterativeProcess.
+    Args:
+        tff_model (tff.learning.Model): Federated model object.\n
+        server_optimizer_fn (Callable[[], tf.keras.optimizers.Optimizer]): Server optimizer function.\n
+        aggregation_method (str, optional): Aggregation method. Defaults to "fedavg".\n
+        client_optimizer_fn (Callable[[], tf.keras.optimizers.Optimizer], optional): Client optimizer function. Defaults to None.\n
+        iterations (int, optional): [description]. Defaults to None.\n
+        client_weighting (tff.learning.ClientWeighting, optional): Client weighting. Defaults to None.\n
+        v (float, optional): L2 threshold. Defaults to None.\n
+        compression (bool, optional): If the model should be compressed. Defaults to False.\n
+        model_update_aggregation_factory (Callable[ [], tff.aggregators.UnweightedAggregationFactory ], optional): If the model should be trained with DP. Defaults to None.\n
 
+    Raises:
+        ValueError: Invalid aggregation method.
+
+    Returns:
+        tff.templates.IterativeProcess: An Iterative Process.
     """
     if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
         raise ValueError("Aggregation method does not exist")
@@ -121,10 +132,32 @@ def federated_pipeline(
     compression: bool = False,
     model_update_aggregation_factory: Any = None,
 ) -> None:
-
-    """
-    Function runs federated training pipeline on the dataset.
+    """Function runs federated training pipeline on the dataset.
     Also logs training configurations used during training.
+
+    Args:
+        name (str): Experiment name.\n
+        iterative_process_fn (Any): Iterative Process.\n
+        output (str): Where to log files.\n
+        data_selector (Any): Data distribution.\n
+        client_epochs (int): Number of client epochs.\n
+        batch_size (int): Batch size.\n
+        number_of_clients (int): Number of clients.\n
+        number_of_clients_per_round (int): Number of clients per round.\n
+        number_of_rounds (int): Number of global rounds.\n
+        keras_model_fn (Any): Keras Model Function.\n
+        server_optimizer_fn (Any): Server Optimizer Function.\n
+        normalized (bool, optional): If the data should be normalized. Defaults to True.\n
+        save_data (bool, optional): If the data should be saved. Defaults to True.\n
+        aggregation_method (str, optional): Aggregation method. Defaults to "fedavg".\n
+        client_optimizer_fn (Any, optional): Client optimizer function. Defaults to None.\n
+        client_weighting (tff.learning.ClientWeighting, optional): Client weighting. Either Uniform or Data dependent. Defaults to None.\n
+        seed (int, optional): Random seed. Defaults to None.\n
+        validate_model (bool, optional): If the model should be validated whilst training. Defaults to True.\n
+        iterations (int, optional): Number of RFA iterations. Defaults to None.\n
+        v (int, optional): L2 threshold. Defaults to None.\n
+        compression (bool, optional): If the data should be compressed. Defaults to False.\n
+        model_update_aggregation_factory (Any, optional): If the data should be trained with DP. Defaults to None.\n
     """
     train_dataset, _, len_train_X = get_datasets(
         train_batch_size=batch_size,
@@ -270,12 +303,3 @@ if __name__ == "__main__":
             clipping_value=clipping_value,
         ),
     )
-
-"""
-lambda: gaussian_fixed_aggregation_factory(
-            noise_multiplier=noise_multiplier,
-            clients_per_round=number_of_clients_per_round,
-            clipping_value=clipping_value,
-        ),
-
-"""

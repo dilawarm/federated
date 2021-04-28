@@ -15,7 +15,15 @@ from federated.utils.data_utils import (
 from federated.models.models import create_dense_model
 
 
-def create_test_dataset(client_id=None):
+def create_test_dataset(client_id: int = None) -> tf.data.Dataset:
+    """Function for creating dataset for tests for data preprocessing.
+
+    Args:
+        client_id (int, optional): ID of a client. Defaults to None.
+
+    Returns:
+        tf.data.Dataset: The dataset to be used on the tests
+    """
     np.random.seed(client_id)
     x = np.random.rand(6, 1).astype(np.float32)
     dataset = tf.data.Dataset.from_tensor_slices(
@@ -24,7 +32,12 @@ def create_test_dataset(client_id=None):
     return dataset.batch(2)
 
 
-def create_test_model():
+def create_test_model() -> tf.keras.Model:
+    """Function for creating model for tests for data preprocessing
+
+    Returns:
+        tf.keras.Model: A model with one unit.
+    """
     model = tf.keras.Sequential(
         tf.keras.layers.Dense(
             units=1,
@@ -37,11 +50,10 @@ def create_test_model():
 
 
 class DataPreprocessorTest(tf.test.TestCase):
+    """Class for testing the data preprocessing module."""
+
     def test_dataset_shapes_centralized(self):
-        """
-        Function that tests function for centeralized data preprocessing.
-        It tests whether the shape of the data matches what is expected.
-        """
+        """Function that tests function for centralized data preprocessing. It tests whether the shape of the data matches what is expected."""
         train, test, _ = get_datasets(
             train_batch_size=32,
             test_batch_size=100,
@@ -57,10 +69,7 @@ class DataPreprocessorTest(tf.test.TestCase):
         self.assertEqual(test_batch_shape, [100, 186, 1])
 
     def test_dataset_shapes_federated(self):
-        """
-        Function that tests function for federated data preprocessing.
-        It tests whether the shape of the data matches what is expected.
-        """
+        """Function that tests function for federated data preprocessing. It tests whether the shape of the data matches what is expected."""
         train, test, _ = get_datasets(
             train_batch_size=32,
             test_batch_size=100,
@@ -99,6 +108,7 @@ class DataPreprocessorTest(tf.test.TestCase):
         self.assertAllClose(test_batch, batch)
 
     def test_get_validation_fn(self):
+        """Function for testing the validation dataset function."""
         test_dataset = create_test_dataset()
 
         loss_fn = lambda: tf.keras.losses.CategoricalCrossentropy()

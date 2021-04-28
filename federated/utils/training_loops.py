@@ -21,11 +21,23 @@ def centralized_training_loop(
     validation_dataset: tf.data.Dataset = None,
     test_dataset: tf.data.Dataset = None,
 ) -> [tf.keras.callbacks.History, float]:
-    """
-    Function trains a model on a dataset using centralized machine learning, and tests its performance.
-    Returns the history object after fitting the model, and training time.
-    """
+    """Function trains a model on a dataset using centralized machine learning, and tests its performance.
 
+    Args:
+        model (tf.keras.Model): Model.\n
+        dataset (tf.data.Dataset): Dataset.\n
+        name (str): Experiment name.\n
+        epochs (int): Number of epochs.\n
+        output (str): Logs output destination.\n
+        decay_epochs (int, optional): Decay frequency. Defaults to None.\n
+        learning_rate_decay (float, optional): Learning rate decay. Defaults to 0.\n
+        save_model (bool, optional): If the model should be saved. Defaults to True.\n
+        validation_dataset (tf.data.Dataset, optional): Validation dataset. Defaults to None.\n
+        test_dataset (tf.data.Dataset, optional): Test dataset. Defaults to None.\n
+
+    Returns:
+        [tf.keras.callbacks.History, float]: Returns the history object after fitting the model, and training time.
+    """
     log_dir = os.path.join(output, "logdir", name)
     tf.io.gfile.makedirs(log_dir)
 
@@ -88,12 +100,26 @@ def federated_training_loop(
     validate_model: Callable[[Any, int], Dict[str, float]] = None,
     noise_multiplier: int = None,
 ) -> [tff.Computation, float, float]:
-    """
-    Function trains a model on a dataset using federated learning.
+    """Function trains a model on a dataset using federated learning.
 
-    Returns the last state of the server, training time, and average round time.
-    """
+    Args:
+        iterative_process (tff.templates.IterativeProcess): Iterative process.\n
+        get_client_dataset (Callable[[int], List[tf.data.Dataset]]): Function for getting dataset for clients.\n
+        number_of_rounds (int): Number of rounds.\n
+        name (str): Experiment name.\n
+        output (str): Logs destination.\n
+        batch_size (int): Batch size.\n
+        number_of_training_points (int, optional): Number of datapoints.. Defaults to None.\n
+        keras_model_fn (Callable[[], tf.keras.Model], optional): Keras model function. Defaults to None.\n
+        loss_fn (Callable[[], tf.keras.losses.Loss], optional): Loss function. Defaults to None.\n
+        metrics_fn (Callable[[], tf.keras.metrics.Metric], optional): Metrics function. Defaults to None.\n
+        save_model (bool, optional): If the model should be saved. Defaults to False.\n
+        validate_model (Callable[[Any, int], Dict[str, float]], optional): Validation function. Defaults to None.\n
+        noise_multiplier (int, optional): Noise multiplier. Defaults to None.\n
 
+    Returns:
+        [tff.Computation, float, float]: Returns the last state of the server, training time, and average round time.
+    """
     env = set_communication_cost_env()
 
     log_dir = os.path.join(output, "logdir", name)

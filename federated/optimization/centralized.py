@@ -18,9 +18,17 @@ def centralized_pipeline(
     decay_epochs: int = None,
     learning_rate_decay: float = 0,
 ) -> None:
-    """
-    Function runs centralized training pipeline.
-    Also logs traning configurations used during training.
+    """Function runs centralized training pipeline. Also logs traning configurations used during training.
+
+    Args:
+        name (str): Name of the experiment.\n
+        output (str): Where to save config files.\n
+        epochs (int): Number of epochs.\n
+        batch_size (int): Batch size.\n
+        optimizer (tf.keras.optimizers.Optimizer): Which optimizer to use.\n
+        model (tf.keras.Model): Which model to use.\n
+        decay_epochs (int, optional): Frequency of learning rate decay. Defaults to None.\n
+        learning_rate_decay (float, optional): Rate of learning rate decay. Defaults to 0.\n
     """
     train_dataset, test_dataset, _ = get_datasets(
         train_batch_size=batch_size, centralized=True
