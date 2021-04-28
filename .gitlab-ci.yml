@@ -7,5 +7,6 @@ federated:
 deploy_docs:
   image: node:latest
   script:
+    - apt update
     - apt-get install -y python3-sphinx
     - cd docs && make html
