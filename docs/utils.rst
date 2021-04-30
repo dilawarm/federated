@@ -1,4 +1,4 @@
-Utils package
+utils
 =============
 
 utils.compression\_utils module
@@ -33,26 +33,10 @@ utils.rfa module
     :undoc-members:
     :show-inheritance:
 
-utils.rfa\_test module
-----------------------
-
-.. automodule:: federated.utils.rfa_test
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 utils.training\_loops module
 ----------------------------
 
 .. automodule:: federated.utils.training_loops
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-utils.training\_loops\_test module
-----------------------------------
-
-.. automodule:: federated.utils.training_loops_test
     :members:
     :undoc-members:
     :show-inheritance:

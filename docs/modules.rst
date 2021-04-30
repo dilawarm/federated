@@ -9,3 +9,4 @@ federated
    models
    optimization
    utils
+   tests
