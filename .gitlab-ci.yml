@@ -5,8 +5,8 @@ federated:
     - coverage html
     - black .
   artifacts:
-    reports:
-      cobertura: htmlcov
+    paths:
+      - htmlcov/
 
 deploy_docs:
   image: node:latest
