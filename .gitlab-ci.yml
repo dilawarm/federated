@@ -3,6 +3,9 @@ federated:
   script:
     - make test
     - black .
+  artifacts:
+    reports:
+      - coverage/
 
 deploy_docs:
   image: node:latest
