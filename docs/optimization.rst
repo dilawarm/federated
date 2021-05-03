@@ -1,4 +1,4 @@
-Optimization package
+optimization
 ====================
 
 optimization.centralized module
