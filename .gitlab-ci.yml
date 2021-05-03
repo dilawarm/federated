@@ -2,11 +2,11 @@ federated:
   image: dilawarm/federated:latest
   script:
     - python3 -m pytest --cov=federated/ federated/tests/
-    - coverage xml
+    - coverage html
     - black .
   artifacts:
     reports:
-      cobertura: coverage.xml
+      cobertura: htmlcov
 
 deploy_docs:
   image: node:latest
