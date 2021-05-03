@@ -4,7 +4,7 @@ federated:
     - make test
     - black .
   artifacts:
-    paths:
+    reports:
       - coverage/
 
 deploy_docs:
