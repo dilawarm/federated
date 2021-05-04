@@ -2,7 +2,7 @@ init:
 	pip3 install -r requirements.txt
 
 test: 
-	python3 -m --cov=federated/ pytest federated/tests/
+	python3 -m pytest --cov=federated/ federated/tests/
 
 test_data:
 	python3 -m federated.tests.data_preprocessing_test
