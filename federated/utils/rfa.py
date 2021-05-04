@@ -1,11 +1,10 @@
 # The implementation is inspired by https://github.com/google-research/federated/tree/master/robust_aggregation
 
+from typing import Callable, Optional
+
 import tensorflow as tf
 import tensorflow_federated as tff
-from federated.utils.compression_utils import (
-    encoded_broadcast_process,
-)
-from typing import Callable, Optional
+from federated.utils.compression_utils import encoded_broadcast_process
 
 
 def create_robust_measured_process(

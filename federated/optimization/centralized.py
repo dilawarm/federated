@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 from federated.data.data_preprocessing import get_datasets
 from federated.models.models import (
     create_cnn_model,
@@ -27,8 +28,8 @@ def centralized_pipeline(
     optimizer: str,
     model: str,
     learning_rate: float,
-) -> None:
-    """Function runs centralized training pipeline. Also logs traning configurations used during training.
+) -> float:
+    """Function runs centralized training pipeline.
 
     Args:
         name (str): Name of the experiment.\n
@@ -38,6 +39,9 @@ def centralized_pipeline(
         optimizer (str): Which optimizer to use. Defaults to sgd.\n
         model (str): Which model to use.\n
         learning_rate (float): Learning rate to be used. Defaults to 1.0.\n
+
+    Returns:
+        float: Training time after centralized learning.
     """
 
     model = MODELS[model]()
@@ -63,9 +67,4 @@ def centralized_pipeline(
         validation_dataset=test_dataset,
     )
 
-    with open(f"{output}/logdir/{name}/training_config.csv", "w+") as f:
-        f.writelines("name,training_time,epochs,time_per_epoch,optimizer\n")
-        f.writelines(
-            f"{name},{training_time},{epochs},{training_time/epochs},{optimizer}"
-        )
-        f.close()
+    return training_time

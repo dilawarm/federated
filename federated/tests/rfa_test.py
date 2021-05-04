@@ -1,8 +1,9 @@
+import collections
+
+import numpy as np
 import tensorflow as tf
 import tensorflow_federated as tff
 from federated.utils.rfa import create_rfa_averaging
-import numpy as np
-import collections
 
 
 class RFATest(tf.test.TestCase):

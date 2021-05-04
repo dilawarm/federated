@@ -1,12 +1,56 @@
+import argparse
+import json
+import time
+from itertools import chain, repeat
+from operator import attrgetter
+from time import sleep
+from typing import Any, List
+
+import emoji
+from alive_progress import alive_bar, config_handler
+
 from federated.optimization.centralized import centralized_pipeline
 from federated.optimization.federated import federated_pipeline
 
-from typing import List
-from itertools import chain, repeat
-import argparse
+boldify = lambda s: "\033[1m" + str(s) + "\033[0m"
+boldify.__doc__ = """Function for producing boldface strings."""
 
 
-def check_type(x, inp_type):
+def remove_slash(path: str) -> str:
+    """Remove slash in the end of path if present.
+
+    Args:
+        path (str): Path.
+
+    Returns:
+        str: Path without slash.
+    """
+    if path[-1] == "/":
+        path = path[:-1]
+    return path
+
+
+def print_training_config(args: dict) -> None:
+    """Function for printing out training configuration.
+
+    Args:
+        args (dict): Training configuration dictionary.
+    """
+    print(emoji.emojize("\nTraining Configuration :page_with_curl:", use_aliases=True))
+    print(json.dumps(args, indent=4, sort_keys=True), end="\n\n")
+    time.sleep(3)
+
+
+def check_type(x: str, inp_type: type) -> bool:
+    """Function for checking if a string can be converted to a certain type.
+
+    Args:
+        x (str): String to convert.\n
+        inp_type (type) : Type.
+
+    Returns:
+        bool: If x can be converted or not.
+    """
     try:
         inp_type(x)
         return True
@@ -14,22 +58,49 @@ def check_type(x, inp_type):
         return False
 
 
-def validate_type_input(input_string: str, default, inp_type):
+def validate_type_input(input_string: str, default: Any, inp_type: type) -> Any:
+    """Custom input with validation for ints, floats, and bools.
+
+    Args:
+        input_string (str): Prompt string for input.\n
+        default (Any): Default value.\n
+        inp_type (type): Type to convert to.
+
+    Returns:
+        Any: Converted input value.
+    """
+
     prompts = chain(
-        [input_string + f"{default}: "],
+        [input_string + f"(default: {boldify(default)}): "],
         repeat(f"Input must be of type {inp_type}. Try again: "),
     )
     replies = map(input, prompts)
     valid_response = next(filter(lambda x: check_type(x, inp_type) or x == "", replies))
 
     if valid_response == "":
+        if inp_type == bool:
+            return eval(default)
         return default
+
+    if inp_type == bool:
+        return eval(valid_response)
+
     return inp_type(valid_response)
 
 
-def validate_options_input(input_string: str, default: str, options: List[str]):
+def validate_options_input(input_string: str, default: str, options: List[str]) -> str:
+    """Custom input with validation where we have options.
+
+    Args:
+        input_string (str): Prompt string for input.\n
+        default (str): Default value.\n
+        options (List[str]): Options for input.\n
+
+    Returns:
+        str: Input value.
+    """
     prompts = chain(
-        [input_string + f"{options}: "],
+        [input_string + f"{options}. (default: {boldify(default)}): "],
         repeat(f"Input must be one of {options}. Try again: "),
     )
     replies = map(input, prompts)
@@ -41,10 +112,34 @@ def validate_options_input(input_string: str, default: str, options: List[str]):
     return valid_response
 
 
+class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter):
+    """Custom implementation of argparse.ArgumentDefaultsHelpFormatter."""
+
+    def add_arguments(self, actions: dict) -> None:
+        """Custom add_arguments of argparse.ArgumentDefaultsHelpFormatter.
+
+        Args:
+            actions (dict): Actions.
+        """
+        actions = sorted(actions, key=attrgetter("option_strings"))
+        super(CustomFormatter, self).add_arguments(actions)
+
+
 def main():
+    """Main method for this project. Runs pipelines with user inputs, and writes configuration to json file.
+
+    Raises:
+        ValueError: If participating clients is larger than total number of clients.
+    """
     parser = argparse.ArgumentParser(
-        description="Experimentation pipeline for federated."
+        description=emoji.emojize(
+            "Experimentation pipeline for federated :rocket:", use_aliases=True
+        ),
+        formatter_class=CustomFormatter,
     )
+
+    for g in parser._action_groups:
+        g._group_actions.sort(key=lambda x: x.dest)
 
     parser.add_argument(
         "-l",
@@ -92,7 +187,7 @@ def main():
         type=str,
         metavar="",
         default="history",
-        help="The name of the output folder for where the experiment is saved.",
+        help="Path to the output folder where the experiment is going to be saved.",
     )
     parser.add_argument(
         "-m",
@@ -114,8 +209,27 @@ def main():
 
     args = parser.parse_args()
 
+    args.output = remove_slash(args.output)
+
+    args_dict = vars(args)
+    output = args_dict["output"]
+    args.output = f"{output}/logdir/{args.experiment_name}"
+
+    print(
+        f"\n{emoji.emojize('Initializing pipeline... :chicken: :arrow_right: :hatching_chick: :arrow_right: :hatched_chick:', use_aliases=True)}"
+    )
+    config_handler.set_global(length=30, spinner="fish_bouncing")
+    with alive_bar(200, length=40) as bar:
+        for i in range(200):
+            sleep(0.02)
+            bar()
+
     if args.learning_approach == "centralized":
-        centralized_pipeline(
+
+        print_training_config(args_dict)
+        args.output = output
+
+        training_time = centralized_pipeline(
             name=args.experiment_name,
             output=args.output,
             epochs=args.epochs,
@@ -125,123 +239,153 @@ def main():
             learning_rate=args.learning_rate,
         )
     else:
-        print("Press ENTER to skip input and use default values.", end="\n\n")
+        print(
+            emoji.emojize(
+                "\nPress ENTER to skip input and use default values :fast_forward:",
+                use_aliases=True,
+            ),
+            end="\n\n",
+        )
 
-        client_epochs = None
-        client_optimizer = None
-        client_lr = None
-        iterations = None
-        v = None
-        noise_multiplier = None
-        clipping_norm = None
-
-        aggregation_method = validate_options_input(
+        args_dict["aggregation_method"] = validate_options_input(
             f"Aggregation Method. OPTIONS: ",
             "fedavg",
             ["fedsgd", "fedavg", "rfa"],
         )
 
-        client_weighting = validate_options_input(
-            f"Client weighting. OPTIONS: ", "NUM_EXAMPLES", ["NUM_EXAMPLES", "UNIFORM"]
+        args_dict["client_weighting"] = validate_options_input(
+            f"Client weighting. OPTIONS: ",
+            "NUM_EXAMPLES",
+            ["NUM_EXAMPLES", "UNIFORM"],
         )
 
-        if aggregation_method in ["fedavg", "rfa"]:
+        if args_dict["aggregation_method"] in ["fedavg", "rfa"]:
 
-            client_epochs = validate_type_input(
-                "Enter number of client epochs. DEFAULT : ", 10, int
+            args_dict["client_epochs"] = validate_type_input(
+                "Enter number of client epochs. ", 10, int
             )
 
-            client_optimizer = validate_options_input(
+            args_dict["client_optimizer"] = validate_options_input(
                 f"Client optimizer. OPTIONS: ",
                 "sgd",
                 ["adam", "sgd"],
             )
 
-            client_lr = validate_type_input(
-                "Learning rate for client optimizer. DEFAULT: ", 0.02, float
+            args_dict["client_lr"] = validate_type_input(
+                "Learning rate for client optimizer. ", 0.02, float
             )
 
-            if aggregation_method == "rfa":
-                iterations = validate_type_input(
-                    "Number of calls to the Secure Average Oracle. DEFAULT: ", 3, int
+            args_dict["compression"] = validate_type_input(
+                f"Compression. ", "False", bool
+            )
+
+            if args_dict["aggregation_method"] == "rfa":
+                args_dict["rfa_iterations"] = validate_type_input(
+                    "Number of calls to the Secure Average Oracle. ", 3, int
                 )
-                v = validate_type_input("L2 Threshold. DEFAULT: ", 1e-6, float)
+                args_dict["l2_threshold"] = validate_type_input(
+                    "L2 Threshold. ", 1e-6, float
+                )
 
-        if aggregation_method != "rfa":
-            dp = validate_options_input(
-                f"Differential Privacy. OPTIONS: ", "False", ["True", "False"]
+        if args_dict["aggregation_method"] != "rfa":
+            args_dict["differentially_privacy"] = validate_type_input(
+                f"Differential Privacy. ", "False", bool
             )
 
-            if eval(dp):
-                noise_multiplier = validate_type_input(
-                    "Noise multiplier. DEFAULT: ",
+            if args_dict["differentially_privacy"]:
+                args_dict["noise_multiplier"] = validate_type_input(
+                    "Noise multiplier. ",
                     0.5,
                     float,
                 )
-                clipping_norm = validate_type_input(
-                    "Clipping norm. DEFAULT: ",
+                args_dict["clipping_norm"] = validate_type_input(
+                    "Clipping norm. ",
                     0.75,
                     float,
                 )
 
-                client_weighting = "UNIFORM"
+                args_dict["client_weighting"] = "UNIFORM"
                 print(
-                    "Client weighting is set to be UNIFORM because you chose to train with differential privacy."
+                    emoji.emojize(
+                        "\n:exclamation: Client weighting is set to be UNIFORM because you chose to train with differential privacy.",
+                        use_aliases=True,
+                    ),
+                    end="\n\n",
                 )
 
-        data_dist = validate_options_input(
+        args_dict["data_dist"] = validate_options_input(
             "Enter data distribution. OPTIONS: ",
             "non_iid",
             ["non_iid", "uniform", "class_distributed"],
         )
 
-        if data_dist == "class_distributed":
-            number_of_clients = 5
-            print("Number of clients is set as 5 because you chose class_distributed.")
+        if args_dict["data_dist"] == "class_distributed":
+            args_dict["number_of_clients"] = 5
+            print(
+                emoji.emojize(
+                    "\n:exclamation: Number of clients is set as 5 because you chose class_distributed.",
+                    use_aliases=True,
+                ),
+                end="\n\n",
+            )
         else:
-            number_of_clients = validate_type_input(
-                "Number of clients. DEFAULT: ", 10, int
+            args_dict["number_of_clients"] = validate_type_input(
+                "Number of clients. ", 10, int
             )
 
-        number_of_clients_per_round = validate_type_input(
-            "Number of participating clients per round. DEFAULT: ", 5, int
+        args_dict["number_of_clients_per_round"] = validate_type_input(
+            "Number of participating clients per round. ", 5, int
         )
 
-        if number_of_clients_per_round > number_of_clients:
+        if args_dict["number_of_clients_per_round"] > args_dict["number_of_clients"]:
             raise ValueError(
-                "Number of participating clients can't be larger than the number of clients. Try again."
+                emoji.emojize(
+                    "Number of participating clients can't be larger than the total number of clients. Try again. :x:",
+                    use_aliases=True,
+                )
             )
 
-        compression = validate_options_input(
-            f"Compression. OPTIONS: ", "False", ["True", "False"]
-        )
+        args_dict["seed"] = validate_type_input(f"Random seed. ", None, int)
 
-        seed = validate_type_input(f"Random seed. Default: ", None, int)
+        print_training_config(args_dict)
+        args.output = output
 
-        federated_pipeline(
+        training_time, avg_round_time = federated_pipeline(
             name=args.experiment_name,
-            aggregation_method=aggregation_method,
-            client_weighting=client_weighting,
+            aggregation_method=args_dict.get("aggregation_method"),
+            client_weighting=args_dict.get("client_weighting"),
             keras_model_fn=args.model,
             server_optimizer_fn=args.optimizer,
             server_optimizer_lr=args.learning_rate,
-            client_optimizer_fn=client_optimizer,
-            client_optimizer_lr=client_lr,
-            data_selector=data_dist,
+            client_optimizer_fn=args_dict.get("client_optimizer"),
+            client_optimizer_lr=args_dict.get("client_lr"),
+            data_selector=args_dict.get("data_dist"),
             output=args.output,
-            client_epochs=client_epochs,
+            client_epochs=args_dict.get("client_epochs"),
             batch_size=args.batch_size,
-            number_of_clients=number_of_clients,
-            number_of_clients_per_round=number_of_clients_per_round,
+            number_of_clients=args_dict.get("number_of_clients"),
+            number_of_clients_per_round=args_dict.get("number_of_clients_per_round"),
             number_of_rounds=args.epochs,
-            iterations=iterations,
-            v=v,
-            compression=compression,
-            dp=dp,
-            noise_multiplier=noise_multiplier,
-            clipping_value=clipping_norm,
-            seed=seed,
+            iterations=args_dict.get("rfa_iterations"),
+            v=args_dict.get("l2_threshold"),
+            compression=args_dict.get("compression"),
+            dp=args_dict.get("differentially_privacy"),
+            noise_multiplier=args_dict.get("noise_multiplier"),
+            clipping_value=args_dict.get("clipping_norm"),
+            seed=args_dict.get("seed"),
         )
+
+    with open(
+        f"{args.output}/logdir/{args.experiment_name}/training_configuration.json", "w"
+    ) as fp:
+        json.dump(args_dict, fp)
+
+    print(
+        emoji.emojize(
+            f"\nTraining configuration is written to {args.output}/logdir/{args.experiment_name}/training_configuration.json :slightly_smiling_face:",
+            use_aliases=True,
+        )
+    )
 
 
 if __name__ == "__main__":

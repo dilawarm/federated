@@ -1,5 +1,3 @@
-# type: ignore
-
 import functools
 import inspect
 import os
@@ -7,10 +5,11 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import tensorflow as tf
 import tensorflow_federated as tff
+
 from federated.data.data_preprocessing import (
     create_class_distributed_dataset,
-    create_non_iid_dataset,
     create_corrupted_non_iid_dataset,
+    create_non_iid_dataset,
     create_unbalanced_data,
     create_uniform_dataset,
     get_datasets,
@@ -23,7 +22,6 @@ from federated.models.models import (
 from federated.utils.compression_utils import encoded_broadcast_process
 from federated.utils.data_utils import get_client_dataset_fn, get_validation_fn
 from federated.utils.differential_privacy import gaussian_fixed_aggregation_factory
-
 from federated.utils.rfa import create_rfa_averaging
 from federated.utils.training_loops import federated_training_loop
 
@@ -45,7 +43,18 @@ DATA_SELECTOR = {
 }
 
 
-def get_optimizer(optimizer: str, learning_rate: float):
+def get_optimizer(
+    optimizer: str, learning_rate: float
+) -> Callable[[], tf.keras.optimizers.Optimizer]:
+    """Function for getting correct optimizer.
+
+    Args:
+        optimizer (str): Optimizer to be used.\n
+        learning_rate (float): Learning rate.\n
+
+    Returns:
+        Callable[[], tf.keras.optimizers.Optimizer]: Returns function for optimizer.
+    """
     if optimizer == "adam":
         return lambda: tf.keras.optimizers.Adam(learning_rate=learning_rate)
     else:
@@ -109,7 +118,6 @@ def iterative_process_fn(
                 model_update_aggregation_factory=model_update_aggregation_factory,
             )
     if aggregation_method == "fedsgd":
-        print("gikk inn i fedsgd")
         if compression:
             return tff.learning.build_federated_sgd_process(
                 tff_model,
@@ -148,9 +156,8 @@ def federated_pipeline(
     noise_multiplier: float,
     clipping_value: float,
     seed: int = None,
-) -> None:
+) -> List[float]:
     """Function runs federated training pipeline on the dataset.
-    Also logs training configurations used during training.
 
     Args:
         name (str): Experiment name.\n
@@ -176,6 +183,8 @@ def federated_pipeline(
         clipping_norm (float): The clipping norm used with DP.\n
         seed (int, optional): Random seed. Defaults to None.\n
 
+    Returns:
+        [float, float]: Returns training time and average training time per round after federated learning.
     """
 
     keras_model_fn = MODELS[keras_model_fn]
@@ -189,7 +198,7 @@ def federated_pipeline(
         train_batch_size=batch_size,
         centralized=False,
         normalized=True,
-        train_epochs=client_epochs,
+        train_epochs=10,
         number_of_clients=number_of_clients,
         data_selector=data_selector,
     )
@@ -224,7 +233,7 @@ def federated_pipeline(
 
     aggregation_factory = None
 
-    if eval(dp):
+    if dp:
         aggregation_factory = gaussian_fixed_aggregation_factory(
             noise_multiplier=noise_multiplier,
             clients_per_round=number_of_clients_per_round,
@@ -253,7 +262,6 @@ def federated_pipeline(
         test_dataset, get_keras_model, loss_fn, metrics_fn
     )
 
-    print("gikk inn i treningsløkke")
     _, training_time, avg_round_time = federated_training_loop(
         iterative_process=iterative_process,
         get_client_dataset=get_client_dataset,
@@ -270,35 +278,4 @@ def federated_pipeline(
         noise_multiplier=noise_multiplier,
     )
 
-
-if __name__ == "__main__":
-    name = input("Experiment name: ")
-    aggregation_method = input("Aggregation method: ")
-    number_of_clients_per_round = 5
-    noise_multiplier = 0.5
-    clipping_value = 0.75
-
-    federated_pipeline(
-        name=name,
-        iterative_process_fn=iterative_process_fn,
-        server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),
-        data_selector=create_non_iid_dataset,
-        output="history",
-        client_epochs=1,
-        batch_size=32,
-        number_of_clients=5,
-        number_of_clients_per_round=number_of_clients_per_round,
-        number_of_rounds=1,
-        keras_model_fn=create_dense_model,
-        client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
-        aggregation_method=aggregation_method,
-        client_weighting=tff.learning.ClientWeighting.NUM_EXAMPLES,
-        iterations=3,
-        v=1e-6,
-        compression=False,
-        model_update_aggregation_factory=lambda: gaussian_fixed_aggregation_factory(
-            noise_multiplier=noise_multiplier,
-            clients_per_round=number_of_clients_per_round,
-            clipping_value=clipping_value,
-        ),
-    )
+    return training_time, avg_round_time

@@ -1,3 +1,5 @@
+import tensorflow as tf
+from tensorflow.keras import Sequential, layers
 from tensorflow.keras.layers import (
     Activation,
     Add,
@@ -9,8 +11,6 @@ from tensorflow.keras.layers import (
     Softmax,
 )
 from tensorflow.keras.models import Model
-import tensorflow as tf
-from tensorflow.keras import Sequential, layers
 
 
 def create_cnn_model() -> tf.keras.Sequential:

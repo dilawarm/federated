@@ -1,4 +1,6 @@
+alive-progress==1.6.2
 black==21.4b0
+emoji==1.2.0
 ipykernel==5.5.3
 kaleido==0.2.1
 matplotlib==3.4.1

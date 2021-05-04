@@ -1,9 +1,10 @@
-import tensorflow as tf
-import functools
-import numpy as np
 import collections
-import tensorflow_federated as tff
+import functools
 from typing import Callable, Optional
+
+import numpy as np
+import tensorflow as tf
+import tensorflow_federated as tff
 
 
 def randomly_select_clients_for_round(

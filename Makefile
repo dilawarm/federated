@@ -1,7 +1,8 @@
 init:
 	pip3 install -r requirements.txt
 
-test: test_data test_models test_training test_rfa
+test: 
+	python3 -m pytest federated/tests/
 
 test_data:
 	python3 -m federated.tests.data_preprocessing_test
@@ -14,9 +15,3 @@ test_training:
 
 test_rfa:
 	python3 -m federated.tests.rfa_test
-
-run_federated:
-	python3 -m federated.optimization.federated
-
-run_centralized:
-	python3 -m federated.optimization.centralized

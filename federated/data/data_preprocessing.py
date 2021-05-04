@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import tensorflow_federated as tff
-from tensorflow.keras.utils import to_categorical
 from sklearn.utils import resample
+from tensorflow.keras.utils import to_categorical
 
 SAMPLES = 20_000
 NUM_OF_CLIENTS = 10

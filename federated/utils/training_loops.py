@@ -35,13 +35,15 @@ def centralized_training_loop(
         [tf.keras.callbacks.History, float]: Returns the history object after fitting the model, and training time.
     """
     log_dir = os.path.join(output, "logdir", name)
+    images = os.path.join(log_dir, "images")
+
     tf.io.gfile.makedirs(log_dir)
+    tf.io.gfile.makedirs(images)
 
     callbacks = [
         tf.keras.callbacks.TensorBoard(log_dir=log_dir),
     ]
 
-    print("Training model")
     print(model.summary())
 
     start_time = time.time()
@@ -109,12 +111,14 @@ def federated_training_loop(
     env = set_communication_cost_env()
 
     log_dir = os.path.join(output, "logdir", name)
+    images = os.path.join(log_dir, "images")
     train_log_dir = os.path.join(log_dir, "train")
     validation_log_dir = os.path.join(log_dir, "validation")
     communication_log_dir = os.path.join(log_dir, "communication")
     moments_accountant_log_dir = os.path.join(log_dir, "moments_accountant")
 
     tf.io.gfile.makedirs(log_dir)
+    tf.io.gfile.makedirs(images)
     tf.io.gfile.makedirs(train_log_dir)
     tf.io.gfile.makedirs(validation_log_dir)
     tf.io.gfile.makedirs(communication_log_dir)
@@ -139,8 +143,6 @@ def federated_training_loop(
         moments_accountant_writer = tf.summary.create_file_writer(
             moments_accountant_log_dir
         )
-
-    print("Model metrics:")
 
     round_times = []
     start_time = time.time()

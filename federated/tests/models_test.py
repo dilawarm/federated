@@ -1,5 +1,4 @@
 import tensorflow as tf
-
 from federated.models.models import create_cnn_model
 
 
