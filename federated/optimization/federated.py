@@ -18,17 +18,38 @@ from federated.data.data_preprocessing import (
 from federated.models.models import (
     create_cnn_model,
     create_dense_model,
-    create_linear_model,
-    create_new_cnn_model,
+    create_softmax_model,
 )
 from federated.utils.compression_utils import encoded_broadcast_process
 from federated.utils.data_utils import get_client_dataset_fn, get_validation_fn
-from federated.utils.differential_privacy import (
-    gaussian_adaptive_aggregation_factory,
-    gaussian_fixed_aggregation_factory,
-)
+from federated.utils.differential_privacy import gaussian_fixed_aggregation_factory
+
 from federated.utils.rfa import create_rfa_averaging
 from federated.utils.training_loops import federated_training_loop
+
+MODELS = {
+    "ann": create_dense_model,
+    "cnn": create_cnn_model,
+    "softmax_regression": create_softmax_model,
+}
+
+CLIENT_WEIGHTING = {
+    "UNIFORM": tff.learning.ClientWeighting.UNIFORM,
+    "NUM_EXAMPLES": tff.learning.ClientWeighting.NUM_EXAMPLES,
+}
+
+DATA_SELECTOR = {
+    "non_iid": create_non_iid_dataset,
+    "uniform": create_uniform_dataset,
+    "class_distributed": create_class_distributed_dataset,
+}
+
+
+def get_optimizer(optimizer: str, learning_rate: float):
+    if optimizer == "adam":
+        return lambda: tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    else:
+        return lambda: tf.keras.optimizers.SGD(learning_rate=learning_rate)
 
 
 def iterative_process_fn(
@@ -57,14 +78,9 @@ def iterative_process_fn(
         compression (bool, optional): If the model should be compressed. Defaults to False.\n
         model_update_aggregation_factory (Callable[ [], tff.aggregators.UnweightedAggregationFactory ], optional): If the model should be trained with DP. Defaults to None.\n
 
-    Raises:
-        ValueError: Invalid aggregation method.
-
     Returns:
         tff.templates.IterativeProcess: An Iterative Process.
     """
-    if aggregation_method not in ["fedavg", "fedsgd", "rfa"]:
-        raise ValueError("Aggregation method does not exist")
     if aggregation_method == "rfa":
         return create_rfa_averaging(
             tff_model,
@@ -93,6 +109,7 @@ def iterative_process_fn(
                 model_update_aggregation_factory=model_update_aggregation_factory,
             )
     if aggregation_method == "fedsgd":
+        print("gikk inn i fedsgd")
         if compression:
             return tff.learning.build_federated_sgd_process(
                 tff_model,
@@ -110,63 +127,71 @@ def iterative_process_fn(
 
 def federated_pipeline(
     name: str,
-    iterative_process_fn: Any,
+    aggregation_method: str,
+    client_weighting: str,
+    keras_model_fn: str,
+    server_optimizer_fn: str,
+    server_optimizer_lr: float,
+    client_optimizer_fn: str,
+    client_optimizer_lr: float,
+    data_selector: str,
     output: str,
-    data_selector: Any,
     client_epochs: int,
     batch_size: int,
     number_of_clients: int,
     number_of_clients_per_round: int,
     number_of_rounds: int,
-    keras_model_fn: Any,
-    server_optimizer_fn: Any,
-    normalized: bool = True,
-    save_data: bool = True,
-    aggregation_method: str = "fedavg",
-    client_optimizer_fn: Any = None,
-    client_weighting: tff.learning.ClientWeighting = None,
+    iterations: int,
+    v: float,
+    compression: bool,
+    dp: bool,
+    noise_multiplier: float,
+    clipping_value: float,
     seed: int = None,
-    validate_model: bool = True,
-    iterations: int = None,
-    v: int = None,
-    compression: bool = False,
-    model_update_aggregation_factory: Any = None,
 ) -> None:
     """Function runs federated training pipeline on the dataset.
     Also logs training configurations used during training.
 
     Args:
         name (str): Experiment name.\n
-        iterative_process_fn (Any): Iterative Process.\n
-        output (str): Where to log files.\n
-        data_selector (Any): Data distribution.\n
-        client_epochs (int): Number of client epochs.\n
-        batch_size (int): Batch size.\n
-        number_of_clients (int): Number of clients.\n
-        number_of_clients_per_round (int): Number of clients per round.\n
-        number_of_rounds (int): Number of global rounds.\n
-        keras_model_fn (Any): Keras Model Function.\n
-        server_optimizer_fn (Any): Server Optimizer Function.\n
-        normalized (bool, optional): If the data should be normalized. Defaults to True.\n
-        save_data (bool, optional): If the data should be saved. Defaults to True.\n
-        aggregation_method (str, optional): Aggregation method. Defaults to "fedavg".\n
-        client_optimizer_fn (Any, optional): Client optimizer function. Defaults to None.\n
-        client_weighting (tff.learning.ClientWeighting, optional): Client weighting. Either Uniform or Data dependent. Defaults to None.\n
+        aggregation_method (str): Aggregation method. Defaults to "fedavg".\n
+        client_weighting (str): Client weighting. Either Uniform or Data dependent. Defaults to NUM_EXAMPLES.\n
+        keras_model_fn (str): Keras Model.\n
+        server_optimizer_fn (str): Server Optimizer. Defaults to sgd.\n
+        server_optimizer_lr (float): Learning rate for server optimizer. Defaults to 1.0.\n
+        client_optimizer_fn (str): Client optimizer. Defaults to sgd.\n
+        client_optimizer_lr (float): Learning rate for client optimizer. Defaults to 0.02.\n
+        data_selector (str): Data distribution. Defaults to non-iid.\n
+        output (str): Where to log files. Defaults to history.\n
+        client_epochs (int): Number of client epochs. Defaults to 10.\n
+        batch_size (int): Batch size. Defaults to 32.\n
+        number_of_clients (int): Number of clients. Defaults to 10.\n
+        number_of_clients_per_round (int): Number of clients per round. Defaults to 5.\n
+        number_of_rounds (int): Number of global rounds. Defaults to 15.\n
+        iterations (int): Number of RFA iterations. Defaults to 3.\n
+        v (float): L2 threshold. Defaults to 1e-6.\n
+        compression (bool): If the data should be compressed. Defaults to False.\n
+        dp (bool): If the differential privacy should be applied. Defaults to False.\n
+        noise_multiplier (float): The noise multipler that shoud be used with DP.\n
+        clipping_norm (float): The clipping norm used with DP.\n
         seed (int, optional): Random seed. Defaults to None.\n
-        validate_model (bool, optional): If the model should be validated whilst training. Defaults to True.\n
-        iterations (int, optional): Number of RFA iterations. Defaults to None.\n
-        v (int, optional): L2 threshold. Defaults to None.\n
-        compression (bool, optional): If the data should be compressed. Defaults to False.\n
-        model_update_aggregation_factory (Any, optional): If the data should be trained with DP. Defaults to None.\n
+
     """
+
+    keras_model_fn = MODELS[keras_model_fn]
+    data_selector = DATA_SELECTOR[data_selector]
+    client_weighting = CLIENT_WEIGHTING[client_weighting]
+
+    server_optimizer_fn = get_optimizer(server_optimizer_fn, server_optimizer_lr)
+    client_optimizer_fn = get_optimizer(client_optimizer_fn, client_optimizer_lr)
+
     train_dataset, _, len_train_X = get_datasets(
         train_batch_size=batch_size,
         centralized=False,
-        normalized=normalized,
+        normalized=True,
         train_epochs=client_epochs,
         number_of_clients=number_of_clients,
         data_selector=data_selector,
-        save_data=save_data,
     )
 
     _, test_dataset, _ = get_datasets(
@@ -175,7 +200,6 @@ def federated_pipeline(
         normalized=True,
         number_of_clients=number_of_clients,
         data_selector=data_selector,
-        save_data=save_data,
     )
 
     input_spec = train_dataset.create_tf_dataset_for_client(
@@ -200,8 +224,12 @@ def federated_pipeline(
 
     aggregation_factory = None
 
-    if model_update_aggregation_factory:
-        aggregation_factory = model_update_aggregation_factory()
+    if eval(dp):
+        aggregation_factory = gaussian_fixed_aggregation_factory(
+            noise_multiplier=noise_multiplier,
+            clients_per_round=number_of_clients_per_round,
+            clipping_value=clipping_value,
+        )
 
     iterative_process = iterative_process_fn(
         model_fn,
@@ -221,13 +249,11 @@ def federated_pipeline(
         seed=seed,
     )
 
-    if validate_model:
-        validation_fn = get_validation_fn(
-            test_dataset, get_keras_model, loss_fn, metrics_fn
-        )
-    else:
-        validation_fn = None
+    validation_fn = get_validation_fn(
+        test_dataset, get_keras_model, loss_fn, metrics_fn
+    )
 
+    print("gikk inn i treningsløkke")
     _, training_time, avg_round_time = federated_training_loop(
         iterative_process=iterative_process,
         get_client_dataset=get_client_dataset,
@@ -243,31 +269,6 @@ def federated_pipeline(
         validate_model=validation_fn,
         noise_multiplier=noise_multiplier,
     )
-
-    server_opt_str = str(inspect.getsourcelines(server_optimizer_fn)[0][0]).strip()
-
-    client_opt_str = str(inspect.getsourcelines(client_optimizer_fn)[0][0]).strip()
-
-    if model_update_aggregation_factory:
-        agg_factory_tuple = inspect.getsourcelines(model_update_aggregation_factory)[0]
-        agg_factory_str = "".join(str(i).strip() for i in agg_factory_tuple)
-    else:
-        agg_factory_str = ""
-
-    if save_data:
-        os.rename(
-            "history/logdir/data_distributions",
-            f"history/logdir/{name}/data_distributions",
-        )
-
-    with open(f"history/logdir/{name}/training_config.csv", "w+") as f:
-        f.writelines(
-            "name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,iterations,server_optimizer_fn,client_optimizer_fn,aggregation_method,normalized,compression,data_selector,aggregation_factory, model_type\n"
-        )
-        f.writelines(
-            f"{name},{training_time},{avg_round_time},{number_of_rounds},{number_of_clients_per_round},{client_epochs},{iterations},{server_opt_str}{client_opt_str}{aggregation_method},{normalized},{compression},{data_selector},{agg_factory_str}{keras_model_fn}"
-        )
-        f.close()
 
 
 if __name__ == "__main__":
@@ -289,11 +290,9 @@ if __name__ == "__main__":
         number_of_clients_per_round=number_of_clients_per_round,
         number_of_rounds=1,
         keras_model_fn=create_dense_model,
-        normalized=True,
-        save_data=False,
         client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),
         aggregation_method=aggregation_method,
-        client_weighting=tff.learning.ClientWeighting.UNIFORM,
+        client_weighting=tff.learning.ClientWeighting.NUM_EXAMPLES,
         iterations=3,
         v=1e-6,
         compression=False,

@@ -225,7 +225,6 @@ def load_data(
         [np.ndarray, np.ndarray, int], tff.simulation.ClientData
     ] = None,
     number_of_clients: int = 5,
-    save_data: bool = False,
 ) -> [tff.simulation.ClientData, tff.simulation.ClientData, int]:
     """Function loads data from csv-file and preprocesses the training and test data seperately.
 
@@ -234,7 +233,6 @@ def load_data(
         data_analysis (bool, optional): Load data for data analysis. Defaults to False.\n
         data_selector (Callable[ [np.ndarray, np.ndarray, int], tff.simulation.ClientData ], optional): Data distribution. Defaults to None.\n
         number_of_clients (int, optional): Number of clients. Defaults to 5.\n
-        save_data (bool, optional): Whether the data distribution should be written to disk. Defaults to False.\n
 
     Raises:
         ValueError: The data has to be normalized to use create_uniform_dataset.
@@ -298,12 +296,6 @@ def load_data(
     if data_selector == create_unbalanced_data:
         return train_client_data, test_client_data
 
-    if save_data:
-        f = open("history/logdir/data_distributions", "ab")
-        pickle.dump(train_client_data, f)
-        pickle.dump(test_client_data, f)
-        f.close()
-
     return train_data, test_data, len(train_X)
 
 
@@ -360,7 +352,6 @@ def get_datasets(
         [np.ndarray, np.ndarray, int], tff.simulation.ClientData
     ] = create_dataset,
     number_of_clients: int = 5,
-    save_data: bool = False,
 ) -> [tf.data.Dataset, tf.data.Dataset, int]:
     """Function preprocesses datasets. Return input-ready datasets
 
@@ -375,7 +366,6 @@ def get_datasets(
         normalized (bool, optional): If the data should be normalized. Defaults to True.\n
         data_selector (Callable[ [np.ndarray, np.ndarray, int], tff.simulation.ClientData ], optional): Which data distribution to use. Defaults to create_dataset.\n
         number_of_clients (int, optional): Number of clients. Defaults to 5.\n
-        save_data (bool, optional): If the data should be saved or not. Defaults to False.\n
 
     Returns:
         [tf.data.Dataset, tf.data.Dataset, int]: Input-ready datasets, and number of datapoints.
@@ -384,7 +374,6 @@ def get_datasets(
         normalized=normalized,
         data_selector=data_selector,
         number_of_clients=number_of_clients,
-        save_data=save_data,
     )
 
     if centralized:

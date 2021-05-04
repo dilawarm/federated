@@ -87,23 +87,6 @@ class CentralizedTrainingLoopTest(tf.test.TestCase):
         for gfile in [output, log_dir, train_log_dir, val_log_dir]:
             self.assertTrue(tf.io.gfile.exists(gfile))
 
-    def test_learning_rate_reduction(self):
-        """Tests learning rate decay."""
-        dataset = self.create_test_dataset()
-        model = self.create_test_model()
-        history, _ = centralized_training_loop(
-            model,
-            dataset,
-            "test_reduces_loss",
-            epochs=7,
-            decay_epochs=5,
-            learning_rate_decay=0.2,
-            output=self.get_temp_dir(),
-            validation_dataset=dataset,
-        )
-
-        self.assertAllClose(history.history["lr"], [0.01] * 5 + [0.002] * 2)
-
 
 class FederatedTrainingLoopTest(tf.test.TestCase):
     """Class for testing federated learning loop."""

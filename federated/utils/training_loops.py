@@ -15,8 +15,6 @@ def centralized_training_loop(
     name: str,
     epochs: int,
     output: str,
-    decay_epochs: int = None,
-    learning_rate_decay: float = 0,
     save_model: bool = True,
     validation_dataset: tf.data.Dataset = None,
     test_dataset: tf.data.Dataset = None,
@@ -29,8 +27,6 @@ def centralized_training_loop(
         name (str): Experiment name.\n
         epochs (int): Number of epochs.\n
         output (str): Logs output destination.\n
-        decay_epochs (int, optional): Decay frequency. Defaults to None.\n
-        learning_rate_decay (float, optional): Learning rate decay. Defaults to 0.\n
         save_model (bool, optional): If the model should be saved. Defaults to True.\n
         validation_dataset (tf.data.Dataset, optional): Validation dataset. Defaults to None.\n
         test_dataset (tf.data.Dataset, optional): Test dataset. Defaults to None.\n
@@ -44,16 +40,6 @@ def centralized_training_loop(
     callbacks = [
         tf.keras.callbacks.TensorBoard(log_dir=log_dir),
     ]
-
-    if decay_epochs:
-
-        def decay_fn(epoch, learning_rate):
-            if epoch != 0 and epoch % decay_epochs == 0:
-                return learning_rate * learning_rate_decay
-            else:
-                return learning_rate
-
-        callbacks.append(tf.keras.callbacks.LearningRateScheduler(decay_fn, verbose=1))
 
     print("Training model")
     print(model.summary())
@@ -158,9 +144,9 @@ def federated_training_loop(
 
     round_times = []
     start_time = time.time()
-    while round_number < number_of_rounds + 1:
+    while round_number < number_of_rounds:
         round_start_time = time.time()
-        print(f"Round number: {round_number+1}")
+        print(f"Round number: {round_number}")
         federated_train_data = get_client_dataset(round_number)
 
         state, metrics = iterative_process.next(state, federated_train_data)
