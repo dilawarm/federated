@@ -106,7 +106,7 @@ def federated_training_loop(
         noise_multiplier (int, optional): Noise multiplier. Defaults to None.\n
 
     Returns:
-        [tff.Computation, float, float]: Returns the last state of the server, training time, and average round time.
+        [tff.Computation, float]: Returns the last state of the server and training time
     """
     env = set_communication_cost_env()
 
@@ -147,7 +147,6 @@ def federated_training_loop(
     round_times = []
     start_time = time.time()
     while round_number < number_of_rounds:
-        round_start_time = time.time()
         print(f"Round number: {round_number}")
         federated_train_data = get_client_dataset(round_number)
 
@@ -189,12 +188,9 @@ def federated_training_loop(
 
         model_weights = iterative_process.get_model_weights(state)
 
-        round_times.append(time.time() - round_start_time)
-
         round_number += 1
 
     end_time = time.time()
-    avg_round_time = sum(round_times) / number_of_rounds
 
     if save_model:
         model = keras_model_fn()
@@ -204,4 +200,4 @@ def federated_training_loop(
         model_weights.assign_weights_to(model)
         model.save(log_dir)
 
-    return state, end_time - start_time, avg_round_time
+    return state, end_time - start_time

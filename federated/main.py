@@ -248,7 +248,7 @@ def main():
         )
 
         args_dict["aggregation_method"] = validate_options_input(
-            f"Aggregation Method. OPTIONS: ",
+            f"Aggregation method. OPTIONS: ",
             "fedavg",
             ["fedsgd", "fedavg", "rfa"],
         )
@@ -262,7 +262,7 @@ def main():
         if args_dict["aggregation_method"] in ["fedavg", "rfa"]:
 
             args_dict["client_epochs"] = validate_type_input(
-                "Enter number of client epochs. ", 10, int
+                "Number of client epochs. ", 10, int
             )
 
             args_dict["client_optimizer"] = validate_options_input(
@@ -275,10 +275,6 @@ def main():
                 "Learning rate for client optimizer. ", 0.02, float
             )
 
-            args_dict["compression"] = validate_type_input(
-                f"Compression. ", "False", bool
-            )
-
             if args_dict["aggregation_method"] == "rfa":
                 args_dict["rfa_iterations"] = validate_type_input(
                     "Number of calls to the Secure Average Oracle. ", 3, int
@@ -289,7 +285,7 @@ def main():
 
         if args_dict["aggregation_method"] != "rfa":
             args_dict["differentially_privacy"] = validate_type_input(
-                f"Differential Privacy. ", "False", bool
+                f"Differential privacy. ", "False", bool
             )
 
             if args_dict["differentially_privacy"]:
@@ -313,8 +309,12 @@ def main():
                     end="\n\n",
                 )
 
+        args_dict["compression"] = validate_type_input(
+            f"Compress model. ", "False", bool
+        )
+
         args_dict["data_dist"] = validate_options_input(
-            "Enter data distribution. OPTIONS: ",
+            "Data distribution. OPTIONS: ",
             "non_iid",
             ["non_iid", "uniform", "class_distributed"],
         )
@@ -350,7 +350,7 @@ def main():
         print_training_config(args_dict)
         args.output = output
 
-        training_time, avg_round_time = federated_pipeline(
+        training_time = federated_pipeline(
             name=args.experiment_name,
             aggregation_method=args_dict.get("aggregation_method"),
             client_weighting=args_dict.get("client_weighting"),
@@ -375,14 +375,16 @@ def main():
             seed=args_dict.get("seed"),
         )
 
-    with open(
-        f"{args.output}/logdir/{args.experiment_name}/training_configuration.json", "w"
-    ) as fp:
-        json.dump(args_dict, fp)
+    args_dict["training_time"] = training_time
+    path = f"{args.output}/logdir/{args.experiment_name}/training_configuration.json"
+    args_dict["output"] = path.replace("/training_configuration.json", "")
+
+    with open(path, "w") as fp:
+        json.dump(args_dict, fp, indent=4, sort_keys=True)
 
     print(
         emoji.emojize(
-            f"\nTraining configuration is written to {args.output}/logdir/{args.experiment_name}/training_configuration.json :slightly_smiling_face:",
+            f"\nTraining configuration is written to {path} :slightly_smiling_face:",
             use_aliases=True,
         )
     )

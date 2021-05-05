@@ -151,7 +151,7 @@ class FederatedTrainingLoopTest(tf.test.TestCase):
         initial_state = iterative_process.initialize()
         untrained_model = iterative_process.get_model_weights(initial_state)
 
-        state, _, _ = federated_training_loop(
+        state, _, = federated_training_loop(
             iterative_process=iterative_process,
             get_client_dataset=get_client_dataset,
             validate_model=validate_model,

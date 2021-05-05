@@ -156,7 +156,7 @@ def federated_pipeline(
     noise_multiplier: float,
     clipping_value: float,
     seed: int = None,
-) -> List[float]:
+) -> float:
     """Function runs federated training pipeline on the dataset.
 
     Args:
@@ -184,7 +184,7 @@ def federated_pipeline(
         seed (int, optional): Random seed. Defaults to None.\n
 
     Returns:
-        [float, float]: Returns training time and average training time per round after federated learning.
+        float: Returns training time after federated learning.
     """
 
     keras_model_fn = MODELS[keras_model_fn]
@@ -262,7 +262,7 @@ def federated_pipeline(
         test_dataset, get_keras_model, loss_fn, metrics_fn
     )
 
-    _, training_time, avg_round_time = federated_training_loop(
+    _, training_time = federated_training_loop(
         iterative_process=iterative_process,
         get_client_dataset=get_client_dataset,
         number_of_rounds=number_of_rounds,
@@ -278,4 +278,4 @@ def federated_pipeline(
         noise_multiplier=noise_multiplier,
     )
 
-    return training_time, avg_round_time
+    return training_time
