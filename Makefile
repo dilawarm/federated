@@ -1,6 +1,3 @@
-install:
-	pip3 install -r requirements.txt
-
 clean:
 	rm -rf .coverage
 	rm -rf .pytest_cache
@@ -11,17 +8,28 @@ clean:
 	rm -rf htmlcov
 	rm -rf venv
 
-test: 
-	python3 -m pytest --cov=federated/ federated/tests/
+docker:
+	make clean
+	docker build --tag federated:latest .
+	docker run -t -i federated:latest bash
+
+help:
+	python -m federated.main --help
+
+install:
+	pip install -r requirements.txt
+
+tests: 
+	python -m pytest --cov=federated/ federated/tests/
 
 test_data:
-	python3 -m federated.tests.data_preprocessing_test
+	python -m pytest --cov=federated/data/ federated/tests/data_preprocessing_test.py
 
 test_models:
-	python3 -m federated.tests.models_test
+	python -m pytest --cov=federated/models/ federated/tests/models_test.py
 
 test_training:
-	python3 -m federated.tests.training_loops_test
+	python -m pytest --cov=federated/utils/training_loops.py federated/tests/training_loops_test.py
 
 test_rfa:
-	python3 -m federated.tests.rfa_test
+	python -m pytest --cov=federated/utils/rfa.py federated/tests/rfa_test.py

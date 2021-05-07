@@ -3,10 +3,26 @@
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
 __federated__ is the source code for the Bachelor's Thesis
-<center><i>Privacy-Preserving Federated Learning Applied to Decentralized Data</i></center>
-<br>
+
+<i>Privacy-Preserving Federated Learning Applied to Decentralized Data</i> (Spring 2021, NTNU)
 
 Federated learning (also known as collaborative learning) is a machine learning technique that trains an algorithm across multiple decentralized edge devices or servers holding local data samples, without exchanging them. In this project, the decentralized data is the [MIT-BIH Arrhythmia Database](https://www.physionet.org/content/mitdb/1.0.0/).
+
+## Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Features](#features)
+- [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Installing federated locally](#installing-federated-locally)
+  - [Installing with Docker (optional)](#installing-with-docker-optional)
+- [Running experiments with federated](#running-experiments-with-federated)
+- [Analyzing experiments with federated](#analyzing-experiments-with-federated)
+  - [TensorBoard](#tensorboard)
+  - [Jupyter Notebook](#jupyter-notebook)
+- [Documentation](#documentation)
+- [Tests](#tests)
+- [How to Contribute](#how-to-contribute)
+- [Owners](#owners)
 
 ## Features
 * ML pipelines using centralized learning or federated learning.
@@ -25,7 +41,8 @@ Federated learning (also known as collaborative learning) is a machine learning 
 ## Installation
 ### Prerequisites
 * Python 3.8
-* Docker 20.10 (optional)
+* make
+* [Docker 20.10 (optional)](https://docs.docker.com/get-docker/)
 
 ### Installing federated locally
 
@@ -41,8 +58,8 @@ __2. Install the Python development environment__
 <u>On Ubuntu:</u>
 ```bash
 $ sudo apt update
-$ sudo apt install python3-dev 
-$ python3-pip  # Python 3
+$ sudo apt install python3-dev python3-pip  # Python 3.8
+$ sudo apt install build-essential          # make
 $ sudo pip3 install --user --upgrade virtualenv
 ```
 
@@ -51,7 +68,8 @@ $ sudo pip3 install --user --upgrade virtualenv
 $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 $ export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 $ brew update
-$ brew install python  # Python 3
+$ brew install python  # Python 3.8
+$ brew install make    # make
 $ sudo pip3 install --user --upgrade virtualenv
 ```
 
@@ -63,10 +81,10 @@ $ source "venv/bin/activate"
 (venv) $ pip install --upgrade pip
 ```
 
-__4. Install the packages from requirements.txt__
+__4. Install the dependencies__
 
 ```bash
-(venv) $ pip install -r requirements.txt
+(venv) $ make install
 ```
 
 __5. Test TensorFlow Federated__
@@ -75,30 +93,24 @@ __5. Test TensorFlow Federated__
 (venv) $ python -c "import tensorflow_federated as tff; print(tff.federated_computation(lambda: 'Hello World')())"
 ```
 
-### Install with Docker (optional)
+### Installing with Docker (optional)
 
-__1. Build image from Dockerfile__
-
-```bash
-$ docker build --tag federated:latest .
-```
-
-__2. Run the image__
+__Build and run image from Dockerfile__
 
 ```bash
-$ docker run -t -i federated:latest bash
+$ make docker
 ```
 
 ## Running experiments with federated
 **federated** has a client program, where one can initialize the different pipelines and train models with centralized or federated learning. To run this client program:
 
 ```bash
-(venv) $ python -m federated.main --help
+(venv) $ make help
 ```
-This will display a list of options. 
+This will display a list of options:
 
 ```bash
-usage: main.py [-h] -l  -n  [-e] [-op] [-b] [-o] -m  [-lr]
+usage: python -m federated.main [-h] -l  -n  [-e] [-op] [-b] [-o] -m  [-lr]
 
 Experimentation pipeline for federated 🚀
 
@@ -128,7 +140,7 @@ Running the command illustrated above, will display a list of input fields where
 ## Analyzing experiments with federated
 ### TensorBoard
 
-To analyze the results with TensorBoard, write:
+To analyze the results with TensorBoard:
 
 ```bash
 (venv) $ tensorboard --logdir=path/to/experiments/logdir/experiment_name --port=6060
@@ -150,7 +162,7 @@ Replace the first line in this notebook with the absolute path to your experimen
 
 The documentation can be found [here](https://federated-docs.firebaseapp.com/). 
 
-To generate the documentation locally, write:
+To generate the documentation locally:
 
 ```bash
 (venv) $ cd docs
@@ -166,35 +178,35 @@ The unit tests included in **federated** are:
 * Tests for the training loops 
 * Tests for the different privacy algorithms such as RFA. 
 
-To run all the tests, write:
+To run all the tests:
 
 ```bash
-(venv) $ make test
+(venv) $ make tests
 ```
 
-To generate coverage after running the tests, write:
+To generate coverage after running the tests:
 
 ```bash
 (venv) $ coverage html
 (venv) $ firefox htmlcov/index.html
 ```
 
-See the [Makefile](Makefile) for more commands to run the modules in **federated** separately.
+See the [Makefile](Makefile) for more commands to test the modules in **federated** separately.
 
 ## How to Contribute
 
-1. Clone repo and create a new branch: `$ git checkout https://gitlab.stud.idi.ntnu.no/dilawarm/federated.git -b name_for_new_branch`.
+1. Clone repo and create a new branch: 
+```bash
+$ git checkout https://gitlab.stud.idi.ntnu.no/dilawarm/federated.git -b name_for_new_branch`
+```
 2. Make changes and test.
 3. Submit Pull Request with comprehensive description of changes.
 
-## Authors
+## Owners
 
-<img src="assets/pernille.jpeg" width="200">
+[**Pernille Kopperud**](https://github.com/pernilko) | [**Dilawar Mahmood**](https://github.com/dilawarm)
+:--:|:--:
+<a href="https://github.com/pernilko"><img src="assets/pernille.jpeg" width="200" height="240"></a> | <a href="https://github.com/dilawarm"><img src="assets/dilawar.png" width="200" height="240"></a>
 
-**Pernille Kopperud**
-
-<img src="assets/dilawar.png" width="200">
-
-**Dilawar Mahmood**
 
 Enjoy! :slightly_smiling_face:

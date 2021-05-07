@@ -133,8 +133,10 @@ def main():
     """
     parser = argparse.ArgumentParser(
         description=emoji.emojize(
-            "Experimentation pipeline for federated :rocket:", use_aliases=True
+            "Experimentation pipeline for federated :rocket:",
+            use_aliases=True,
         ),
+        usage="python -m federated.main [-h] -l  -n  [-e] [-op] [-b] [-o] -m  [-lr]",
         formatter_class=CustomFormatter,
     )
 
