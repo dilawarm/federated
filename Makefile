@@ -1,6 +1,16 @@
 install:
 	pip3 install -r requirements.txt
 
+clean:
+	rm -rf .coverage
+	rm -rf .pytest_cache
+	rm -rf docs/_build/
+	rm -rf federated/__pycache__
+	rm -rf federated/*/__pycache__
+	rm -rf history
+	rm -rf htmlcov
+	rm -rf venv
+
 test: 
 	python3 -m pytest --cov=federated/ federated/tests/
 
