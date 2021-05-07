@@ -206,7 +206,7 @@ $ git checkout https://gitlab.stud.idi.ntnu.no/dilawarm/federated.git -b name_fo
 
 [**Pernille Kopperud**](https://github.com/pernilko) | [**Dilawar Mahmood**](https://github.com/dilawarm)
 :--:|:--:
-<a href="https://github.com/pernilko"><img src="assets/pernille.jpeg" width="200" height="240"></a> | <a href="https://github.com/dilawarm"><img src="assets/dilawar.png" width="200" height="240"></a>
+<a href="https://github.com/pernilko"><img src="assets/pernille.jpeg" width="200"></a> | <a href="https://github.com/dilawarm"><img src="assets/dilawar.png" width="200"></a>
 
 
 Enjoy! :slightly_smiling_face:
