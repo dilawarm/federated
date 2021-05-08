@@ -9,7 +9,6 @@ __federated__ is the source code for the Bachelor's Thesis
 Federated learning (also known as collaborative learning) is a machine learning technique that trains an algorithm across multiple decentralized edge devices or servers holding local data samples, without exchanging them. In this project, the decentralized data is the [MIT-BIH Arrhythmia Database](https://www.physionet.org/content/mitdb/1.0.0/).
 
 ## Table of Contents
-- [Table of Contents](#table-of-contents)
 - [Features](#features)
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
