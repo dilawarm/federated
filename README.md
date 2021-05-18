@@ -52,7 +52,23 @@ $ git clone https://gitlab.stud.idi.ntnu.no/dilawarm/federated.git
 $ cd federated
 ```
 
-__2. Install the Python development environment__
+__2. Getting the Dataset__
+
+To download the [MIT-BIH Arrhythmia Database](https://www.physionet.org/content/mitdb/1.0.0/) dataset used in this project, go to https://www.kaggle.com/shayanfazeli/heartbeat and download the files
+
+* `mitbih_train.csv`
+* `mitbih_test.csv`
+
+Then write:
+```bash
+mkdir data
+mkdir data/mitbih
+```
+
+and move the downloaded data into the `data/mitbih` folder.
+
+
+__3. Install the Python development environment__
 
 <u>On Ubuntu:</u>
 ```bash
@@ -72,7 +88,7 @@ $ brew install make    # make
 $ sudo pip3 install --user --upgrade virtualenv
 ```
 
-__3. Create a virtual environment__
+__4. Create a virtual environment__
 
 ```bash
 $ virtualenv --python python3 "venv"
@@ -80,13 +96,13 @@ $ source "venv/bin/activate"
 (venv) $ pip install --upgrade pip
 ```
 
-__4. Install the dependencies__
+__5. Install the dependencies__
 
 ```bash
 (venv) $ make install
 ```
 
-__5. Test TensorFlow Federated__
+__6. Test TensorFlow Federated__
 
 ```bash
 (venv) $ python -c "import tensorflow_federated as tff; print(tff.federated_computation(lambda: 'Hello World')())"
