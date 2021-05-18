@@ -14,5 +14,9 @@ jobs:
           sudo apt install -y python3-pip
           pip3 install --upgrade pip
           pip3 install -r requirements.txt
-      - run: python3 -m pytest --cov=federated/ federated/tests/
+      - name: tests
+        run: |
+          python3 -m pytest --cov=federated/models/ federated/tests/models_test.py
+          python3 -m pytest --cov=federated/utils/training_loops.py federated/tests/training_loops_test.py
+          python3 -m pytest --cov=federated/utils/rfa.py federated/tests/rfa_test.py
       - run: black .
