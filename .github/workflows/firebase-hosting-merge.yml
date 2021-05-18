@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: setup
-      - run: |
+        run: |
           sudo apt update
           sudo apt install -y python3-pip
           pip3 install --upgrade pip

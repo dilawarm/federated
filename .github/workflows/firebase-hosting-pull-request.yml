@@ -6,7 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: |
+      - name: setup
+        run: |
           sudo apt update
           sudo apt install -y python3-pip
           pip3 install --upgrade pip
