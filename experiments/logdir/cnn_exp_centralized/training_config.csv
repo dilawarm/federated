@@ -1,2 +1,0 @@
-name,training_time,epochs,time_per_epoch,optimizer
-cnn_exp_centralized,470.85336232185364,15,31.390224154790243,sgd
