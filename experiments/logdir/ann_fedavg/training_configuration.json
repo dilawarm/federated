@@ -1,0 +1,22 @@
+{
+    "aggregation_method": "fedavg",
+    "batch_size": 32,
+    "client_epochs": 10,
+    "client_lr": 0.02,
+    "client_optimizer": "sgd",
+    "client_weighting": "NUM_EXAMPLES",
+    "compression": false,
+    "data_dist": "non_iid",
+    "differentially_privacy": false,
+    "epochs": 1,
+    "experiment_name": "ann_fedavg",
+    "learning_approach": "federated",
+    "learning_rate": 0.01,
+    "model": "ann",
+    "number_of_clients": 10,
+    "number_of_clients_per_round": 5,
+    "optimizer": "sgd",
+    "output": "experiments/logdir/ann_fedavg",
+    "seed": null,
+    "training_time": 9.901504278182983
+}

@@ -1,0 +1,2 @@
+name,training_time,avg_round_time,number_of_rounds,number_of_clients_per_round,client_epochs,iterations,server_optimizer_fn,client_optimizer_fn,aggregation_method,normalized,compression,data_selector,aggregation_factory, model_type
+fedavg_cnn_noniid_exp_v0,686.4711103439331,45.76473987897237,15,10,10,3,server_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=1.0),client_optimizer_fn=lambda: tf.keras.optimizers.SGD(learning_rate=0.02),fedavg,True,False,<function create_non_iid_dataset at 0x7fb6f7f7ea60>,<function create_new_cnn_model at 0x7fb6f7f7ed30>
