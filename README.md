@@ -48,7 +48,7 @@ Federated learning (also known as collaborative learning) is a machine learning 
 __1. Cloning federated__
 
 ```bash
-$ git clone https://gitlab.stud.idi.ntnu.no/dilawarm/federated.git
+$ git clone https://github.com/dilawarm/federated.git
 $ cd federated
 ```
 
@@ -212,7 +212,7 @@ See the [Makefile](Makefile) for more commands to test the modules in **federate
 
 1. Clone repo and create a new branch: 
 ```bash
-$ git checkout https://gitlab.stud.idi.ntnu.no/dilawarm/federated.git -b name_for_new_branch`
+$ git checkout https://github.com/dilawarm/federated.git -b name_for_new_branch`
 ```
 2. Make changes and test.
 3. Submit Pull Request with comprehensive description of changes.
