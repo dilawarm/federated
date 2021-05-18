@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import tensorflow as tf
 import tensorflow_federated as tff
@@ -18,7 +18,7 @@ def centralized_training_loop(
     save_model: bool = True,
     validation_dataset: tf.data.Dataset = None,
     test_dataset: tf.data.Dataset = None,
-) -> [tf.keras.callbacks.History, float]:
+) -> Tuple[tf.keras.callbacks.History, float]:
     """Function trains a model on a dataset using centralized machine learning, and tests its performance.
 
     Args:
@@ -87,7 +87,7 @@ def federated_training_loop(
     save_model: bool = False,
     validate_model: Callable[[Any, int], Dict[str, float]] = None,
     noise_multiplier: int = None,
-) -> [tff.Computation, float, float]:
+) -> Tuple[tff.Computation, float, float]:
     """Function trains a model on a dataset using federated learning.
 
     Args:

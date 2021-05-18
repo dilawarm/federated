@@ -2,7 +2,7 @@ import collections
 import functools
 import pickle
 import random
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -26,7 +26,7 @@ split_dataframe.__doc__ = (
 
 def create_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
-) -> [None, tff.simulation.ClientData]:
+) -> Tuple[None, tff.simulation.ClientData]:
     """Function converts pandas dataframe to tensorflow federated dataset.
 
     Args:
@@ -82,7 +82,7 @@ def create_tff_dataset(clients_data: Dict) -> tff.simulation.ClientData:
 
 def create_class_distributed_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
-) -> [Dict, tff.simulation.ClientData]:
+) -> Tuple[Dict, tff.simulation.ClientData]:
     """Function distributes the data in a way such that each client gets one type of data.
 
     Args:
@@ -105,7 +105,7 @@ def create_class_distributed_dataset(
 
 def create_uniform_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
-) -> [Dict, tff.simulation.ClientData]:
+) -> Tuple[Dict, tff.simulation.ClientData]:
     """Function distributes the data equally such that each client holds equal amounts of each class.
 
     Args:
@@ -125,7 +125,7 @@ def create_uniform_dataset(
 
 def create_unbalanced_data(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
-) -> [Dict, tff.simulation.ClientData]:
+) -> Tuple[Dict, tff.simulation.ClientData]:
     """Function distributes the data in such a way that one client only has one type of data, while the rest of the clients has non-iid data.
 
     Args:
@@ -155,7 +155,7 @@ def create_unbalanced_data(
 
 def create_non_iid_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
-) -> [Dict, tff.simulation.ClientData]:
+) -> Tuple[Dict, tff.simulation.ClientData]:
     """Function distributes the data such that each client has non-iid data.
 
     Args:
@@ -183,7 +183,7 @@ def create_non_iid_dataset(
 
 def create_corrupted_non_iid_dataset(
     X: np.ndarray, y: np.ndarray, number_of_clients: int
-) -> [Dict, tff.simulation.ClientData]:
+) -> Tuple[Dict, tff.simulation.ClientData]:
     """Function distributes the data such that each client has non-iid data except client 1, which only has values in the interval [20, 40].
 
     Args:
@@ -225,7 +225,7 @@ def load_data(
         [np.ndarray, np.ndarray, int], tff.simulation.ClientData
     ] = None,
     number_of_clients: int = 5,
-) -> [tff.simulation.ClientData, tff.simulation.ClientData, int]:
+) -> Tuple[tff.simulation.ClientData, tff.simulation.ClientData, int]:
     """Function loads data from csv-file and preprocesses the training and test data seperately.
 
     Args:
@@ -352,7 +352,7 @@ def get_datasets(
         [np.ndarray, np.ndarray, int], tff.simulation.ClientData
     ] = create_dataset,
     number_of_clients: int = 5,
-) -> [tf.data.Dataset, tf.data.Dataset, int]:
+) -> Tuple[tf.data.Dataset, tf.data.Dataset, int]:
     """Function preprocesses datasets. Return input-ready datasets
 
     Args:
