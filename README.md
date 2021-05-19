@@ -12,6 +12,7 @@ Federated learning (also known as collaborative learning) is a machine learning 
 
 ## Table of Contents
 - [Features](#features)
+- [Initial Setup](#initial-setup)
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Installing federated locally](#installing-federated-locally)
@@ -45,7 +46,7 @@ Federated learning (also known as collaborative learning) is a machine learning 
 * make
 * [Docker 20.10 (optional)](https://docs.docker.com/get-docker/)
 
-### Installing federated locally
+### Initial Setup
 
 __1. Cloning federated__
 
@@ -69,8 +70,9 @@ mkdir data/mitbih
 
 and move the downloaded data into the `data/mitbih` folder.
 
+### Installing federated locally
 
-__3. Install the Python development environment__
+__1. Install the Python development environment__
 
 <u>On Ubuntu:</u>
 ```bash
@@ -90,7 +92,7 @@ $ brew install make    # make
 $ sudo pip3 install --user --upgrade virtualenv
 ```
 
-__4. Create a virtual environment__
+__2. Create a virtual environment__
 
 ```bash
 $ virtualenv --python python3 "venv"
@@ -98,13 +100,13 @@ $ source "venv/bin/activate"
 (venv) $ pip install --upgrade pip
 ```
 
-__5. Install the dependencies__
+__3. Install the dependencies__
 
 ```bash
 (venv) $ make install
 ```
 
-__6. Test TensorFlow Federated__
+__4. Test TensorFlow Federated__
 
 ```bash
 (venv) $ python -c "import tensorflow_federated as tff; print(tff.federated_computation(lambda: 'Hello World')())"
@@ -214,7 +216,7 @@ See the [Makefile](Makefile) for more commands to test the modules in **federate
 
 1. Clone repo and create a new branch: 
 ```bash
-$ git checkout https://github.com/dilawarm/federated.git -b name_for_new_branch`
+$ git checkout https://github.com/dilawarm/federated.git -b name_for_new_branch
 ```
 2. Make changes and test.
 3. Submit Pull Request with comprehensive description of changes.
