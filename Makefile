@@ -4,6 +4,8 @@ clean:
 	rm -rf docs/_build/
 	rm -rf federated/__pycache__
 	rm -rf federated/*/__pycache__
+	rm -rf .ipynb_checkpoints
+	rm -rf notebooks/.ipynb_checkpoints
 	rm -rf history
 	rm -rf htmlcov
 	rm -rf venv
