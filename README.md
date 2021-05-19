@@ -1,6 +1,8 @@
 ![](assets/federated.png)
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![firebase-hosting](https://github.com/dilawarm/federated/actions/workflows/firebase-hosting-merge.yml/badge.svg?branch=master)](https://github.com/dilawarm/federated/actions/workflows/firebase-hosting-merge.yml/badge.svg?branch=master)
+[![test-and-format](https://github.com/dilawarm/federated/actions/workflows/test-and-format.yml/badge.svg?branch=master)](https://github.com/dilawarm/federated/actions/workflows/test-and-format.yml/badge.svg?branch=master)
 
 __federated__ is the source code for the Bachelor's Thesis
 
