@@ -12,7 +12,7 @@ Federated learning (also known as collaborative learning) is a machine learning 
 
 ## Table of Contents
 - [Features](#features)
-- [Initial Steps](#initial-steps)
+- [Initial Setup](#initial-setup)
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Installing federated locally](#installing-federated-locally)
@@ -46,7 +46,7 @@ Federated learning (also known as collaborative learning) is a machine learning 
 * make
 * [Docker 20.10 (optional)](https://docs.docker.com/get-docker/)
 
-### Initial Steps
+### Initial Setup
 
 __1. Cloning federated__
 
