@@ -216,7 +216,7 @@ See the [Makefile](Makefile) for more commands to test the modules in **federate
 
 1. Clone repo and create a new branch: 
 ```bash
-$ git checkout https://github.com/dilawarm/federated.git -b name_for_new_branch`
+$ git checkout https://github.com/dilawarm/federated.git -b name_for_new_branch
 ```
 2. Make changes and test.
 3. Submit Pull Request with comprehensive description of changes.
